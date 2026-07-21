@@ -1,0 +1,10 @@
+id: A02
+name: Daily overdue follow-up digest
+trigger: weekday schedule
+steps:
+  - read overdue lead and opportunity actions
+  - group by priority and owner
+  - create internal digest
+  - append automation log
+human_gate:
+  - owner chooses whether and how to contact each person
