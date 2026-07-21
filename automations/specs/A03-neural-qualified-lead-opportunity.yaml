@@ -1,0 +1,87 @@
+id: A03
+name: Governed neural qualified-lead opportunity planning
+status: synthetic_shadow
+trigger: qualified lead review or controlled schedule
+systems_of_record:
+  read:
+    - Leads
+    - Companies
+    - Contacts
+    - Services
+    - Activities
+    - Opportunities
+  proposed_write:
+    - Opportunities
+    - Leads.Opportunity ID
+    - Activities
+    - Automation Log
+intelligence:
+  architecture:
+    - one-dimensional convolution over ordered activity history
+    - graph message passing across company, contact, lead and service
+    - deterministic hashed text representation
+    - five-member dense neural fusion ensemble
+    - transparent business-prior blending
+    - uncertainty and confidence calibration
+    - counterfactual next-best-action planning
+  cognitive_agents:
+    - Scout
+    - Cartographer
+    - Analyst
+    - Strategist
+    - Auditor
+    - Custodian
+canonicalisation:
+  service_aliases:
+    OSP: IOP
+eligibility:
+  lead_status: Qualified
+  minimum_fit_score: 60
+  active_service_required: true
+  identifiers_required:
+    - Lead ID
+    - Company ID
+    - Contact ID
+  duplicate_check:
+    - Leads.Opportunity ID
+    - existing Opportunity notes by lead_id and canonical Service Code
+pricing:
+  source: canonical service catalogue
+  model_generated_prices_allowed: false
+autonomy:
+  default_mode: shadow
+  allowed_without_human:
+    - feature extraction
+    - neural inference
+    - relationship graph construction
+    - ranking
+    - counterfactual generation
+    - evidence ledger creation
+  bounded_auto_candidate:
+    action: create reversible internal opportunity record
+    minimum_confidence: 0.72
+    maximum_uncertainty: 0.28
+    audit_required: true
+    rollback_required: true
+  always_human_custody:
+    - external email or message
+    - proposal sending
+    - price or discount change
+    - invoice, contract or payment
+    - destructive CRM operation
+    - model promotion
+privacy:
+  raw_personal_data_in_evidence_ledger: false
+  pseudonymous_record_references_only: true
+outputs:
+  - neural prediction distribution
+  - eligibility decision
+  - deterministic opportunity plan
+  - counterfactual action set
+  - policy execution decision
+  - provenance-bearing evidence ledger
+human_gate:
+  - approve production provider connection
+  - approve first bounded-auto CRM write
+  - approve all external communication
+  - approve all model promotion
