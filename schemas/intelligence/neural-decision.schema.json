@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Governed Neural CRM Decision",
+  "type": "object",
+  "required": [
+    "cycle_id",
+    "model_version",
+    "mode",
+    "synthetic_only",
+    "service_code",
+    "prediction",
+    "eligibility",
+    "execution",
+    "counterfactuals",
+    "evidence_ledger"
+  ],
+  "properties": {
+    "cycle_id": {"type": "string", "pattern": "^NCYCLE-[A-F0-9]{12}$"},
+    "model_version": {"const": "neural-crm-shadow-v0.1"},
+    "mode": {"enum": ["shadow", "assist", "bounded_auto"]},
+    "synthetic_only": {"type": "boolean"},
+    "service_code": {"type": "string"},
+    "prediction": {
+      "type": "object",
+      "required": ["conversion_probability", "relationship_strength", "urgency_probability", "churn_risk", "action_probabilities", "confidence", "uncertainty", "ensemble_size"],
+      "properties": {
+        "conversion_probability": {"type": "number", "minimum": 0, "maximum": 1},
+        "relationship_strength": {"type": "number", "minimum": 0, "maximum": 1},
+        "urgency_probability": {"type": "number", "minimum": 0, "maximum": 1},
+        "churn_risk": {"type": "number", "minimum": 0, "maximum": 1},
+        "action_probabilities": {"type": "object"},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "uncertainty": {"type": "number", "minimum": 0, "maximum": 1},
+        "ensemble_size": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": true
+    },
+    "eligibility": {
+      "type": "object",
+      "required": ["eligible", "reasons"],
+      "properties": {
+        "eligible": {"type": "boolean"},
+        "reasons": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "opportunity_plan": {"type": ["object", "null"]},
+    "existing_opportunity": {"type": ["object", "null"]},
+    "execution": {
+      "type": "object",
+      "required": ["action", "mutation_permitted", "requires_human", "policy_reason"],
+      "properties": {
+        "action": {"type": "string"},
+        "mutation_permitted": {"type": "boolean"},
+        "requires_human": {"type": "boolean"},
+        "policy_reason": {"type": "string"},
+        "confidence_threshold": {"type": "number"},
+        "uncertainty_ceiling": {"type": "number"}
+      },
+      "additionalProperties": false
+    },
+    "counterfactuals": {"type": "array", "items": {"type": "object"}},
+    "warnings": {"type": "array", "items": {"type": "string"}},
+    "evidence_ledger": {
+      "type": "object",
+      "required": ["cycle_id", "model_version", "entries", "ledger_digest"],
+      "properties": {
+        "cycle_id": {"type": "string"},
+        "model_version": {"type": "string"},
+        "created_at": {"type": "string"},
+        "entries": {"type": "array", "minItems": 6},
+        "ledger_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": true
+}
