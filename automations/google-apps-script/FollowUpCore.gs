@@ -10,6 +10,10 @@ var FollowUpCore = (function () {
     var parsed = Number(value);
     return isFinite(parsed) ? parsed : 0;
   }
+  function probability_(value) {
+    var parsed = number_(value);
+    return parsed > 0 && parsed <= 1 ? parsed * 100 : parsed;
+  }
   function date_(value) {
     if (!value) return null;
     var parsed = value instanceof Date ? new Date(value.getTime()) : new Date(String(value));
@@ -64,8 +68,8 @@ var FollowUpCore = (function () {
     if (!due || due.getTime() > today.getTime()) return null;
     var days = daysOverdue_(today, due);
     var value = number_(row['Value €']);
-    var probability = number_(row['Probability %']);
-    var weighted = number_(row['Weighted Value €']) || value * probability;
+    var probability = probability_(row['Probability %']);
+    var weighted = number_(row['Weighted Value €']) || value * probability / 100;
     var score = days * 10 + probability + Math.min(weighted / 100, 50);
     return {
       priority: priority_(days, score),
