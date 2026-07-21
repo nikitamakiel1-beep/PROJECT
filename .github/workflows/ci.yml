@@ -24,6 +24,7 @@ jobs:
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
-      - run: python -m compileall -q intelligence/neural_crm
+      - run: python scripts/test_neural_memory_planner.py
+      - run: python -m compileall -q intelligence
       - run: node --check apps/web/assets/app.js
       - run: python scripts/orchestrator.py validate
