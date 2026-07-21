@@ -1,0 +1,100 @@
+id: A05
+name: Neural outcome memory, drift monitoring and recursive venture planning
+status: synthetic_shadow
+trigger:
+  - evidence-safe outcome append
+  - scheduled internal management review
+reads:
+  - pseudonymous neural decision evidence
+  - bounded CRM health metrics
+  - automation health
+  - programme milestone health
+writes:
+  - append-only outcome ledger
+  - calibration report
+  - drift report
+  - incident memory
+  - internal neural plan
+  - next-stage instruction
+memory:
+  outcome_fields:
+    - pseudonymous entity ID
+    - model version
+    - prediction
+    - observed binary outcome
+    - segment
+    - decision
+    - feature digest
+    - evidence digest
+    - timestamp
+  prohibited:
+    - personal names
+    - email addresses
+    - phone numbers
+    - raw free text
+learning:
+  mode: offline_candidate_evaluation_only
+  online_weight_updates: false
+  self_modification: false
+  automatic_promotion: false
+  replay:
+    deterministic: true
+    segment_aware: true
+monitoring:
+  calibration:
+    - Brier score
+    - expected calibration error
+    - log loss
+    - positive rate
+  drift:
+    - standardised mean shift
+    - variance shift
+  incidents:
+    append_only: true
+promotion_gate:
+  fail_closed: true
+  requires:
+    - candidate differs from active model
+    - minimum labelled outcomes
+    - candidate beats transparent baseline
+    - expected calibration error <= 0.10
+    - no unresolved drift
+    - red-team passed
+    - rollback verified
+    - temporal split verified
+    - segment review passed
+    - explicit human approval
+planner:
+  domains:
+    - provider_runtime
+    - compliance
+    - crm_data_quality
+    - website_conversion
+    - customer_discovery
+    - sales_pipeline
+    - service_delivery
+    - partnerships_funding
+    - model_evidence
+  output:
+    - domain probability distribution
+    - deterministic plan ID
+    - confidence
+    - blocker list
+    - bounded internal tasks
+    - evidence digest
+    - complete n-to-n-plus-one instruction
+autonomy:
+  allowed:
+    - internal analysis
+    - scoring and ranking
+    - calibration and drift calculation
+    - incident proposal
+    - counterfactual planning
+    - task and instruction generation
+  human_custody:
+    - external communication
+    - production deployment
+    - destructive CRM changes
+    - pricing, invoicing, contracts and payment
+    - legal and consent decisions
+    - model promotion
