@@ -1,0 +1,16 @@
+.env
+.env.*
+!.env.example
+node_modules/
+.DS_Store
+Thumbs.db
+__pycache__/
+*.pyc
+coverage/
+dist/
+build/
+*.log
+private/
+client-data/
+crm-exports/
+secrets/
