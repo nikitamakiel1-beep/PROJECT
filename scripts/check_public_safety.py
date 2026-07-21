@@ -14,8 +14,8 @@ PATTERNS = {
     "Google API key": re.compile(r"AIza[0-9A-Za-z_-]{30,}"),
     "GitHub token": re.compile(r"gh[pousr]_[A-Za-z0-9]{30,}"),
     "private key": re.compile(r"-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----"),
-    "assigned spreadsheet ID": re.compile(r"SPREADSHEET_ID\s*[:=]\s*['\"]?[A-Za-z0-9_-]{20,}"),
-    "assigned live web-app URL": re.compile(r"WEB_APP_URL\s*[:=]\s*['\"]?https://"),
+    "assigned spreadsheet ID": re.compile(r"SPREADSHEET_ID[ \t]*[:=][ \t]*['\"]?[A-Za-z0-9_-]{20,}"),
+    "assigned live web-app URL": re.compile(r"WEB_APP_URL[ \t]*[:=][ \t]*['\"]?https://"),
 }
 
 
