@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 import hashlib
 import json
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping
 
 from .model import NeuralCRMModel
 
@@ -104,8 +104,10 @@ class NeuralProviderBridge:
         company_ref = _safe_identifier(package.get("company_ref"), "company_ref")
         contact_ref = _safe_identifier(package.get("contact_ref"), "contact_ref")
         service_code = _safe_identifier(package.get("service_code"), "service_code").upper()
+
+        raw_price = package.get("service_price_eur")
         try:
-            price = float(package.get("service_price_eur"))
+            price = float(raw_price)
         except (TypeError, ValueError) as error:
             raise ValueError("service_price_invalid") from error
         if not 0.0 < price <= 1000000.0:
@@ -114,18 +116,45 @@ class NeuralProviderBridge:
         features = package.get("features")
         if not isinstance(features, Mapping):
             raise ValueError("features_missing")
+        priors = package.get("priors")
+        if not isinstance(priors, Mapping):
+            raise ValueError("priors_missing")
+
+        # Verify the provider digest against the original parsed JSON values
+        # before converting integers to floats for inference. JavaScript emits
+        # exact integers as `1`, while Python float normalisation would render
+        # them as `1.0` and create a false cross-runtime digest mismatch.
+        digest_payload = {
+            "package_id": package.get("package_id"),
+            "lead_ref": package.get("lead_ref"),
+            "company_ref": package.get("company_ref"),
+            "contact_ref": package.get("contact_ref"),
+            "service_code": package.get("service_code"),
+            "service_price_eur": raw_price,
+            "features": features,
+            "priors": priors,
+        }
+        computed_digest = _digest(digest_payload)
+        supplied_digest = str(package.get("feature_digest") or "")
+        if not supplied_digest:
+            raise ValueError("feature_digest_missing")
+        if supplied_digest != computed_digest:
+            raise ValueError("feature_digest_mismatch")
+
         tabular = _vector(features.get("tabular"), self.model.tabular_size, "tabular")
         text_vector = _vector(features.get("text_vector"), self.model.text_size, "text_vector")
-        activity_sequence = _matrix(features.get("activity_sequence"), self.model.activity_features, "activity_sequence", allow_empty=True)
+        activity_sequence = _matrix(
+            features.get("activity_sequence"),
+            self.model.activity_features,
+            "activity_sequence",
+            allow_empty=True,
+        )
         graph_nodes = _matrix(features.get("graph_nodes"), self.model.graph_features, "graph_nodes")
         adjacency = _matrix(features.get("adjacency"), len(graph_nodes), "adjacency")
         focus_index = int(features.get("focus_index", -1))
         if not 0 <= focus_index < len(graph_nodes):
             raise ValueError("focus_index_invalid")
 
-        priors = package.get("priors")
-        if not isinstance(priors, Mapping):
-            raise ValueError("priors_missing")
         validated_priors: dict[str, Any] = {
             "conversion": _probability(priors.get("conversion"), "conversion_prior"),
             "relationship": _probability(priors.get("relationship"), "relationship_prior"),
@@ -140,28 +169,6 @@ class NeuralProviderBridge:
         if total <= 0.0:
             raise ValueError("action_priors_empty")
         validated_priors["actions"] = [value / total for value in action_values]
-
-        digest_payload = {
-            "package_id": package_id,
-            "lead_ref": lead_ref,
-            "company_ref": company_ref,
-            "contact_ref": contact_ref,
-            "service_code": service_code,
-            "service_price_eur": price,
-            "features": {
-                "tabular": tabular,
-                "text_vector": text_vector,
-                "activity_sequence": activity_sequence,
-                "graph_nodes": graph_nodes,
-                "adjacency": adjacency,
-                "focus_index": focus_index,
-            },
-            "priors": validated_priors,
-        }
-        computed_digest = _digest(digest_payload)
-        supplied_digest = str(package.get("feature_digest") or "")
-        if supplied_digest and supplied_digest != computed_digest:
-            raise ValueError("feature_digest_mismatch")
 
         return ValidatedProviderPackage(
             package_id=package_id,
