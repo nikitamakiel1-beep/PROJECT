@@ -20,9 +20,9 @@ FILES = [
     "SYNTHETIC_TEST.md",
 ]
 FORBIDDEN = (
-    "https://script.google.com/macros/s/",
-    "https://docs.google.com/spreadsheets/d/",
-    "-----BEGIN PRIVATE KEY-----",
+    "https://script.google.com/" + "macros/s/",
+    "https://docs.google.com/" + "spreadsheets/d/",
+    "-----BEGIN " + "PRIVATE KEY-----",
 )
 
 
