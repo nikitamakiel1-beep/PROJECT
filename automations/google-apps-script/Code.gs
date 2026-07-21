@@ -5,9 +5,9 @@
  *   SPREADSHEET_ID
  *   CONSENT_VERSION
  *   ACTIVE_SERVICE_CODES   (comma separated, generated from schemas/services.json)
+ *   SYNTHETIC_ONLY=true
  * Optional:
  *   OWNER_NAME
- *   SYNTHETIC_ONLY=true
  */
 function doPost(e) {
   var lock = LockService.getScriptLock();
@@ -16,11 +16,13 @@ function doPost(e) {
   var snapshot = null;
   var retryCount = 0;
   var correlationId = '';
+  var testFailureAfterSheet = '';
   try {
     lock.waitLock(15000);
     payload = parsePayload_(e);
     ss = SpreadsheetApp.openById(requiredProperty_('SPREADSHEET_ID'));
     assertSyntheticOnly_();
+    testFailureAfterSheet = normaliseTestFailureSheet_(payload.__test_failure_after_sheet);
     assertSheetContracts_(ss);
     snapshot = readSnapshot_(ss);
     retryCount = countAttempts_(snapshot['Automation Log'], payload.submission_id);
@@ -38,7 +40,7 @@ function doPost(e) {
       return jsonResponse_({ok: true, duplicate: true, submission_id: plan.payload.submission_id, correlation_id: plan.correlation_id});
     }
 
-    var writes = applyPlanTransaction_(ss, plan);
+    var writes = applyPlanTransaction_(ss, plan, testFailureAfterSheet);
     return jsonResponse_({
       ok: true, duplicate: false, submission_id: plan.payload.submission_id,
       correlation_id: plan.correlation_id, lead_id: plan.ids.lead,
@@ -86,8 +88,17 @@ function contractOptions_() {
 
 function assertSyntheticOnly_() {
   if (String(requiredProperty_('SYNTHETIC_ONLY')).toLowerCase() !== 'true') {
-    throw IntakeCore.contractError('synthetic_gate_closed', 'This deployment must remain synthetic-only during Stage 002.');
+    throw IntakeCore.contractError('synthetic_gate_closed', 'This deployment must remain synthetic-only during Stage 003.');
   }
+}
+
+function normaliseTestFailureSheet_(value) {
+  var name = String(value || '').trim();
+  if (!name) return '';
+  if (['Companies','Contacts','Leads','Activities'].indexOf(name) === -1) {
+    throw IntakeCore.contractError('invalid_test_failure_sheet', 'Synthetic failure injection sheet is invalid.');
+  }
+  return name;
 }
 
 function requiredProperty_(name) {
@@ -156,7 +167,7 @@ function appendObject_(sheet, record) {
   return sheet.getLastRow();
 }
 
-function applyPlanTransaction_(ss, plan) {
+function applyPlanTransaction_(ss, plan, testFailureAfterSheet) {
   var appended = [];
   var counts = {Companies: 0, Contacts: 0, Leads: 0, Activities: 0, 'Automation Log': 0};
   try {
@@ -167,6 +178,9 @@ function applyPlanTransaction_(ss, plan) {
         appended.push({sheet: sheet, row: row});
         counts[name] += 1;
       });
+      if (testFailureAfterSheet === name) {
+        throw IntakeCore.contractError('synthetic_injected_write_failure', 'Synthetic provider failure injected after ' + name + '.');
+      }
     });
     var logSheet = requiredSheet_(ss, 'Automation Log');
     var logRow = appendObject_(logSheet, IntakeCore.makeLogRecord({
