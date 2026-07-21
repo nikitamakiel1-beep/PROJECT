@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "spreadsheet_title": "CRM — International Growth Venture",
+  "sheets": {
+    "Companies": [
+      "Company ID", "Company Name", "Website", "Sector", "Subsector", "Country", "Region", "Employees", "Revenue Band", "Export Status", "Target Markets", "Languages", "Digital Maturity", "International Fit", "Last Researched", "Source URLs", "Google Business URL", "LinkedIn URL", "Owner", "Notes"
+    ],
+    "Contacts": [
+      "Contact ID", "Company ID", "Full Name", "Role", "Email", "Phone", "LinkedIn", "Preferred Channel", "Language", "Consent Status", "Consent Date", "Last Contact", "Next Contact", "Owner", "Relationship Strength", "Notes"
+    ],
+    "Leads": [
+      "Lead ID", "Created Date", "Company", "Contact Name", "Role", "Email", "Phone", "Website", "Country", "Source", "Consent Basis", "Service Interest", "Fit Score", "Status", "Last Contact", "Next Action Date", "Next Action", "Owner", "Notes", "Company ID", "Contact ID", "Opportunity ID"
+    ],
+    "Activities": [
+      "Activity ID", "Date", "Company ID", "Contact ID", "Opportunity ID", "Activity Type", "Channel", "Summary", "Outcome", "Next Action", "Next Action Date", "Owner", "Source / Link", "Duration Minutes", "Billable", "Notes"
+    ],
+    "Automation Log": [
+      "Log ID", "Timestamp", "Workflow", "Trigger Record", "Action", "Result", "Error", "Retry Count", "Owner", "Source System", "Destination System", "Notes"
+    ]
+  },
+  "matching": {
+    "company": "Normalised website host when present; otherwise normalised company name.",
+    "contact": "Normalised email address. An existing contact's linked company takes precedence over a conflicting submitted company.",
+    "lead": "Deterministic ID derived from submission_id.",
+    "activity": "Deterministic ID derived from submission_id."
+  },
+  "preservation": "Website intake never overwrites an existing company or contact row. It only creates missing records and therefore preserves manually curated fields."
+}
