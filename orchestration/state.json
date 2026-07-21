@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "current_stage": 3,
+  "current_instruction": "orchestration/instructions/stage-003-provider-runtime-and-activation-gate.md",
+  "previous_report": "orchestration/reports/stage-002-synthetic-intake-crm-contract.md",
+  "status": "ready",
+  "last_completed_stage": 2,
+  "updated_at": "2026-07-21T14:18:29.113086+00:00",
+  "stop_conditions": [
+    "validation_failure",
+    "missing_human_approval",
+    "legal_or_compliance_blocker",
+    "secret_or_personal_data_exposure",
+    "unbounded_scope"
+  ]
+}
