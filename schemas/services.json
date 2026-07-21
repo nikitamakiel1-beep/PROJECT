@@ -1,0 +1,72 @@
+[
+  {
+    "code": "IVA",
+    "status": "active",
+    "name": {"en": "International Visibility Audit", "es": "Auditoría de visibilidad internacional"},
+    "price_eur": 149,
+    "delivery_days": 3,
+    "estimated_hours": 2.5,
+    "direct_cost_eur": 3,
+    "automation_target_pct": 55,
+    "description": {"en": "A structured review of website clarity, international readiness, trust signals and conversion friction.", "es": "Revisión estructurada de claridad web, preparación internacional, señales de confianza y fricción de conversión."},
+    "ideal_for": {"en": "A business whose website is credible but unclear to an international visitor.", "es": "Una empresa cuya web es creíble, pero poco clara para un visitante internacional."},
+    "deliverables": {"en": ["100-point evidence scorecard", "Prioritised 30-day action list", "One-page management summary"], "es": ["Puntuación de 100 puntos con evidencias", "Lista priorizada de acciones para 30 días", "Resumen ejecutivo de una página"]},
+    "revision_limit": 1
+  },
+  {
+    "code": "CRM",
+    "status": "active",
+    "name": {"en": "CRM & Lead Tracker Setup", "es": "Configuración de CRM y seguimiento de leads"},
+    "price_eur": 299,
+    "delivery_days": 5,
+    "estimated_hours": 4,
+    "direct_cost_eur": 5,
+    "automation_target_pct": 65,
+    "description": {"en": "A practical pipeline, fields, dashboard and follow-up system for a small business.", "es": "Pipeline práctico, campos, panel e instrucciones de seguimiento para una pequeña empresa."},
+    "ideal_for": {"en": "A small team following leads in email, notes or disconnected spreadsheets.", "es": "Un equipo pequeño que sigue leads en correos, notas u hojas desconectadas."},
+    "deliverables": {"en": ["Defined pipeline stages and ownership", "Configured fields and lead tracker", "Dashboard and follow-up operating guide"], "es": ["Etapas del pipeline y responsables definidos", "Campos configurados y seguimiento de leads", "Panel y guía operativa de seguimiento"]},
+    "revision_limit": 1
+  },
+  {
+    "code": "IOP",
+    "status": "active",
+    "name": {"en": "International Sales One-Pager", "es": "One-pager de ventas internacionales"},
+    "price_eur": 249,
+    "delivery_days": 4,
+    "estimated_hours": 3,
+    "direct_cost_eur": 4,
+    "automation_target_pct": 50,
+    "description": {"en": "A concise sales document adapted for international prospects and partner conversations.", "es": "Documento comercial conciso adaptado a prospectos internacionales y conversaciones con socios."},
+    "ideal_for": {"en": "A business that needs one clear document for prospects, distributors or partners.", "es": "Una empresa que necesita un documento claro para prospectos, distribuidores o socios."},
+    "deliverables": {"en": ["Structured commercial narrative", "English or bilingual page layout", "Editable source and final PDF-ready copy"], "es": ["Narrativa comercial estructurada", "Diseño en inglés o bilingüe", "Fuente editable y texto final listo para PDF"]},
+    "revision_limit": 1
+  },
+  {
+    "code": "WAB",
+    "status": "addon",
+    "name": {"en": "WhatsApp Business Setup", "es": "Configuración de WhatsApp Business"},
+    "price_eur": 129,
+    "delivery_days": 2,
+    "estimated_hours": 1.5,
+    "direct_cost_eur": 2,
+    "automation_target_pct": 45,
+    "description": {"en": "Profile, catalogue structure, greeting, away message and quick-reply setup.", "es": "Perfil, estructura de catálogo, saludo, ausencia y respuestas rápidas."},
+    "ideal_for": {"en": "An add-on for a business already receiving enquiries through WhatsApp.", "es": "Complemento para una empresa que ya recibe consultas por WhatsApp."},
+    "deliverables": {"en": ["Profile and catalogue structure", "Greeting and away messages", "Controlled quick-reply library"], "es": ["Perfil y estructura de catálogo", "Mensajes de bienvenida y ausencia", "Biblioteca controlada de respuestas rápidas"]},
+    "revision_limit": 1
+  },
+  {
+    "code": "ISS",
+    "status": "hidden_until_sale",
+    "name": {"en": "International Starter System", "es": "Sistema inicial internacional"},
+    "price_eur": 599,
+    "delivery_days": 8,
+    "estimated_hours": 7.5,
+    "direct_cost_eur": 10,
+    "automation_target_pct": 60,
+    "description": {"en": "A bundle activated only after standalone delivery evidence exists.", "es": "Paquete activado únicamente cuando exista evidencia de entregas individuales."},
+    "ideal_for": {"en": "A later bundle activated only after standalone delivery evidence.", "es": "Paquete posterior activado solo tras obtener evidencia de entregas individuales."},
+    "deliverables": {"en": ["Visibility audit", "CRM setup", "International sales one-pager"], "es": ["Auditoría de visibilidad", "Configuración de CRM", "One-pager de ventas internacionales"]},
+    "revision_limit": 1
+  }
+]
