@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Opportunity",
+  "type": "object",
+  "required": ["opportunity_id", "company_id", "contact_id", "service_code", "stage", "value_eur"],
+  "properties": {
+    "opportunity_id": {"type": "string"},
+    "company_id": {"type": "string"},
+    "contact_id": {"type": "string"},
+    "service_code": {"type": "string"},
+    "stage": {"enum": ["Discovery", "Qualified", "Proposal", "Negotiation", "Won", "Lost"]},
+    "value_eur": {"type": "number", "minimum": 0},
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "next_step": {"type": "string"},
+    "next_step_date": {"type": "string", "format": "date"}
+  },
+  "additionalProperties": false
+}
