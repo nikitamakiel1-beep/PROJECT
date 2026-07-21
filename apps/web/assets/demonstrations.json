@@ -1,0 +1,50 @@
+[
+  {
+    "code": "DEMO-IVA",
+    "service_code": "IVA",
+    "title": {
+      "en": "Visibility audit preview",
+      "es": "Vista previa de auditoría de visibilidad"
+    },
+    "description": {
+      "en": "A transparent structure for recording evidence, assigning scores and converting findings into a 30-day action order.",
+      "es": "Estructura transparente para registrar evidencias, asignar puntuaciones y convertir hallazgos en un orden de acciones de 30 días."
+    },
+    "includes": {
+      "en": ["Scoring categories", "Evidence references", "Priority and effort matrix"],
+      "es": ["Categorías de puntuación", "Referencias de evidencias", "Matriz de prioridad y esfuerzo"]
+    }
+  },
+  {
+    "code": "DEMO-CRM",
+    "service_code": "CRM",
+    "title": {
+      "en": "CRM operating preview",
+      "es": "Vista previa del funcionamiento del CRM"
+    },
+    "description": {
+      "en": "A synthetic pipeline showing how companies, contacts, opportunities, activities and next actions remain traceable.",
+      "es": "Pipeline sintético que muestra cómo empresas, contactos, oportunidades, actividades y siguientes acciones permanecen trazables."
+    },
+    "includes": {
+      "en": ["Pipeline stages", "Follow-up fields", "Management dashboard"],
+      "es": ["Etapas del pipeline", "Campos de seguimiento", "Panel de gestión"]
+    }
+  },
+  {
+    "code": "DEMO-IOP",
+    "service_code": "IOP",
+    "title": {
+      "en": "Sales one-pager preview",
+      "es": "Vista previa del one-pager comercial"
+    },
+    "description": {
+      "en": "A content architecture that turns a complex offer into a concise, evidence-led document for international conversations.",
+      "es": "Arquitectura de contenido que convierte una oferta compleja en un documento conciso y basado en evidencias para conversaciones internacionales."
+    },
+    "includes": {
+      "en": ["Problem and value proposition", "Proof and process structure", "Clear next action"],
+      "es": ["Problema y propuesta de valor", "Estructura de prueba y proceso", "Siguiente acción clara"]
+    }
+  }
+]
