@@ -20,15 +20,21 @@ def main() -> None:
     provider_test = (ROOT / "automations/google-apps-script/ProviderTest.gs").read_text(encoding="utf-8")
     config = (ROOT / "apps/web/config.js").read_text(encoding="utf-8")
 
-    required_sheets = {"Companies", "Contacts", "Leads", "Activities", "Automation Log"}
+    required_sheets = {"Companies", "Contacts", "Leads", "Opportunities", "Activities", "Automation Log"}
     if set(contract["sheets"]) != required_sheets:
-        fail("sheet contract does not contain the exact required sheets")
+        fail("sheet contract does not contain the exact required CRM sheets")
     for name, headers in contract["sheets"].items():
         if len(headers) != len(set(headers)):
             fail(f"duplicate header in {name}")
-        for header in headers:
+
+    intake_owned_sheets = {"Companies", "Contacts", "Leads", "Activities", "Automation Log"}
+    for name in intake_owned_sheets:
+        for header in contract["sheets"][name]:
             if repr(header).replace('"', "'") not in core and f"'{header}'" not in core:
-                fail(f"core header missing: {name}.{header}")
+                fail(f"intake core header missing: {name}.{header}")
+    if "Opportunities" not in contract["sheets"] or "Next Step Date" not in contract["sheets"]["Opportunities"]:
+        fail("opportunity contract is incomplete")
+
     active_codes = {item["code"] for item in services if item["status"] == "active"}
     schema_codes = set(lead_schema["properties"]["service_code"]["enum"])
     if not active_codes.issubset(schema_codes):

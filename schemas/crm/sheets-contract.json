@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "spreadsheet_title": "CRM — International Growth Venture",
   "sheets": {
     "Companies": [
@@ -10,6 +10,9 @@
     ],
     "Leads": [
       "Lead ID", "Created Date", "Company", "Contact Name", "Role", "Email", "Phone", "Website", "Country", "Source", "Consent Basis", "Service Interest", "Fit Score", "Status", "Last Contact", "Next Action Date", "Next Action", "Owner", "Notes", "Company ID", "Contact ID", "Opportunity ID"
+    ],
+    "Opportunities": [
+      "Opportunity ID", "Company ID", "Contact ID", "Service Code", "Stage", "Value €", "Probability %", "Weighted Value €", "Created Date", "Expected Close", "Won/Lost Date", "Loss Reason", "Proposal URL", "Invoice Status", "Payment Date", "Delivery Status", "Linear Issue", "Client Folder URL", "Owner", "Next Step", "Next Step Date", "Notes"
     ],
     "Activities": [
       "Activity ID", "Date", "Company ID", "Contact ID", "Opportunity ID", "Activity Type", "Channel", "Summary", "Outcome", "Next Action", "Next Action Date", "Owner", "Source / Link", "Duration Minutes", "Billable", "Notes"
@@ -24,5 +27,8 @@
     "lead": "Deterministic ID derived from submission_id.",
     "activity": "Deterministic ID derived from submission_id."
   },
-  "preservation": "Website intake never overwrites an existing company or contact row. It only creates missing records and therefore preserves manually curated fields."
+  "preservation": "Website intake never overwrites an existing company or contact row. It only creates missing records and therefore preserves manually curated fields.",
+  "internal_views": {
+    "Follow-up Digest": "A02-owned internal view generated from overdue Leads and Opportunities. It is not a system of record and may be rebuilt."
+  }
 }

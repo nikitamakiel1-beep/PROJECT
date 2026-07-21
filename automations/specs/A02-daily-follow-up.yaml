@@ -1,10 +1,33 @@
 id: A02
 name: Daily overdue follow-up digest
-trigger: weekday schedule
+status: synthetic-ready
+trigger: weekday schedule after explicit human trigger approval
+sources:
+  - Leads
+  - Opportunities
+destination:
+  - Follow-up Digest
+  - Automation Log
 steps:
+  - acquire script lock
+  - enforce synthetic-only and disposable-spreadsheet gates during current stage
   - read overdue lead and opportunity actions
-  - group by priority and owner
-  - create internal digest
-  - append automation log
+  - exclude terminal statuses and future actions
+  - rank by overdue age, fit, probability and weighted value
+  - group counts by priority, record type and owner
+  - replace the rebuildable internal Follow-up Digest view
+  - append one accepted Automation Log record per digest date
+idempotency:
+  key: A02-YYYY-MM-DD
+  retry: return duplicate without rewriting or sending anything
+rollback:
+  - restore the previous digest view if the log write fails
+privacy:
+  - digest contains business workflow fields only
+  - automation log stores aggregate counts, not names or emails
 human_gate:
-  - owner chooses whether and how to contact each person
+  - owner chooses whether, when and how to contact each person
+  - no email, WhatsApp or CRM status change is automatic
+validation:
+  - six-case pure-engine synthetic suite
+  - disposable bound Apps Script run required before production scheduling

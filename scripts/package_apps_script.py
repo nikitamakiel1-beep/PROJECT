@@ -15,6 +15,8 @@ FILES = [
     "IntakeCore.gs",
     "Code.gs",
     "ProviderTest.gs",
+    "FollowUpCore.gs",
+    "DailyFollowUp.gs",
     "appsscript.json",
     "DEPLOYMENT.md",
     "SYNTHETIC_TEST.md",
@@ -57,7 +59,7 @@ def build(output_dir: Path, zip_path: Path) -> None:
                 raise SystemExit(f"Apps Script bundle failed: operational value detected in {filename}")
         shutil.copy2(source, output_dir / filename)
 
-    install_order = """Stage 003 synthetic provider bundle\n\nInstall in this order inside a bound Apps Script project:\n1. IntakeCore.gs\n2. Code.gs\n3. ProviderTest.gs\n4. appsscript.json, only when replacing the manifest intentionally\n\nThen follow DEPLOYMENT.md. Keep every identifier and deployment URL outside GitHub.\n"""
+    install_order = """Stage 003 synthetic Apps Script bundle\n\nInstall in this order inside a bound Apps Script project:\n1. IntakeCore.gs\n2. Code.gs\n3. ProviderTest.gs\n4. FollowUpCore.gs\n5. DailyFollowUp.gs\n6. appsscript.json, only when replacing the manifest intentionally\n\nA01 provider verification uses runProviderHttpSuite().\nA02 internal digest uses runDailyFollowUpDigest().\n\nThen follow DEPLOYMENT.md. Keep every identifier and deployment URL outside GitHub.\n"""
     (output_dir / "INSTALL_ORDER.txt").write_text(install_order, encoding="utf-8")
 
     checksums = {path.name: sha256(path) for path in sorted(output_dir.iterdir()) if path.is_file()}
@@ -66,6 +68,7 @@ def build(output_dir: Path, zip_path: Path) -> None:
         "synthetic_only": True,
         "contains_credentials": False,
         "contains_provider_ids": False,
+        "included_workflows": ["A01", "A02"],
         "files": checksums,
     }
     (output_dir / "BUNDLE_INFO.json").write_text(json.dumps(info, indent=2, sort_keys=True) + "\n", encoding="utf-8")
