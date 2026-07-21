@@ -1,0 +1,57 @@
+name: Tooling artifacts
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-safe-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check public repository safety
+        run: python scripts/check_public_safety.py
+
+      - name: Validate repository
+        run: python scripts/validate_repository.py
+
+      - name: Validate website
+        run: python scripts/test_web.py
+
+      - name: Validate synthetic intake contract
+        run: python scripts/test_intake_contract.py
+
+      - name: Validate recursive handoff
+        run: python scripts/orchestrator.py validate
+
+      - name: Build demonstration website preview
+        run: python scripts/build_preview.py
+
+      - name: Build Apps Script provider bundle
+        run: python scripts/package_apps_script.py
+
+      - name: Upload website preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: international-growth-venture-web-preview
+          path: dist/web-preview
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Apps Script provider bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-003-apps-script-provider-bundle
+          path: dist/stage-003-apps-script.zip
+          if-no-files-found: error
+          retention-days: 14
