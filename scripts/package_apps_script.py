@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create a deterministic, public-safe Stage 003 Apps Script deployment bundle."""
+"""Create a deterministic, provider-safe Stage 003 Apps Script deployment bundle."""
 from __future__ import annotations
 
 import argparse
@@ -17,6 +17,8 @@ FILES = [
     "ProviderTest.gs",
     "FollowUpCore.gs",
     "DailyFollowUp.gs",
+    "NeuralBridgeCore.gs",
+    "NeuralBridge.gs",
     "appsscript.json",
     "DEPLOYMENT.md",
     "SYNTHETIC_TEST.md",
@@ -29,8 +31,7 @@ FORBIDDEN = (
 
 
 def sha256(path: Path) -> str:
-    digest = hashlib.sha256(path.read_bytes()).hexdigest()
-    return digest
+    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def deterministic_zip(source_dir: Path, destination: Path) -> None:
@@ -59,7 +60,26 @@ def build(output_dir: Path, zip_path: Path) -> None:
                 raise SystemExit(f"Apps Script bundle failed: operational value detected in {filename}")
         shutil.copy2(source, output_dir / filename)
 
-    install_order = """Stage 003 synthetic Apps Script bundle\n\nInstall in this order inside a bound Apps Script project:\n1. IntakeCore.gs\n2. Code.gs\n3. ProviderTest.gs\n4. FollowUpCore.gs\n5. DailyFollowUp.gs\n6. appsscript.json, only when replacing the manifest intentionally\n\nA01 provider verification uses runProviderHttpSuite().\nA02 internal digest uses runDailyFollowUpDigest().\n\nThen follow DEPLOYMENT.md. Keep every identifier and deployment URL outside GitHub.\n"""
+    install_order = """Stage 003 synthetic Apps Script bundle
+
+Install in this order inside a bound Apps Script project:
+1. IntakeCore.gs
+2. Code.gs
+3. ProviderTest.gs
+4. FollowUpCore.gs
+5. DailyFollowUp.gs
+6. NeuralBridgeCore.gs
+7. NeuralBridge.gs
+8. appsscript.json, only when replacing the manifest intentionally
+
+A01 provider verification uses runProviderHttpSuite().
+A02 internal digest uses runDailyFollowUpDigest().
+A06 neural export uses runNeuralShadowExport().
+A06 decision import uses importNeuralShadowDecision(decisionJson).
+A03 bounded internal write uses applyBoundedNeuralOpportunities() and remains disabled by default.
+
+Then follow DEPLOYMENT.md. Keep every identifier, salt and deployment URL outside GitHub.
+"""
     (output_dir / "INSTALL_ORDER.txt").write_text(install_order, encoding="utf-8")
 
     checksums = {path.name: sha256(path) for path in sorted(output_dir.iterdir()) if path.is_file()}
@@ -68,7 +88,7 @@ def build(output_dir: Path, zip_path: Path) -> None:
         "synthetic_only": True,
         "contains_credentials": False,
         "contains_provider_ids": False,
-        "included_workflows": ["A01", "A02"],
+        "included_workflows": ["A01", "A02", "A03", "A06"],
         "files": checksums,
     }
     (output_dir / "BUNDLE_INFO.json").write_text(json.dumps(info, indent=2, sort_keys=True) + "\n", encoding="utf-8")
