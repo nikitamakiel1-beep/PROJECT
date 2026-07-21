@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Practical fixed-scope international growth systems for small businesses.">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex,nofollow">
+  <title>International Growth Venture — Validation Alpha</title>
+  <script>
+    (() => {
+      const saved = localStorage.getItem('igv-theme');
+      const preferred = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      document.documentElement.dataset.theme = saved || preferred;
+    })();
+  </script>
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+<body>
+  <a class="skip" href="#main" data-i18n="skip_content">Skip to content</a>
+
+  <header class="site-header" id="top">
+    <a class="brand" href="#top" aria-label="International Growth Venture home">
+      <span class="brand-mark" aria-hidden="true">IG</span>
+      <span data-i18n="brand">International Growth Venture</span>
+    </a>
+
+    <button class="menu-button" id="menu" type="button" aria-expanded="false" aria-controls="primary-nav">
+      <span class="sr-only" data-i18n="menu_label">Open navigation</span>
+      <span aria-hidden="true">☰</span>
+    </button>
+
+    <nav id="primary-nav" aria-label="Primary navigation">
+      <a href="#services" data-i18n="nav_services">Services</a>
+      <a href="#fit" data-i18n="nav_fit">Who it is for</a>
+      <a href="#process" data-i18n="nav_process">Process</a>
+      <a href="#examples" data-i18n="nav_examples">Examples</a>
+      <a href="#assessment" data-i18n="nav_assessment">Assessment</a>
+    </nav>
+
+    <div class="controls" aria-label="Display controls">
+      <button id="language" type="button" aria-label="Cambiar a español">ES</button>
+      <button id="theme" type="button" aria-pressed="true" aria-label="Use light theme"><span aria-hidden="true">◐</span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow" data-i18n="eyebrow">Small, fixed-scope systems for international readiness</p>
+        <h1 id="hero-title" data-i18n="hero_title">Make your business easier to understand, follow up and sell internationally.</h1>
+        <p class="lead" data-i18n="hero_body">Start with a focused audit, a usable CRM or a clear sales document. No oversized consulting programme and no fabricated promises.</p>
+        <div class="actions">
+          <a class="button primary" href="#assessment" data-i18n="cta_primary">Review the assessment</a>
+          <a class="button secondary" href="#services" data-i18n="cta_secondary">Compare services</a>
+        </div>
+        <p class="stage-note" data-i18n="alpha_note">Validation alpha: the public form cannot transmit data yet.</p>
+      </div>
+      <aside class="hero-card" aria-labelledby="principles-title">
+        <h2 class="sr-only" id="principles-title" data-i18n="principles_title">Launch principles</h2>
+        <div><strong data-i18n="principle_1_title">Fixed scope</strong><span data-i18n="principle_1_body">Clear output, timeframe and revision limit.</span></div>
+        <div><strong data-i18n="principle_2_title">Evidence first</strong><span data-i18n="principle_2_body">Recommendations linked to observable business problems.</span></div>
+        <div><strong data-i18n="principle_3_title">Human reviewed</strong><span data-i18n="principle_3_body">Automation accelerates work; it does not replace final judgement.</span></div>
+      </aside>
+    </section>
+
+    <section id="services" class="section shell" aria-labelledby="services-title">
+      <div class="section-heading">
+        <p class="eyebrow" data-i18n="services_kicker">Initial service menu</p>
+        <h2 id="services-title" data-i18n="services_title">Start with one practical improvement.</h2>
+        <p data-i18n="services_body">Prices, scope and delivery windows are loaded from one versioned service catalogue.</p>
+      </div>
+      <div id="service-grid" class="card-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="fit" class="section section-muted">
+      <div class="shell fit-grid">
+        <div>
+          <p class="eyebrow" data-i18n="fit_kicker">Designed for a narrow starting point</p>
+          <h2 data-i18n="fit_title">Useful when the problem is concrete and the next action is unclear.</h2>
+        </div>
+        <div class="fit-columns">
+          <article>
+            <h3 data-i18n="fit_yes_title">Good initial fit</h3>
+            <ul>
+              <li data-i18n="fit_yes_1">Small or owner-led business with a real website, offer or lead list.</li>
+              <li data-i18n="fit_yes_2">A bounded commercial problem that can be improved in days, not months.</li>
+              <li data-i18n="fit_yes_3">Willingness to provide inputs and review one controlled draft.</li>
+            </ul>
+          </article>
+          <article>
+            <h3 data-i18n="fit_no_title">Not offered at this stage</h3>
+            <ul>
+              <li data-i18n="fit_no_1">Guaranteed sales, grants, investors or institutional introductions.</li>
+              <li data-i18n="fit_no_2">Large custom software, advertising management or full rebranding.</li>
+              <li data-i18n="fit_no_3">Legal, tax or regulatory advice.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="process" class="section shell" aria-labelledby="process-title">
+      <div class="section-heading">
+        <p class="eyebrow" data-i18n="process_kicker">Controlled process</p>
+        <h2 id="process-title" data-i18n="process_title">From problem to usable output.</h2>
+      </div>
+      <ol class="process-grid">
+        <li><span aria-hidden="true">01</span><strong data-i18n="step1_title">Assess</strong><p data-i18n="step1_body">Confirm the business, problem, target and required inputs.</p></li>
+        <li><span aria-hidden="true">02</span><strong data-i18n="step2_title">Scope</strong><p data-i18n="step2_body">Agree the fixed deliverable, exclusions, timing and price.</p></li>
+        <li><span aria-hidden="true">03</span><strong data-i18n="step3_title">Build</strong><p data-i18n="step3_body">Use structured research, templates and controlled automation.</p></li>
+        <li><span aria-hidden="true">04</span><strong data-i18n="step4_title">Review</strong><p data-i18n="step4_body">Human quality control before delivery and one bounded revision.</p></li>
+      </ol>
+    </section>
+
+    <section id="examples" class="section shell" aria-labelledby="examples-title">
+      <div class="section-heading">
+        <p class="eyebrow" data-i18n="examples_kicker">Demonstration work</p>
+        <h2 id="examples-title" data-i18n="examples_title">Proof of method, not invented client claims.</h2>
+        <p data-i18n="examples_body">These previews describe the intended outputs. They contain no private client information, testimonials or claimed results.</p>
+      </div>
+      <div id="demo-grid" class="demo-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="assessment" class="section shell" aria-labelledby="assessment-title">
+      <div class="assessment-grid">
+        <div>
+          <p class="eyebrow" data-i18n="assessment_kicker">Initial assessment</p>
+          <h2 id="assessment-title" data-i18n="assessment_title">Describe the business problem.</h2>
+          <p data-i18n="assessment_body">Use the form to test the experience. In demonstration mode, the information remains in your browser and is not transmitted.</p>
+          <div id="mode-banner" class="mode-banner" role="note">
+            <strong data-i18n="demo_mode_title">Demonstration mode is active</strong>
+            <span data-i18n="demo_mode_body">No endpoint is configured. Submitting only validates the form locally.</span>
+          </div>
+        </div>
+
+        <form id="assessment-form" novalidate aria-describedby="form-help mode-banner">
+          <p id="form-help" class="form-help" data-i18n="form_help">Required fields are marked with an asterisk.</p>
+          <div class="honeypot" aria-hidden="true"><label>Leave empty<input name="website_confirm" tabindex="-1" autocomplete="off"></label></div>
+          <label><span><span data-i18n="field_company">Company</span> *</span><input name="company_name" required minlength="2" maxlength="160" autocomplete="organization"></label>
+          <label><span><span data-i18n="field_name">Your name</span> *</span><input name="contact_name" required minlength="2" maxlength="120" autocomplete="name"></label>
+          <label><span><span data-i18n="field_email">Professional email</span> *</span><input name="email" type="email" required maxlength="254" autocomplete="email" inputmode="email"></label>
+          <label><span data-i18n="field_website">Website</span><input name="website" type="url" maxlength="500" placeholder="https://" autocomplete="url" inputmode="url"></label>
+          <label><span><span data-i18n="field_service">Most relevant service</span> *</span><select name="service_code" id="service-select" required><option value=""></option></select></label>
+          <label><span><span data-i18n="field_problem">What needs to improve?</span> *</span><textarea name="problem" rows="6" minlength="20" maxlength="3000" required aria-describedby="problem-count"></textarea><small id="problem-count" class="counter">0 / 3000</small></label>
+          <label class="check"><input name="consent" type="checkbox" required><span id="consent-label" data-i18n="field_demo_acknowledgement">I understand this demonstration does not send or retain my entries.</span></label>
+          <button class="button primary" id="submit-button" type="submit" data-i18n="submit">Validate assessment</button>
+          <p id="form-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer class="shell">
+    <p>© <span id="year"></span> International Growth Venture</p>
+    <p data-i18n="footer_note">Validation-stage business infrastructure. No client claims are presented.</p>
+  </footer>
+
+  <noscript><p class="noscript">JavaScript is required to load the bilingual service catalogue and demonstration form.</p></noscript>
+  <script src="config.js"></script>
+  <script src="assets/app.js" type="module"></script>
+</body>
+</html>
