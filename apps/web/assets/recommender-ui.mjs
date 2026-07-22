@@ -1,16 +1,12 @@
 import { recommendServices } from './neural-recommender.mjs';
 
-const stylesheet = document.createElement('link');
-stylesheet.rel = 'stylesheet';
-stylesheet.href = 'assets/recommender.css';
-document.head.append(stylesheet);
-
 const form = document.getElementById('neural-recommender-form');
 const output = document.getElementById('neural-recommendations');
 const status = document.getElementById('neural-recommender-status');
 const serviceSelect = document.getElementById('service-select');
 let services = [];
 let translations = null;
+let lastResult = null;
 
 function language() {
   return localStorage.getItem('igv-language') === 'es' ? 'es' : 'en';
@@ -38,18 +34,64 @@ function answersFromForm() {
 }
 
 function serviceForCode(code) {
-  return services.find(service => service.code === code) || null;
+  return services.find(service => (service.code === 'OSP' ? 'IOP' : service.code) === code) || null;
 }
 
 function reasonText(reason) {
   return t(`neural_reason_${reason}`);
 }
 
+function stepText(step) {
+  const service = step.service_code ? serviceForCode(step.service_code) : null;
+  const base = t(`neural_step_${step.action}`);
+  return service ? `${base}: ${service.name[language()]}` : base;
+}
+
+function renderExecutionPlan(result) {
+  const section = document.createElement('section');
+  section.className = 'neural-execution-plan';
+  const heading = document.createElement('div');
+  heading.className = 'neural-plan-heading';
+  const title = document.createElement('h3');
+  title.textContent = t('neural_next_steps_title');
+  const summary = document.createElement('p');
+  summary.textContent = t('neural_next_steps_body');
+  heading.append(title, summary);
+
+  const model = document.createElement('div');
+  model.className = 'neural-model-state';
+  model.append(
+    Object.assign(document.createElement('span'), { textContent: `3D CNN · ${result.tensor_shape.join('×')}` }),
+    Object.assign(document.createElement('span'), { textContent: `${t('neural_latent_dimensions')}: ${result.latent_dimensions}` }),
+    Object.assign(document.createElement('span'), { textContent: `${t('neural_connected_path')}: ${result.connected_path.join(' → ')}` })
+  );
+
+  const list = document.createElement('ol');
+  list.className = 'neural-step-list';
+  result.next_steps.forEach(step => {
+    const item = document.createElement('li');
+    const phase = document.createElement('span');
+    phase.className = 'badge';
+    phase.textContent = t(`neural_phase_${step.phase}`);
+    const body = document.createElement('div');
+    const action = document.createElement('strong');
+    action.textContent = stepText(step);
+    const control = document.createElement('small');
+    control.textContent = step.human_gate ? t('neural_step_human_gate') : t('neural_step_internal');
+    body.append(action, control);
+    item.append(phase, body);
+    list.append(item);
+  });
+  section.append(heading, model, list);
+  return section;
+}
+
 function renderResult(result) {
+  lastResult = result;
   output.replaceChildren();
   const top = result.recommendations.slice(0, 3);
   top.forEach((recommendation, index) => {
-    const service = serviceForCode(recommendation.source_code);
+    const service = serviceForCode(recommendation.code);
     if (!service) return;
     const article = document.createElement('article');
     article.className = `neural-result${index === 0 ? ' neural-result-primary' : ''}`;
@@ -86,6 +128,7 @@ function renderResult(result) {
     article.append(rank, title, score, confidence, reasons, meta, choose);
     output.append(article);
   });
+  output.append(renderExecutionPlan(result));
   status.textContent = `${t('neural_local_status')} ${t('neural_human_review')}`;
 }
 
@@ -105,18 +148,17 @@ async function initialise() {
   form.addEventListener('input', updateRangeLabels);
   form.addEventListener('submit', event => {
     event.preventDefault();
-    const result = recommendServices(answersFromForm(), services);
-    renderResult(result);
+    renderResult(recommendServices(answersFromForm(), services));
   });
   document.getElementById('language').addEventListener('click', () => {
     window.setTimeout(() => {
-      if (output.children.length) renderResult(recommendServices(answersFromForm(), services));
+      if (lastResult) renderResult(recommendServices(answersFromForm(), services));
     }, 0);
   });
 }
 
 initialise().catch(error => {
   console.error(error);
-  status.textContent = 'Neural recommendation module unavailable.';
+  status.textContent = 'Multidimensional recommendation module unavailable.';
   form.querySelector('button[type="submit"]').disabled = true;
 });
