@@ -1,0 +1,84 @@
+automation_id: A21
+name: company-formation-readiness-and-incorporation-custody
+status: source_complete_company_not_incorporated
+purpose: >-
+  Record the owner's Spanish company-route decision and create an auditable,
+  public-safe incorporation-readiness sequence without reserving a name,
+  selecting a real address, contributing capital, executing a deed, filing a
+  tax or Social Security form, registering a company, publishing a live site,
+  collecting personal data, contracting, invoicing or accepting payment.
+
+inputs:
+  - stage_003s_market_entry_operator_pack
+  - owner_company_route_decision
+  - official_company_formation_sources
+  - frozen_professional_review_instruction
+  - restricted_evidence_custody_contract
+
+outputs:
+  - provisional_SLU_architecture
+  - ordered_company_formation_sequence
+  - bounded_corporate_purpose_draft
+  - capital_and_governance_planning_controls
+  - restricted_incorporation_evidence_contract
+  - deterministic_public_safe_company_readiness_receipt
+
+required_controls:
+  - company_selection_never_implies_legal_entity_existence
+  - provisional_SLU_architecture_has_one_synthetic_shareholder_role_only
+  - legal_minimum_capital_and_EUR_3000_recommendation_are_distinct
+  - capital_is_never_claimed_contributed_without_restricted_official_evidence
+  - company_name_and_registered_office_gate_the_formation_deed
+  - municipal_FUE_classification_is_address_specific
+  - corporate_purpose_excludes_regulated_professions_and_high_impact_AI
+  - exact_CNAE_and_IAE_remain_professionally_confirmed
+  - administrator_social_security_classification_remains_provisional
+  - NIF_notarial_registry_bank_and_Social_Security_evidence_remain_restricted
+  - website_intake_contract_invoice_payment_and_paid_delivery_stay_blocked
+  - all_frozen_reviews_remain_frozen
+
+forbidden_actions:
+  - reserve_or_apply_for_a_corporate_name
+  - choose_or_publish_a_real_registered_office
+  - deposit_or_transfer_share_capital
+  - execute_a_notarial_deed
+  - submit_Modelo_036_or_request_a_NIF
+  - file_with_the_Mercantile_Registry
+  - register_the_administrator_in_Social_Security
+  - activate_a_company_bank_account
+  - publish_a_live_indexable_website
+  - collect_real_personal_data
+  - issue_a_proposal_contract_invoice_or_payment_request
+  - accept_payment_or_deliver_paid_work
+  - infer_professional_approval
+  - merge_into_main_tag_release_or_deploy
+
+validation:
+  command: python scripts/test_company_formation_readiness.py
+  expected_cases: 16
+  fail_closed: true
+
+maximum_result:
+  company_route_selected: true
+  company_form_planned: SOCIEDAD_LIMITADA_UNIPERSONAL
+  formation_readiness_ready: true
+  official_filings_verified: 0
+  legal_entity_exists: false
+  company_incorporated: false
+  capital_contributed: false
+  synthetic_staging_permitted: true
+  incorporation_execution_permitted: false
+  live_publication_permitted: false
+  live_intake_permitted: false
+  client_personal_data_permitted: false
+  paid_contracting_permitted: false
+  invoice_issue_permitted: false
+  payment_collection_permitted: false
+  paid_delivery_permitted: false
+
+rollback:
+  - preserve_Stage_003s_operator_and_licensing_evidence
+  - remove_any_unverified_company_formation_status
+  - restore_all_company_controls_to_not_started_or_frozen
+  - keep_the_website_synthetic_noindex_and_disconnected
+  - retain_sensitive_evidence_only_in_restricted_storage

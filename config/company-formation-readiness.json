@@ -1,0 +1,341 @@
+{
+  "schema_version": 1,
+  "programme": "International Growth Venture — company-formation readiness",
+  "jurisdiction": [
+    "Spain",
+    "Catalonia"
+  ],
+  "as_of": "2026-07-22",
+  "owner_decision": {
+    "operating_form": "COMPANY",
+    "company_form": "SOCIEDAD_LIMITADA_UNIPERSONAL",
+    "decision_status": "owner_selected_architecture_only",
+    "shareholder_count": 1,
+    "founder_role": "sole_shareholder_and_provisional_sole_administrator",
+    "legal_entity_exists": false,
+    "company_incorporated": false,
+    "official_name_reserved": false,
+    "registered_office_confirmed": false
+  },
+  "capital_plan": {
+    "currency": "EUR",
+    "legal_minimum_eur": 1,
+    "recommended_eur": 3000,
+    "selected_planning_amount_eur": 3000,
+    "contribution_status": "not_contributed",
+    "under_3000_safeguards": {
+      "legal_reserve_percent_of_profit": 20,
+      "reserve_until_capital_plus_reserve_eur": 3000,
+      "liquidation_shortfall_liability_reference_eur": 3000
+    },
+    "source_note": "Planning recommendation only. No money has been deposited, contributed or represented as company property."
+  },
+  "governance_plan": {
+    "administrator_model": "sole_administrator_provisional",
+    "administrator_appointment_status": "not_executed",
+    "administrator_remuneration_status": "not_decided_professional_review_required",
+    "beneficial_owner_status": "not_filed",
+    "social_security_classification": "provisional_autonomo_societario_review_required",
+    "control_effective_basis": "sole_shareholder_control",
+    "social_security_verified": false
+  },
+  "corporate_purpose_draft": {
+    "status": "bounded_draft_not_approved",
+    "permitted_activity_families": [
+      "website design development maintenance and digital implementation",
+      "commercial digitalisation and international market-readiness services",
+      "CRM configuration commercial-process design and workflow automation",
+      "advertising communications commercial copywriting and non-certified localisation",
+      "business communication channel configuration",
+      "software and human-supervised artificial-intelligence implementation",
+      "commercial research market analysis and business-development support",
+      "training related to digital tools commercial processes and software use"
+    ],
+    "excluded_regulated_activities": [
+      "legal advice",
+      "tax advice",
+      "labour advice",
+      "regulated financial advice",
+      "statutory accounts auditing",
+      "certified or sworn translation",
+      "employment placement requiring authorisation",
+      "real-estate intermediation",
+      "insurance investment or credit intermediation",
+      "autonomous high-impact employment credit biometric emotion or sensitive-data decisions"
+    ],
+    "final_wording_requires": [
+      "professional_legal_review",
+      "notarial_acceptance",
+      "activity_classification_alignment"
+    ]
+  },
+  "formation_sequence": [
+    {
+      "order": 1,
+      "id": "OWNER_COMPANY_DECISION",
+      "name": "Record company-route decision",
+      "status": "owner_decision_recorded_not_incorporated",
+      "evidence_required": "Public-safe owner decision record selecting company route without personal identifiers",
+      "blocks": [
+        "company_formation_execution"
+      ]
+    },
+    {
+      "order": 2,
+      "id": "CORPORATE_NAME",
+      "name": "Select candidate names and obtain negative name certificate",
+      "status": "not_started",
+      "evidence_required": "Valid official name certificate stored in restricted custody",
+      "blocks": [
+        "formation_deed",
+        "provisional_NIF"
+      ]
+    },
+    {
+      "order": 3,
+      "id": "REGISTERED_OFFICE",
+      "name": "Confirm registered office and actual activity location",
+      "status": "frozen_address_not_supplied",
+      "evidence_required": "Address and lawful-use evidence stored in restricted custody",
+      "blocks": [
+        "municipal_path",
+        "formation_deed",
+        "online_provider_information"
+      ]
+    },
+    {
+      "order": 4,
+      "id": "MUNICIPAL_PATH",
+      "name": "Run address-specific Catalonia FUE or municipal classification",
+      "status": "frozen_address_not_supplied",
+      "evidence_required": "Saved FUE result or municipal confirmation for the exact municipality, address and use",
+      "blocks": [
+        "receiving_clients_at_address",
+        "opening_client_facing_premises"
+      ]
+    },
+    {
+      "order": 5,
+      "id": "CORPORATE_PURPOSE",
+      "name": "Approve bounded corporate purpose",
+      "status": "frozen_professional_legal_review",
+      "evidence_required": "Reviewed final object clause aligned with permitted services and exclusions",
+      "blocks": [
+        "formation_deed"
+      ]
+    },
+    {
+      "order": 6,
+      "id": "CNAE_IAE",
+      "name": "Confirm CNAE and IAE classifications",
+      "status": "frozen_professional_confirmation",
+      "evidence_required": "Accepted classifications recorded in official tax or formation evidence",
+      "blocks": [
+        "Modelo_036_activity_registration",
+        "commercial_operations"
+      ]
+    },
+    {
+      "order": 7,
+      "id": "GOVERNANCE",
+      "name": "Confirm administrator structure, powers and remuneration",
+      "status": "frozen_professional_legal_and_tax_review",
+      "evidence_required": "Approved governance terms for the formation deed and tax treatment",
+      "blocks": [
+        "formation_deed",
+        "administrator_social_security"
+      ]
+    },
+    {
+      "order": 8,
+      "id": "CAPITAL_CONTRIBUTION",
+      "name": "Confirm and document share-capital contribution",
+      "status": "not_started",
+      "evidence_required": "Bank or legally accepted contribution evidence in restricted custody",
+      "blocks": [
+        "formation_deed"
+      ]
+    },
+    {
+      "order": 9,
+      "id": "CIRCE_DUE_OR_NOTARY",
+      "name": "Select CIRCE/DUE or alternative notarial route",
+      "status": "not_started",
+      "evidence_required": "Chosen operator route and appointment evidence",
+      "blocks": [
+        "formation_deed"
+      ]
+    },
+    {
+      "order": 10,
+      "id": "FORMATION_DEED",
+      "name": "Execute public formation deed",
+      "status": "not_started",
+      "evidence_required": "Signed notarial deed in restricted custody",
+      "blocks": [
+        "legal_entity_representation",
+        "mercantile_registry"
+      ]
+    },
+    {
+      "order": 11,
+      "id": "PROVISIONAL_NIF",
+      "name": "Obtain provisional NIF through Modelo 036",
+      "status": "not_started",
+      "evidence_required": "Official provisional NIF and Modelo 036 receipt in restricted custody",
+      "blocks": [
+        "company_bank_activation",
+        "economic_operations"
+      ]
+    },
+    {
+      "order": 12,
+      "id": "MERCANTILE_REGISTRY",
+      "name": "Register the company in the Provincial Mercantile Registry",
+      "status": "not_started",
+      "evidence_required": "Registry inscription evidence in restricted custody",
+      "blocks": [
+        "definitive_NIF",
+        "live_legal_identity"
+      ]
+    },
+    {
+      "order": 13,
+      "id": "DEFINITIVE_NIF",
+      "name": "Obtain definitive NIF",
+      "status": "not_started",
+      "evidence_required": "Official definitive NIF card or receipt in restricted custody",
+      "blocks": [
+        "live_publication",
+        "invoice_issue",
+        "payment_collection"
+      ]
+    },
+    {
+      "order": 14,
+      "id": "SOCIAL_SECURITY",
+      "name": "Confirm and complete administrator Social Security route",
+      "status": "frozen_external_classification",
+      "evidence_required": "Professional classification and official registration receipt where required",
+      "blocks": [
+        "habitual_paid_activity",
+        "administrator_remuneration"
+      ]
+    },
+    {
+      "order": 15,
+      "id": "INVOICE_SYSTEM",
+      "name": "Configure compliant company invoicing and record retention",
+      "status": "frozen_professional_invoicing_review",
+      "evidence_required": "Approved numbering, tax fields, SIF configuration and retention process",
+      "blocks": [
+        "invoice_issue",
+        "paid_delivery"
+      ]
+    },
+    {
+      "order": 16,
+      "id": "ONLINE_DATA_AI_ACTIVATION",
+      "name": "Approve website identity, contracting, privacy and AI controls",
+      "status": "frozen_professional_reviews",
+      "evidence_required": "Named human approval of provider identity, contracts, privacy, processor and AI controls",
+      "blocks": [
+        "live_publication",
+        "live_intake",
+        "client_personal_data",
+        "client_AI_use"
+      ]
+    }
+  ],
+  "restricted_custody": {
+    "storage_rule": "Sensitive incorporation evidence stays in restricted Drive storage and never in public source control, public comments or website artifacts.",
+    "document_classes": [
+      "founder_identity_documents",
+      "personal_or_registered_office_address_evidence",
+      "corporate_name_certificate",
+      "bank_and_capital_contribution_certificates",
+      "shareholder_and_beneficial_owner_information",
+      "notarial_drafts_and_signed_deed",
+      "provisional_and_definitive_NIF",
+      "Modelo_036_and_tax_filings",
+      "Mercantile_Registry_records",
+      "Social_Security_and_RETA_receipts",
+      "electronic_certificates_and_credentials",
+      "bank_accounts_mandates_and_payment_credentials",
+      "signed_professional_legal_tax_privacy_and_invoicing_opinions"
+    ],
+    "public_safe_fields": [
+      "control_id",
+      "authority_category",
+      "status",
+      "filing_or_decision_date_redacted",
+      "effective_date_redacted",
+      "restricted_receipt_pointer",
+      "reviewer_role",
+      "expiry_or_review_date",
+      "notes_without_identifiers"
+    ],
+    "forbidden_public_fields": [
+      "NIF_or_personal_ID",
+      "full_address",
+      "bank_account",
+      "signature",
+      "certificate_password",
+      "tax_filing_copy",
+      "Social_Security_number",
+      "beneficial_owner_identity"
+    ]
+  },
+  "frozen_reviews": {
+    "professional_privacy_review": "frozen_by_owner",
+    "professional_legal_review": "frozen_by_owner",
+    "professional_invoicing_review": "frozen_by_owner",
+    "exact_CNAE_IAE_confirmation": "frozen_by_owner",
+    "municipal_address_specific_confirmation": "frozen_by_owner",
+    "administrator_social_security_confirmation": "frozen_by_owner"
+  },
+  "current_decision": {
+    "company_route_selected": true,
+    "formation_readiness_build_permitted": true,
+    "legal_entity_exists": false,
+    "incorporation_execution_permitted": false,
+    "official_filings_permitted": false,
+    "live_publication_permitted": false,
+    "live_intake_permitted": false,
+    "client_personal_data_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  },
+  "official_sources": [
+    {
+      "authority": "BOE",
+      "subject": "Spanish Companies Act capital rules",
+      "reference": "Real Decreto Legislativo 1/2010, article 4, consolidated text"
+    },
+    {
+      "authority": "PAE/CIRCE",
+      "subject": "Electronic company formation and DUE",
+      "reference": "CIRCE company-creation service and SRL guidance"
+    },
+    {
+      "authority": "Agencia Tributaria",
+      "subject": "Modelo 036, NIF and census registration",
+      "reference": "Modelo 036 guidance current for 2026"
+    },
+    {
+      "authority": "Tesorería General de la Seguridad Social",
+      "subject": "Effective control and self-employed Social Security classification",
+      "reference": "RETA affiliation guidance for company shareholders and directors"
+    },
+    {
+      "authority": "Generalitat de Catalunya",
+      "subject": "Municipal activity classification",
+      "reference": "Canal Empresa FUE address-specific consultation"
+    }
+  ],
+  "owner_instruction": {
+    "effect": "Build public-safe company-formation readiness only. Do not reserve a name, incorporate, file, register, publish, collect data, contract, invoice, request payment or deliver paid work."
+  }
+}
