@@ -1,0 +1,76 @@
+id: A12
+name: Autonomous microcandidate training and evidence review
+status: synthetic_shadow
+trigger:
+  - pull_request
+  - manual_dispatch
+runtime:
+  python: '3.12'
+  external_packages_required: false
+  model_downloads: false
+  external_datasets: false
+  production_credentials: false
+candidates:
+  - id: micro-lora-autoregressive-shadow-v1
+    type: language_model
+    architecture:
+      - frozen uniform transition base
+      - trainable low-rank A and B matrices
+      - autoregressive cross-entropy
+      - analytical backpropagation
+      - global gradient clipping
+    evidence:
+      - perplexity
+      - train-validation-test loss
+      - calibration
+      - Brier score
+      - segment quality
+  - id: micro-service-embedding-shadow-v1
+    type: embedding
+    architecture:
+      - trainable latent projection
+      - supervised gradient descent
+      - cosine retrieval
+    evidence:
+      - retrieval MRR
+      - classification accuracy
+      - calibration
+      - Brier score
+      - B2B/B2C segment quality
+  - id: micro-convolutional-card-vision-shadow-v1
+    type: vision
+    architecture:
+      - trainable 3x3 convolution filters
+      - ReLU
+      - global average pooling
+      - softmax classification
+    declaration: convolutional smoke proxy; not YOLO
+    evidence:
+      - proxy mAP50
+      - macro precision
+      - macro recall
+      - calibration
+      - per-class quality
+outputs:
+  - dataset specification and SHA-256 digest
+  - three rollback artifacts
+  - three candidate evidence packs
+  - candidate review board
+  - synthetic shadow rollout
+  - summary artifact
+review:
+  candidate_count: 3
+  shadow_decisions_per_candidate: 240
+  promotion_permitted: false
+  human_review_required: true
+safety:
+  personal_data: prohibited
+  production_crm: prohibited
+  external_communication: prohibited
+  production_deployment: prohibited
+  automatic_promotion: prohibited
+  rollback_required: true
+  retention_days: 14
+relationship_to_optional_runtime:
+  replaces_heavy_candidate_training: false
+  purpose: continuous training and governance smoke lane
