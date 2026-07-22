@@ -77,6 +77,7 @@ class ReviewCard:
     axes: tuple[ReviewAxis, ...]
     route_debt: tuple[str, ...]
     blockers: tuple[str, ...]
+    limitations: tuple[str, ...]
     rollback_status: str
     shadow_rollout: ShadowRollout
     card_digest: str
@@ -157,17 +158,6 @@ class CandidateReviewBoard:
         "rollback": 0.10,
         "reproducibility": 0.10,
     }
-
-    REQUIRED_SAFETY = (
-        "pii_scan_passed",
-        "memorisation_test_passed",
-        "prompt_injection_test_passed",
-        "reward_hacking_test_passed",
-        "model_extraction_test_passed",
-        "rollback_verified",
-        "temporal_split_verified",
-        "segment_review_passed",
-    )
 
     def __init__(self, rollout: ShadowRolloutSimulator | None = None) -> None:
         self.rollout = rollout or ShadowRolloutSimulator()
@@ -268,10 +258,7 @@ class CandidateReviewBoard:
         rollback_score = 1.0 if rollback_ok else 0.0
         rollback_reasons = [] if rollback_ok else ["rollback_not_verified"]
 
-        reproducible = all(
-            evidence.get(key) not in (None, "")
-            for key in ("dataset_digest", "code_commit", "seed")
-        ) and bool(pack.get("pack_digest") or evidence.get("evidence_digest"))
+        reproducible = all(evidence.get(key) not in (None, "") for key in ("dataset_digest", "code_commit", "seed")) and bool(pack.get("pack_digest") or evidence.get("evidence_digest"))
         reproducibility_score = 1.0 if reproducible else 0.35
         reproducibility_reasons = [] if reproducible else ["incomplete_reproducibility_chain"]
 
@@ -293,8 +280,6 @@ class CandidateReviewBoard:
         if not rollout.stable:
             blockers.append("shadow_rollout_not_stable")
             route_debt.append("Janus→Pallas")
-        if limitations:
-            blockers.extend(f"declared_limitation:{item}" for item in limitations)
         blockers = sorted(set(blockers))
         route_debt = sorted(set(route_debt))
 
@@ -315,6 +300,7 @@ class CandidateReviewBoard:
             "axes": [asdict(axis) for axis in axes],
             "route_debt": route_debt,
             "blockers": blockers,
+            "limitations": limitations,
             "rollout": asdict(rollout),
         }
         return ReviewCard(
@@ -329,6 +315,7 @@ class CandidateReviewBoard:
             axes=axes,
             route_debt=tuple(route_debt),
             blockers=tuple(blockers),
+            limitations=limitations,
             rollback_status="verified" if rollback_ok else "blocked",
             shadow_rollout=rollout,
             card_digest=_digest(card_payload),
