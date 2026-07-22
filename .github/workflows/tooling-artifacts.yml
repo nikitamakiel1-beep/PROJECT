@@ -37,6 +37,9 @@ jobs:
       - name: Validate company-formation readiness
         run: python scripts/test_company_formation_readiness.py
 
+      - name: Validate corporate identity dossier
+        run: python scripts/test_corporate_identity_dossier.py
+
       - name: Validate synthetic intake contract
         run: python scripts/test_intake_contract.py
 
@@ -61,6 +64,9 @@ jobs:
       - name: Generate company-formation readiness receipt
         run: python scripts/audit_company_formation_readiness.py --output dist/company-formation-readiness-receipt.json
 
+      - name: Generate corporate identity dossier receipt
+        run: python scripts/audit_corporate_identity_dossier.py --output dist/corporate-identity-dossier-receipt.json
+
       - name: Build Apps Script provider bundle
         run: python scripts/package_apps_script.py
 
@@ -81,6 +87,7 @@ jobs:
             dist/market-entry-audit.json
             dist/market-entry-operator-receipt.json
             dist/company-formation-readiness-receipt.json
+            dist/corporate-identity-dossier-receipt.json
           if-no-files-found: error
           retention-days: 14
 
