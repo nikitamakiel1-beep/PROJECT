@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "profile": "staging",
+  "endpoint": "https://synthetic-provider.invalid/exec",
+  "endpoint_classification": "non_resolving_reserved_test_endpoint",
+  "synthetic_only": true,
+  "indexable": false,
+  "public_intake_permitted": false,
+  "client_data_permitted": false,
+  "professional_review_state": "frozen_by_owner",
+  "robots_policy": "disallow_all",
+  "purpose": "Construct and inspect the complete website in staging mode without collecting data or implying legal approval.",
+  "rollback": "Delete the staging artifact and rebuild preview from source."
+}
