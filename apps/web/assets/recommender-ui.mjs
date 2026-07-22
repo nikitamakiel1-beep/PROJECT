@@ -1,9 +1,12 @@
 import { recommendServices } from './neural-recommender.mjs';
+import { renderFloatingCardFabric } from './deep-card-fabric.mjs';
 
-const styleLink = document.createElement('link');
-styleLink.rel = 'stylesheet';
-styleLink.href = 'assets/neural-fabric.css';
-document.head.append(styleLink);
+for (const href of ['assets/neural-fabric.css', 'assets/deep-card-fabric.css']) {
+  const styleLink = document.createElement('link');
+  styleLink.rel = 'stylesheet';
+  styleLink.href = href;
+  document.head.append(styleLink);
+}
 
 const form = document.getElementById('neural-recommender-form');
 const output = document.getElementById('neural-recommendations');
@@ -91,6 +94,50 @@ function renderExecutionPlan(result) {
   return section;
 }
 
+function floatingCards(result) {
+  const recommendationCards = result.recommendations.slice(0, 3).map((recommendation, index) => {
+    const service = serviceForCode(recommendation.code);
+    return {
+      card_id: `WEB-SERVICE-${recommendation.code}`,
+      card_type: 'service',
+      title: service?.name?.[language()] || recommendation.code,
+      summary: recommendation.reasons.map(reasonText).join(' '),
+      confidence: recommendation.confidence,
+      layer: index + 2,
+      related_cards: index === 0 ? result.next_steps.map((_, stepIndex) => `WEB-STEP-${stepIndex + 1}`) : [`WEB-SERVICE-${result.recommendations[0].code}`],
+      actions: ['review', 'select_service'],
+      human_review: true
+    };
+  });
+  const stepCards = result.next_steps.map((step, index) => ({
+    card_id: `WEB-STEP-${index + 1}`,
+    card_type: step.human_gate ? 'risk' : 'task',
+    title: stepText(step),
+    summary: step.human_gate ? t('neural_step_human_gate') : t('neural_step_internal'),
+    confidence: result.confidence,
+    layer: Math.min(7, index + 1),
+    related_cards: index > 0 ? [`WEB-STEP-${index}`] : [`WEB-SERVICE-${result.recommendations[0].code}`],
+    actions: ['review'],
+    human_review: true
+  }));
+  return [...recommendationCards, ...stepCards];
+}
+
+function renderFloatingWorkspace(result) {
+  const section = document.createElement('section');
+  section.className = 'neural-floating-workspace-section';
+  const title = document.createElement('h3');
+  title.textContent = language() === 'es' ? 'Espacio neuronal de tarjetas conectadas' : 'Connected neural card workspace';
+  const note = document.createElement('p');
+  note.textContent = language() === 'es'
+    ? 'Las capas flotantes representan relaciones y próximos pasos; las acciones permanecen desactivadas hasta revisión humana.'
+    : 'Floating layers represent relationships and next steps; actions remain disabled until human review.';
+  const container = document.createElement('div');
+  section.append(title, note, container);
+  output.append(section);
+  renderFloatingCardFabric(container, floatingCards(result), { allowActions: false });
+}
+
 function renderResult(result) {
   lastResult = result;
   output.replaceChildren();
@@ -134,6 +181,7 @@ function renderResult(result) {
     output.append(article);
   });
   output.append(renderExecutionPlan(result));
+  renderFloatingWorkspace(result);
   status.textContent = `${t('neural_local_status')} ${t('neural_human_review')}`;
 }
 
