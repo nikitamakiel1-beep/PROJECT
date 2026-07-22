@@ -19,6 +19,9 @@ def require(condition, message):
 
 
 def run_once(path: Path):
+    path.mkdir(parents=True, exist_ok=True)
+    for name in ("lora", "embedding", "vision"):
+        (path / name).mkdir(parents=True, exist_ok=True)
     return run_microcandidate_lane(path, seed=129)
 
 
