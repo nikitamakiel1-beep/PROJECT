@@ -9,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ml_runtime.heavy_federation import (  # noqa: E402
+from ml_runtime.heavy_rework_patch import (  # noqa: E402
     build_dataset_bundle,
     federate_heavy_evidence,
     run_heavy_candidate,
@@ -17,7 +17,7 @@ from ml_runtime.heavy_federation import (  # noqa: E402
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Run the governed heavy-runtime candidate federation.")
+    parser = argparse.ArgumentParser(description="Run the governed heavy-runtime candidate federation v2.")
     parser.add_argument("command", choices=("generate", "embedding", "lora", "yolo", "federate"))
     parser.add_argument("--workspace", default="artifacts/heavy-federation")
     parser.add_argument("--seed", type=int, default=130)
