@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "control_id": "NIK-135",
+  "programme": "International Growth Venture — corporate identity and formation handoff dossier",
+  "as_of": "2026-07-22",
+  "source_branch": "venture/stage-005s-corporate-identity-dossier",
+  "base_branch": "venture/stage-003-provider-runtime",
+  "source_readiness": {
+    "ordered_name_candidates": 5,
+    "registered_office_options": 4,
+    "FUE_questionnaire_present": true,
+    "CNAE_2025_candidates": 10,
+    "IAE_candidates": 4,
+    "notary_PAE_handoff_template_present": true,
+    "adversarial_test_cases": 18,
+    "public_safe_receipt_supported": true
+  },
+  "official_state": {
+    "name_availability_checked": false,
+    "name_certificate_requested": false,
+    "name_certificate_obtained": false,
+    "trademark_screen": "not_started",
+    "domain_screen": "not_started",
+    "registered_office_selected": false,
+    "real_address_present": false,
+    "office_contract_executed": false,
+    "FUE_submission_performed": false,
+    "municipal_result_verified": false,
+    "CNAE_confirmed": false,
+    "IAE_confirmed": false,
+    "notary_or_PAE_instructed": false,
+    "incorporation_started": false
+  },
+  "decisions": {
+    "identity_dossier_build_permitted": true,
+    "legal_entity_exists": false,
+    "incorporation_execution_permitted": false,
+    "live_publication_permitted": false,
+    "live_intake_permitted": false,
+    "client_personal_data_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  },
+  "sensitive_data_present": false,
+  "professional_approval_inferred": false,
+  "human_decisions_required": [
+    "candidate_name_order",
+    "registered_office_option_and_real_address",
+    "municipal_submission",
+    "final_CNAE_and_IAE",
+    "notary_or_PAE_route"
+  ]
+}
