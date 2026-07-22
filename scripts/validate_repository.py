@@ -25,8 +25,35 @@ REQUIRED = [
 ]
 
 
+def load_manifest_files(errors: list[str]) -> list[str]:
+    manifests = [ROOT / "MANIFEST.json", *sorted(ROOT.glob("MANIFEST.*.json"))]
+    listed: list[str] = []
+    seen: dict[str, str] = {}
+    for path in manifests:
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception as exc:
+            errors.append(f"invalid manifest {path.name}: {exc}")
+            continue
+        if payload.get("schema_version") not in {1, 2}:
+            errors.append(f"unsupported manifest schema in {path.name}")
+        files = payload.get("files")
+        if not isinstance(files, list) or any(not isinstance(item, str) or not item for item in files):
+            errors.append(f"manifest files must be non-empty strings in {path.name}")
+            continue
+        if files != sorted(files):
+            errors.append(f"manifest files are not sorted in {path.name}")
+        for item in files:
+            if item in seen:
+                errors.append(f"duplicate manifest entry {item}: {seen[item]} and {path.name}")
+            else:
+                seen[item] = path.name
+                listed.append(item)
+    return sorted(listed)
+
+
 def main() -> None:
-    errors = []
+    errors: list[str] = []
     for path in REQUIRED:
         if not (ROOT / path).exists():
             errors.append(f"missing required file: {path}")
@@ -43,16 +70,16 @@ def main() -> None:
         errors.append("no active service")
     if (ROOT / "apps/web/assets/services.json").exists():
         errors.append("duplicate service catalogue found in website assets")
-    manifest = json.loads((ROOT / "MANIFEST.json").read_text(encoding="utf-8"))
+
     actual = sorted(str(path.relative_to(ROOT)) for path in ROOT.rglob("*") if path.is_file() and ".git" not in path.parts)
-    listed = sorted(manifest.get("files", []))
+    listed = load_manifest_files(errors)
     if actual != listed:
         missing = sorted(set(actual) - set(listed))
         stale = sorted(set(listed) - set(actual))
         errors.append(f"manifest mismatch; unlisted={missing}, stale={stale}")
     if errors:
         raise SystemExit("repository validation failed:\n- " + "\n- ".join(errors))
-    print("repository validation passed")
+    print(f"repository validation passed ({len(listed)} files across manifest fragments)")
 
 
 if __name__ == "__main__":

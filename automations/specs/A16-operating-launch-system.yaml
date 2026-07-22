@@ -1,0 +1,86 @@
+automation_id: A16
+name: operating-launch-system
+status: source_complete_activation_blocked
+purpose: >-
+  Standardise qualification, client-input custody, delivery handover, feedback,
+  time-and-margin evidence, customer discovery and the aggregate weekly
+  management digest without automating outreach, commercial approval or CRM
+  stage changes.
+
+inputs:
+  - templates/commercial/qualification-checklist.md
+  - templates/commercial/client-input-request.md
+  - templates/commercial/handover-message.md
+  - templates/commercial/feedback-request.md
+  - templates/commercial/time-margin-record.md
+  - templates/research/customer-discovery-interview.md
+  - templates/research/interview-evidence-register.md
+  - intelligence/venture_brain/management_digest.py
+
+outputs:
+  - controlled_sell_to_close_master_pack
+  - pseudonymous_customer_discovery_register
+  - aggregate_weekly_management_digest
+  - deterministic_action_queue
+  - digest_sha256
+  - regression_test_result
+
+hard_gates:
+  - external_outreach_requires_human_approval
+  - no_pipeline_stage_mutation
+  - collected_cash_requires_payment_confirmation
+  - client_credentials_require_an_approved_secure_channel
+  - interview_data_must_be_pseudonymous_or_aggregate
+  - recordings_require_explicit_permission
+  - weekly_digest_requires_human_review
+  - proposals_price_exceptions_invoices_and_publication_require_human_approval
+  - repository_public_safety_boundary_remains_active_until_visibility_is_private
+
+forbidden_actions:
+  - send_email_or_message
+  - book_meeting
+  - auto_qualify_or_disqualify_a_real_person
+  - mutate_lead_or_opportunity_stage
+  - infer_collected_cash_from_won_or_delivered_status
+  - create_or_send_proposal
+  - approve_price_exception
+  - issue_invoice
+  - publish_feedback_name_logo_testimonial_or_result
+  - store_names_emails_phone_numbers_recording_links_or_raw_transcripts_in_public_source
+  - activate_public_intake
+
+management_digest:
+  mode: aggregate_only
+  deterministic: true
+  action_queue: human_review_only
+  required_metrics:
+    - open_and_qualified_leads
+    - overdue_lead_and_opportunity_actions
+    - open_and_weighted_pipeline
+    - won_revenue_and_explicitly_confirmed_collected_cash
+    - completed_activities
+    - delivery_hours_and_overdue_jobs
+    - failed_automations
+    - overdue_programme_issues
+    - interview_count_themes_referrals_and_willingness_to_pay
+
+validation:
+  command: python scripts/test_operating_launch_system.py
+  expected_cases: 6
+  fail_closed: true
+
+human_approvals:
+  - contact_basis_and_outreach
+  - qualification_disposition
+  - client_input_acceptance
+  - delivery_release
+  - feedback_publication_permission
+  - weekly_management_action_queue
+  - proposal_price_invoice_and_payment_decisions
+  - customer_discovery_aggregate_review
+
+rollback:
+  source: revert_the_A16_commit_or_stacked_PR
+  digest: discard_the_generated_digest_and_preserve_failed_input_evidence
+  outreach: no_automatic_outreach_exists_to_rollback
+  publication: unpublish_unapproved_material_and_preserve_permission_evidence
