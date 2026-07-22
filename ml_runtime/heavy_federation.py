@@ -51,7 +51,11 @@ def _relative_rollback(candidate: str, raw_path: str, candidate_dir: Path) -> tu
     if not resolved.exists():
         direct = candidate_dir / raw.name
         resolved = direct if direct.exists() else resolved
-    return f"{candidate}/{resolved.name}", resolved
+    try:
+        nested = resolved.relative_to(candidate_dir)
+    except ValueError:
+        nested = Path(resolved.name)
+    return f"{candidate}/{nested.as_posix()}", resolved
 
 
 def build_dataset_bundle(workspace: str | Path, seed: int = 130) -> dict[str, Any]:
@@ -59,12 +63,20 @@ def build_dataset_bundle(workspace: str | Path, seed: int = 130) -> dict[str, An
     dataset_root = workspace / "datasets"
     dataset_root.mkdir(parents=True, exist_ok=True)
     result = DatasetBundleBuilder(seed=seed).build(dataset_root)
+    record_counts = {
+        path: int(metadata.get("records", 0))
+        for path, metadata in result["manifest"]["files"].items()
+        if path.endswith(".jsonl")
+    }
     summary = {
         "version": HEAVY_FEDERATION_VERSION,
         "seed": seed,
         "dataset_root": "datasets",
-        "dataset_digest": result["manifest"]["signature"]["manifest_digest"],
-        "record_counts": result["dataset_card"]["record_counts"],
+        "dataset_id": result["manifest"]["dataset_id"],
+        "dataset_digest": result["signature"]["manifest_digest"],
+        "record_counts": record_counts,
+        "total_records": sum(record_counts.values()),
+        "signature_mode": result["signature"]["mode"],
         "production_data_used": False,
         "model_downloads_used": False,
     }
@@ -114,6 +126,7 @@ def _normalise_candidate(
         "runtime_seconds": runtime_seconds,
         "artifact_bytes": _recursive_size(resolved_rollback),
         "rollback_exists": resolved_rollback.exists(),
+        "rollback_reference": relative_rollback,
         "offline_model_mode": os.getenv("HF_HUB_OFFLINE") == "1",
         "automatic_promotion": False,
     }
@@ -252,6 +265,7 @@ def federate_heavy_evidence(
         "human_review_required": True,
     }
     frontier = [_frontier_entry(pack, reference) for pack in packs]
+    gate_ready = all(bool(pack.get("gate", {}).get("eligible_for_human_review")) for pack in packs)
     report = {
         "schema_version": 1,
         "version": HEAVY_FEDERATION_VERSION,
@@ -265,7 +279,7 @@ def federate_heavy_evidence(
             "direct_comparability": False,
         },
         "frontier": frontier,
-        "eligible_for_human_review": bool(packs) and not missing,
+        "eligible_for_human_review": bool(packs) and not missing and gate_ready,
         "promotion_permitted": False,
         "human_review_required": True,
         "production_deployment": False,
