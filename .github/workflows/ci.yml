@@ -22,6 +22,8 @@ jobs:
       - run: python scripts/validate_repository.py
       - run: python scripts/test_web.py
       - run: node scripts/test_web_neural_recommender.mjs
+      - run: python scripts/test_multidimensional_neural_fabric.py
+      - run: python scripts/test_connected_execution_planner.py
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
