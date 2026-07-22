@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-07-22",
+  "stage": "003r",
+  "website": {
+    "profile": "staging",
+    "endpoint": "https://synthetic-provider.invalid/exec",
+    "synthetic_only": true,
+    "indexable": false,
+    "public_intake_permitted": false,
+    "client_data_permitted": false,
+    "construction_status": "ready_for_artifact_build"
+  },
+  "market_entry": {
+    "sector_specific_professional_licence_identified": false,
+    "legal_opinion_claimed": false,
+    "business_registration_complete": false,
+    "municipal_confirmation_complete": false,
+    "consumer_scope_activated": false,
+    "eu_cross_border_scope_activated": false,
+    "ai_transparency_classification_complete": false
+  },
+  "frozen_by_owner": [
+    "professional_privacy_review",
+    "professional_legal_review",
+    "professional_invoicing_review",
+    "exact_iae_heading_confirmation",
+    "municipal_address_specific_confirmation"
+  ],
+  "permitted": [
+    "build synthetic staging artifact",
+    "inspect all ten routes",
+    "run accessibility and responsive QA",
+    "run local neural and floating-card demonstrations",
+    "audit registrations and conditional operating duties"
+  ],
+  "prohibited": [
+    "publish live indexable site",
+    "collect real prospect or client data",
+    "issue proposal or invoice",
+    "accept payment",
+    "represent frozen professional review as approval",
+    "offer regulated legal tax financial medical employment or credit advice"
+  ],
+  "human_review_required": true,
+  "live_release_permitted": false,
+  "paid_contracting_permitted": false
+}

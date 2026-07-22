@@ -28,6 +28,9 @@ jobs:
       - name: Validate website
         run: python scripts/test_web.py
 
+      - name: Validate market-entry and staging controls
+        run: python scripts/test_market_entry_licensing.py
+
       - name: Validate synthetic intake contract
         run: python scripts/test_intake_contract.py
 
@@ -37,6 +40,15 @@ jobs:
       - name: Build demonstration website preview
         run: python scripts/build_preview.py
 
+      - name: Build synthetic noindex staging website
+        run: >-
+          python scripts/build_web_release.py --profile staging
+          --endpoint https://synthetic-provider.invalid/exec
+          --output dist/web-staging
+
+      - name: Generate market-entry audit receipt
+        run: python scripts/audit_market_entry_licensing.py --output dist/market-entry-audit.json
+
       - name: Build Apps Script provider bundle
         run: python scripts/package_apps_script.py
 
@@ -45,6 +57,16 @@ jobs:
         with:
           name: international-growth-venture-web-preview
           path: dist/web-preview
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload staged website and market-entry audit
+        uses: actions/upload-artifact@v4
+        with:
+          name: international-growth-venture-web-staging
+          path: |
+            dist/web-staging
+            dist/market-entry-audit.json
           if-no-files-found: error
           retention-days: 14
 
