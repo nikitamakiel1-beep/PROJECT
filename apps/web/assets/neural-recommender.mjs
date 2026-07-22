@@ -192,7 +192,7 @@ function graphAttention(baseScores, activeCodes) {
       if (!incoming.length) continue;
       const attention = softmax(incoming.map(item => item.attentionLogit));
       const message = incoming.reduce((sum, item, index) => sum + attention[index] * state[item.source] * item.relation, 0);
-      next[target] = state[target] * 0.82 + message * 0.18;
+      next[target] = state[target] * 0.90 + message * 0.10;
     }
     state = next;
   }
@@ -208,11 +208,11 @@ function memberScores(features, activeServices, seed) {
     const tensorSignal = latentProjection(latent, seed + code.charCodeAt(code.length - 1));
     const direct = profileScore(features, code);
     const economics = economicAlignment(features, service);
-    const perturbation = weights(seed + code.length * 131, 3, 0.045);
+    const perturbation = weights(seed + code.length * 131, 3, 0.025);
     base[code] = Math.max(0.001,
-      direct * 0.56 +
-      tensorSignal * 0.24 +
-      economics * 0.20 +
+      direct * 0.72 +
+      tensorSignal * 0.14 +
+      economics * 0.14 +
       perturbation[0] * features[4] +
       perturbation[1] * features[7] +
       perturbation[2] * features[8]
@@ -287,7 +287,7 @@ export function recommendServices(answers, services, options = {}) {
   const seeds = options.seeds || [113, 227, 389, 557, 761, 887, 997];
   const memberDistributions = seeds.map(seed => {
     const raw = memberScores(features, canonicalServices, seed);
-    const probabilities = softmax(activeCodes.map(code => raw[code] * 4.4));
+    const probabilities = softmax(activeCodes.map(code => raw[code] * 5.0));
     return Object.fromEntries(activeCodes.map((code, index) => [code, probabilities[index]]));
   });
   const means = {};
