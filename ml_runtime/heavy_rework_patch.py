@@ -4,10 +4,11 @@ from pathlib import Path
 import time
 from typing import Any
 
-from .candidate_rework import train_lora_candidate_v2, train_yolo_candidate_v2
+from .candidate_rework import train_lora_candidate_v2
 from .embedding_rework import train_embedding_candidate_v3
 from .heavy_federation import CANDIDATE_TASKS, _normalise_candidate, build_dataset_bundle
 from .heavy_rework import federate_heavy_evidence
+from .yolo_rework import train_yolo_candidate_v3
 
 
 def run_heavy_candidate(candidate: str, workspace: str | Path, seed: int = 130) -> dict[str, Any]:
@@ -25,7 +26,7 @@ def run_heavy_candidate(candidate: str, workspace: str | Path, seed: int = 130) 
     elif candidate == "lora":
         result = train_lora_candidate_v2(dataset_root, candidate_dir, seed=seed, epochs=8)
     else:
-        result = train_yolo_candidate_v2(dataset_root, candidate_dir, seed=seed, epochs=18)
+        result = train_yolo_candidate_v3(dataset_root, candidate_dir, seed=seed, epochs=18)
     return _normalise_candidate(candidate, result, candidate_dir, time.perf_counter() - started)
 
 
