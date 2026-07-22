@@ -1,0 +1,86 @@
+automation_id: A22
+name: corporate-identity-and-formation-handoff-dossier
+status: source_complete_no_identity_or_address_selected
+purpose: >-
+  Prepare a public-safe corporate-name, registered-office, activity-classification
+  and notary/PAE handoff dossier for the planned Spanish S.L.U. without checking
+  name availability, selecting or publishing an address, filing, incorporating,
+  contracting, invoicing or accepting payment.
+
+inputs:
+  - stage_004s_company_formation_readiness
+  - owner_brand_seed_creixement
+  - official_RMC_name_rules
+  - Spanish_Companies_Act_domicile_rules
+  - Catalonia_FUE_address_specific_requirements
+  - CNAE_2025_official_structure
+  - AEAT_IAE_classification_guidance
+
+outputs:
+  - ordered_five_name_shortlist
+  - name_risk_and_distinctiveness_scores
+  - registered_office_option_matrix
+  - address_specific_FUE_questionnaire
+  - candidate_CNAE_2025_map
+  - candidate_IAE_family_map
+  - public_safe_notary_PAE_handoff_dossier
+  - deterministic_identity_readiness_receipt
+
+required_controls:
+  - exactly_five_ordered_name_candidates
+  - every_name_includes_SLU_form
+  - availability_and_certificate_status_remain_not_checked
+  - preliminary_name_queries_never_unlock_the_deed
+  - only_a_favourable_RMC_certificate_can_unlock_the_name_gate
+  - registered_office_must_align_with_effective_management_or_main_establishment
+  - no_real_address_is_stored_in_public_source
+  - home_coworking_and_dedicated_office_options_have_explicit_risks
+  - mail_only_virtual_office_is_not_recommended_without_substance_review
+  - FUE_questionnaire_requires_exact_municipality_address_and_activity_facts
+  - CNAE_2025_and_IAE_are_separate_classification_systems
+  - all_CNAE_and_IAE_candidates_remain_unconfirmed
+  - trademark_domain_and_brand_checks_do_not_replace_RMC_certification
+  - notary_PAE_handoff_contains_placeholders_not_personal_data
+  - all_incorporation_and_commercial_gates_remain_false
+
+forbidden_actions:
+  - query_or_reserve_a_corporate_name
+  - request_a_negative_name_certificate
+  - file_or_register_a_trademark
+  - purchase_a_domain
+  - select_publish_or_contract_a_registered_office
+  - submit_a_FUE_or_municipal_query
+  - book_or_instruct_a_PAE_or_notary
+  - choose_final_CNAE_or_IAE_headings
+  - submit_Modelo_036_request_NIF_or_register_the_company
+  - publish_a_live_site_collect_data_contract_invoice_or_accept_payment
+  - merge_into_main_tag_release_or_deploy
+
+validation:
+  command: python scripts/test_corporate_identity_dossier.py
+  expected_cases: 18
+  fail_closed: true
+
+maximum_result:
+  identity_dossier_ready: true
+  name_candidates_prepared: 5
+  name_availability_checked: false
+  name_certificate_obtained: false
+  registered_office_selected: false
+  real_address_present: false
+  FUE_submission_performed: false
+  CNAE_confirmed: false
+  IAE_confirmed: false
+  notary_or_PAE_instructed: false
+  legal_entity_exists: false
+  live_publication_permitted: false
+  paid_contracting_permitted: false
+  invoice_issue_permitted: false
+  payment_collection_permitted: false
+
+rollback:
+  - preserve_Stage_004s_company_readiness
+  - remove_any_claim_of_name_availability_or_address_selection
+  - restore_all_classification_candidates_to_unconfirmed
+  - keep_sensitive_identity_and_address_evidence_in_restricted_storage
+  - keep_all_incorporation_and_commercial_actions_blocked
