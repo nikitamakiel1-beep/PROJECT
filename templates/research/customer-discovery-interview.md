@@ -2,7 +2,9 @@
 
 Version: `INTERVIEW-v1-2026-07`
 
-This is research, not a sales call. Do not promise a service, quote a custom price, request confidential records or use the conversation for public claims without separate permission.
+## Research, not a sales call
+
+Do not promise a service, quote a custom price, request confidential records or use the conversation for public claims without separate permission.
 
 ## Before the interview
 
