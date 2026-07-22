@@ -1,0 +1,65 @@
+automation_id: A15
+name: launch-control-pack
+status: source_complete_activation_blocked
+purpose: >-
+  Keep service templates, demonstration assets, commercial controls, privacy
+  activation gates and Stage 003 provider evidence requirements consistent and
+  fail-closed before real public intake or paid delivery.
+
+inputs:
+  - schemas/services.json
+  - templates/commercial/proposal.md
+  - templates/commercial/quality-checklist.md
+  - templates/commercial/commercial-terms-control.md
+  - templates/compliance/privacy-intake-placeholder.md
+  - templates/compliance/launch-control-register.md
+  - templates/services/visibility-audit.md
+  - templates/services/crm-setup-handover.md
+  - templates/services/sales-one-pager.md
+  - demonstrations/DEMONSTRATION_REGISTER.md
+  - docs/setup/STAGE_003_PROVIDER_ACTIVATION_RUNBOOK.md
+
+outputs:
+  - canonical_price_and_scope_checks
+  - controlled_service_delivery_templates
+  - three_labelled_fictional_demonstrations
+  - privacy_and_commercial_blocker_register
+  - provider_activation_runbook
+  - regression_test_result
+
+hard_gates:
+  - real_public_intake_disabled_until_privacy_and_provider_approval
+  - proposals_blocked_until_identity_invoice_payment_and_cancellation_controls_are_approved
+  - final_external_delivery_requires_named_human_reviewer
+  - demonstrations_must_remain_labelled_fictional_and_not_client_results
+  - no_client_identifiers_credentials_provider_urls_or_private_spreadsheet_ids_in_source
+  - stage_pointer_cannot_advance_without_actual_provider_evidence_and_cleanup
+
+forbidden_actions:
+  - activate_public_form
+  - issue_unreviewed_legal_or_commercial_terms
+  - send_external_message
+  - publish_client_name_logo_testimonial_or_result_without_permission
+  - infer_collected_cash_from_pipeline_stage
+  - remove_demonstration_labels
+  - reduce_provider_evidence_requirements
+  - commit_live_identifiers_or_secrets
+
+validation:
+  command: python scripts/test_launch_control_pack.py
+  expected_cases: 5
+  fail_closed: true
+
+human_approvals:
+  - privacy_and_processor_review
+  - controller_and_business_identity_verification
+  - invoice_and_tax_route_verification
+  - payment_cancellation_and_liability_wording_review
+  - exact_demonstration_publication_review
+  - provider_runtime_evidence_acceptance
+  - final_stage_advancement_decision
+
+rollback:
+  source: revert_the_A15_commit_or_stacked_PR
+  provider: disable_deployment_remove_temporary_properties_and_restore_disposable_snapshot
+  publication: unpublish_unapproved_material_and_preserve_incident_evidence
