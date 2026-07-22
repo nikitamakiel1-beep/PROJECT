@@ -5,6 +5,8 @@ import math
 import random
 from typing import Iterable, Sequence
 
+from intelligence.neural_fabric import MultiDimensionalConvEncoder
+
 
 def _sigmoid(value: float) -> float:
     value = max(-40.0, min(40.0, value))
@@ -69,47 +71,6 @@ class NeuralPrediction:
     ensemble_size: int
 
 
-class Conv1DEncoder:
-    """Small 1D CNN for ordered CRM activity sequences.
-
-    Input shape is ``timesteps x feature_count``. Convolution is followed by
-    ReLU and global max pooling. The implementation is dependency-free so the
-    shadow contract can run in standard CI and Apps-adjacent environments.
-    """
-
-    def __init__(self, rng: random.Random, feature_count: int, channels: int = 4, kernel_width: int = 3) -> None:
-        self.feature_count = feature_count
-        self.channels = channels
-        self.kernel_width = kernel_width
-        self.kernels = [
-            [
-                [rng.uniform(-0.28, 0.28) for _ in range(feature_count)]
-                for _ in range(kernel_width)
-            ]
-            for _ in range(channels)
-        ]
-        self.bias = _bias(rng, channels, 0.04)
-
-    def encode(self, sequence: Sequence[Sequence[float]]) -> list[float]:
-        if not sequence:
-            return [0.0] * self.channels
-        for step in sequence:
-            if len(step) != self.feature_count:
-                raise ValueError("activity sequence feature dimension mismatch")
-        padded = [list(map(float, step)) for step in sequence]
-        while len(padded) < self.kernel_width:
-            padded.insert(0, [0.0] * self.feature_count)
-        pooled = [-float("inf")] * self.channels
-        for start in range(0, len(padded) - self.kernel_width + 1):
-            for channel in range(self.channels):
-                activation = self.bias[channel]
-                for offset in range(self.kernel_width):
-                    for feature in range(self.feature_count):
-                        activation += padded[start + offset][feature] * self.kernels[channel][offset][feature]
-                pooled[channel] = max(pooled[channel], _relu(activation))
-        return [0.0 if value == -float("inf") else value for value in pooled]
-
-
 class GraphNeuralEncoder:
     """Two message-passing layers over the CRM relationship graph."""
 
@@ -159,18 +120,24 @@ class FusionMember:
 
     def __init__(self, seed: int, tabular_size: int, text_size: int, activity_features: int, graph_features: int) -> None:
         rng = random.Random(seed)
-        self.cnn = Conv1DEncoder(rng, activity_features)
+        self.tensor_cnn = MultiDimensionalConvEncoder(
+            rng,
+            tabular_size=tabular_size,
+            text_size=text_size,
+            activity_features=activity_features,
+            graph_features=graph_features,
+        )
         self.gnn = GraphNeuralEncoder(rng, graph_features)
-        fused_size = tabular_size + text_size + self.cnn.channels + self.gnn.output
-        hidden_a = 18
-        hidden_b = 10
+        fused_size = tabular_size + text_size + self.tensor_cnn.output_size + self.gnn.output
+        hidden_a = 28
+        hidden_b = 14
         outputs = 4 + len(self.ACTIONS)
-        self.layer_a = _weights(rng, fused_size, hidden_a, 0.20)
-        self.bias_a = _bias(rng, hidden_a, 0.05)
-        self.layer_b = _weights(rng, hidden_a, hidden_b, 0.24)
-        self.bias_b = _bias(rng, hidden_b, 0.05)
-        self.output = _weights(rng, hidden_b, outputs, 0.28)
-        self.output_bias = _bias(rng, outputs, 0.06)
+        self.layer_a = _weights(rng, fused_size, hidden_a, 0.16)
+        self.bias_a = _bias(rng, hidden_a, 0.04)
+        self.layer_b = _weights(rng, hidden_a, hidden_b, 0.20)
+        self.bias_b = _bias(rng, hidden_b, 0.04)
+        self.output = _weights(rng, hidden_b, outputs, 0.24)
+        self.output_bias = _bias(rng, outputs, 0.05)
 
     def infer(
         self,
@@ -181,9 +148,9 @@ class FusionMember:
         adjacency: Sequence[Sequence[float]],
         focus_index: int,
     ) -> tuple[list[float], list[float]]:
-        activity = self.cnn.encode(activity_sequence)
+        multidimensional = self.tensor_cnn.encode(tabular, text_vector, activity_sequence, graph_nodes)
         graph = self.gnn.encode(graph_nodes, adjacency, focus_index)
-        fused = [float(value) for value in tabular] + [float(value) for value in text_vector] + activity + graph
+        fused = [float(value) for value in tabular] + [float(value) for value in text_vector] + multidimensional + graph
         hidden_a = [_relu(value) for value in _matvec(fused, self.layer_a, self.bias_a)]
         hidden_b = [_relu(value) for value in _matvec(hidden_a, self.layer_b, self.bias_b)]
         raw = _matvec(hidden_b, self.output, self.output_bias)
@@ -193,18 +160,18 @@ class FusionMember:
 
 
 class NeuralCRMModel:
-    """Neural-symbolic ensemble used in shadow mode.
+    """Multidimensional neural-symbolic ensemble used in shadow mode.
 
-    The committed model pack is intentionally synthetic and untrained on real
-    people. Transparent business priors are blended with the neural ensemble so
-    behaviour is stable while outcome evidence is still insufficient.
+    Static, semantic, temporal and graph evidence is convolved jointly before a
+    separate graph-message pathway cross-checks the relational representation.
+    Transparent priors remain dominant until enough labelled outcomes exist.
     """
 
     ACTIONS = FusionMember.ACTIONS
 
     def __init__(
         self,
-        seeds: Iterable[int] = (17, 31, 47, 71, 89),
+        seeds: Iterable[int] = (17, 31, 47, 71, 89, 107, 131),
         tabular_size: int = 12,
         text_size: int = 8,
         activity_features: int = 6,
@@ -245,7 +212,7 @@ class NeuralCRMModel:
         action_columns = list(zip(*member_actions))
         neural_actions = [_mean(list(column)) for column in action_columns]
 
-        blend = 0.35
+        blend = 0.38
         conversion = blend * neural_conversion + (1.0 - blend) * float(priors.get("conversion", neural_conversion))
         relationship = blend * neural_relationship + (1.0 - blend) * float(priors.get("relationship", neural_relationship))
         urgency = blend * neural_urgency + (1.0 - blend) * float(priors.get("urgency", neural_urgency))
@@ -260,7 +227,7 @@ class NeuralCRMModel:
 
         scalar_variance = _mean([_variance(list(column)) for column in scalar_columns])
         action_variance = _mean([_variance(list(column)) for column in action_columns])
-        uncertainty = max(0.0, min(1.0, math.sqrt(max(0.0, scalar_variance + action_variance)) * 4.0))
+        uncertainty = max(0.0, min(1.0, math.sqrt(max(0.0, scalar_variance + action_variance)) * 4.2))
         confidence = max(0.0, min(1.0, 1.0 - uncertainty))
 
         return NeuralPrediction(
