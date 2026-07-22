@@ -22,8 +22,10 @@ jobs:
       - run: python scripts/validate_repository.py
       - run: python scripts/test_web.py
       - run: node scripts/test_web_neural_recommender.mjs
+      - run: node scripts/test_deep_card_fabric.mjs
       - run: python scripts/test_multidimensional_neural_fabric.py
       - run: python scripts/test_connected_execution_planner.py
+      - run: python scripts/test_colonial_deep_platform.py
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
@@ -33,4 +35,5 @@ jobs:
       - run: node --check apps/web/assets/app.js
       - run: node --check apps/web/assets/neural-recommender.mjs
       - run: node --check apps/web/assets/recommender-ui.mjs
+      - run: node --check apps/web/assets/deep-card-fabric.mjs
       - run: python scripts/orchestrator.py validate

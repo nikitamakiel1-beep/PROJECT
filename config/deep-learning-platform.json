@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "platform_model": "colonial-deep-platform-shadow-v0.1",
+  "execution_mode": "synthetic_shadow",
+  "training": {
+    "optimizer": "AdamW",
+    "learning_rate": 0.0002,
+    "weight_decay": 0.001,
+    "gradient_clip_norm": 1.0,
+    "dropout": 0.1,
+    "label_smoothing": 0.02,
+    "batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "epochs": 3,
+    "early_stopping_patience": 3,
+    "temporal_holdout_required": true,
+    "segment_holdout_required": true,
+    "online_weight_updates": false
+  },
+  "peft_lora": {
+    "enabled_candidate": true,
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.05,
+    "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+    "base_model_frozen": true,
+    "automatic_merge": false
+  },
+  "quantization": {
+    "reference": "int8",
+    "transformer_candidate": "4bit",
+    "vision_candidate": "int8_onnx",
+    "calibration_dataset_required": true,
+    "accuracy_regression_limit": 0.02
+  },
+  "retrieval": {
+    "embedding_dimensions": 32,
+    "top_k": 4,
+    "minimum_similarity": 0.0,
+    "metadata_filters_required_for_personalised_context": true,
+    "citation_required": true,
+    "external_provider": "disabled"
+  },
+  "autoregressive": {
+    "maximum_context_tokens": 2048,
+    "maximum_new_tokens": 256,
+    "temperature": 0.2,
+    "top_p": 0.9,
+    "perplexity_evaluation_required": true,
+    "automatic_external_send": false
+  },
+  "mixture_of_experts": {
+    "expert_count": 6,
+    "top_k": 2,
+    "load_balance_metric_required": true,
+    "expert_collapse_alarm": 0.75
+  },
+  "reinforcement_learning": {
+    "dqn_gamma": 0.95,
+    "dqn_epsilon": 0.15,
+    "policy_gradient_gamma": 0.95,
+    "entropy_weight": 0.01,
+    "replay_capacity": 2048,
+    "external_actions_masked": true,
+    "reward_hacking_metrics_prohibited": ["message_volume", "click_volume", "lead_pressure", "automatic_discount"]
+  },
+  "vision_yolo": {
+    "runtime": "disabled_until_dataset_and_adapter",
+    "base_model": "yolo11n.pt",
+    "image_size": 640,
+    "confidence_threshold": 0.35,
+    "iou_threshold": 0.45,
+    "epochs": 50,
+    "patience": 10,
+    "source_split_required": true,
+    "human_review_required": true
+  },
+  "cards": {
+    "floating_layers": 7,
+    "automatic_actions": false,
+    "automatic_crm_write": false,
+    "maximum_links_per_card": 4,
+    "multimedia_assignment_requires_review": true
+  },
+  "promotion": {
+    "human_approval_required": true,
+    "pull_request_required": true,
+    "model_card_required": true,
+    "dataset_card_required": true,
+    "rollback_required": true,
+    "red_team_required": true,
+    "calibration_required": true,
+    "drift_review_required": true
+  }
+}

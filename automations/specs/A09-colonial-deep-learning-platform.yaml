@@ -1,0 +1,141 @@
+id: A09
+name: Colonial deep-learning platform for CRM B2B B2C databases and cards
+status: synthetic_shadow
+model_version: colonial-deep-platform-shadow-v0.1
+architecture:
+  discriminative:
+    - multiextradimensional layered CNN tensors
+    - graph and entity relationships
+    - embeddings and latent space
+    - causal self-attention
+    - sparse mixture of experts
+    - contrastive learning objective
+  generative:
+    - retrieval-augmented generation
+    - citation-bearing prompt packs
+    - autoregressive decoding
+    - perplexity evaluation
+  vision:
+    - YOLO-style grid decoder
+    - intersection over union
+    - non-maximum suppression
+    - multimedia to card assignment
+  training:
+    - reverse-mode backpropagation
+    - AdamW gradient descent
+    - gradient clipping
+    - dropout and weight decay
+    - early stopping
+    - PEFT LoRA
+    - hyperparameter autotuning
+    - int8 quantization reference
+    - optional 4-bit transformer and int8 ONNX candidates
+  reinforcement:
+    - Deep Q-Network
+    - target network
+    - replay memory
+    - policy gradient
+    - entropy regularisation
+    - action masking
+    - safe reward contract
+expert_colonies:
+  - Argus vision
+  - Mnemosyne retrieval
+  - Hermes CRM and B2B
+  - Hestia B2C
+  - Daedalus training
+  - Janus reinforcement learning
+  - Atlas floating cards
+  - Pallas safety and promotion veto
+systems:
+  reads:
+    - pseudonymous CRM feature packages
+    - approved service catalogue
+    - indexed internal documents
+    - reviewed multimedia detections
+    - outcome and calibration evidence
+  proposed_writes:
+    - internal neural cards
+    - evidence-safe recommendations
+    - model and dataset cards
+    - Linear-ready task drafts
+    - shadow decisions and audit logs
+data:
+  entity_types:
+    - b2b_company
+    - b2b_contact
+    - b2c_person
+    - lead
+    - opportunity
+    - service
+    - activity
+    - document
+    - media
+  raw_personal_data_in_feature_store: false
+  pseudonymous_ids_required: true
+  bounded_numeric_features_required: true
+  dataset_digest_required: true
+  consent_scope_required: true
+floating_cards:
+  layers: 7
+  deterministic_layout: true
+  relationship_lines: true
+  action_default: disabled
+  automatic_crm_write: false
+  automatic_external_action: false
+training_boundary:
+  real_training_enabled: false
+  optional_frameworks:
+    - PyTorch
+    - Transformers
+    - PEFT
+    - Ultralytics
+    - ONNX Runtime
+    - Sentence Transformers
+  automatic_download: false
+  automatic_install: false
+  online_learning: false
+  automatic_model_promotion: false
+anti_overfitting:
+  - temporal holdout
+  - source holdout
+  - segment holdout
+  - dropout
+  - weight decay
+  - early stopping
+  - gradient clipping
+  - augmentation audit
+  - baseline comparison
+  - calibration and drift review
+  - privacy and memorisation red team
+reinforcement_safety:
+  permitted_actions:
+    - research
+    - prepare_internal_card
+    - request_human_review
+    - rebuild_digest
+  prohibited_actions:
+    - external_message
+    - automatic_discount
+    - contract_or_payment
+    - destructive_database_change
+  prohibited_reward_proxies:
+    - message_volume
+    - click_volume
+    - lead_pressure
+    - automatic_discount
+promotion_gate:
+  fail_closed: true
+  requires:
+    - versioned dataset and schema digests
+    - model and dataset cards
+    - licence and provenance review
+    - temporal and segment holdouts
+    - baseline improvement
+    - calibration and drift evidence
+    - overfit review
+    - red-team results
+    - quantization regression evidence
+    - rollback
+    - pull request
+    - explicit human approval
