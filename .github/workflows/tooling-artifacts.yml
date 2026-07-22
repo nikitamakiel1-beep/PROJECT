@@ -34,6 +34,9 @@ jobs:
       - name: Validate market-entry operator pack
         run: python scripts/test_market_entry_operator_pack.py
 
+      - name: Validate company-formation readiness
+        run: python scripts/test_company_formation_readiness.py
+
       - name: Validate synthetic intake contract
         run: python scripts/test_intake_contract.py
 
@@ -55,6 +58,9 @@ jobs:
       - name: Generate market-entry operator receipt
         run: python scripts/audit_market_entry_operator_pack.py --output dist/market-entry-operator-receipt.json
 
+      - name: Generate company-formation readiness receipt
+        run: python scripts/audit_company_formation_readiness.py --output dist/company-formation-readiness-receipt.json
+
       - name: Build Apps Script provider bundle
         run: python scripts/package_apps_script.py
 
@@ -74,6 +80,7 @@ jobs:
             dist/web-staging
             dist/market-entry-audit.json
             dist/market-entry-operator-receipt.json
+            dist/company-formation-readiness-receipt.json
           if-no-files-found: error
           retention-days: 14
 
