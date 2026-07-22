@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "evidence_type": "connector_reconciled_operating_zero_state",
+  "as_of": "2026-07-22",
+  "crm_source_counts": {
+    "leads": 0,
+    "opportunities": 0,
+    "activities": 0,
+    "automation_log": 0
+  },
+  "linear_status_counts": {
+    "done": 18,
+    "in_progress": 9,
+    "todo": 2,
+    "open": 11,
+    "overdue": 0
+  },
+  "customer_discovery": {
+    "completed": 0,
+    "target": 10,
+    "referral_signals": 0,
+    "queue_slots": 10,
+    "assigned": 0
+  },
+  "commercial_metrics": {
+    "open_pipeline_eur": 0,
+    "weighted_pipeline_eur": 0,
+    "won_revenue_eur": 0,
+    "confirmed_collected_cash_eur": 0,
+    "delivery_hours_actual": 0
+  },
+  "drive_digest_sha256": "5de3844791f00c7c487eadc0609470fe7d844d186ef6f1b473357f8bc33b0043",
+  "evidence_sha256": "4f8060c22ef86b6774883c888a32fac06f0ca43c9989d9170143c6493b286279",
+  "quality_warnings": [
+    "CRM_ZERO_STATE",
+    "NO_AUTOMATION_EVIDENCE",
+    "NO_INTERVIEW_EVIDENCE"
+  ],
+  "controls": {
+    "human_review_required": true,
+    "review_decision": "pending",
+    "external_message_sent": false,
+    "crm_mutated": false,
+    "linear_mutated": false,
+    "provider_activated": false,
+    "contains_personal_data": false
+  }
+}
