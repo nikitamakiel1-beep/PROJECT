@@ -1,10 +1,16 @@
 """Dependency-free multidimensional convolutional fabric.
 
-The package encodes static, semantic, temporal and relational CRM evidence into
-one bounded latent representation. It is deterministic and shadow-oriented;
-training and promotion remain separate governed processes.
+The package encodes static, semantic, temporal and relational evidence into one
+bounded latent representation and converts it into reviewable internal plans.
+Training, external actions and model promotion remain separately governed.
 """
 
+from .execution import ConnectedExecutionPlanner, ExecutionPlan
 from .multidimensional import MultiDimensionalConvEncoder, TensorContract
 
-__all__ = ["MultiDimensionalConvEncoder", "TensorContract"]
+__all__ = [
+    "ConnectedExecutionPlanner",
+    "ExecutionPlan",
+    "MultiDimensionalConvEncoder",
+    "TensorContract",
+]
