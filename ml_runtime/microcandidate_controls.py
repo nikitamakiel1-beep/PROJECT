@@ -138,7 +138,28 @@ def _train_vision(self: Any, rows: Sequence[tuple[str, list[list[float]], int]],
     return history
 
 
-def _canonicalise_candidate(name: str, candidate: dict[str, Any], output_dir: Path) -> dict[str, Any]:
+def _language_segment_accuracy(output_dir: Path, seed: int) -> dict[str, dict[str, float]]:
+    state = json.loads((output_dir / "lora" / "micro_lora_adapter.json").read_text(encoding="utf-8"))
+    model = base.LowRankAutoregressiveAdapter(int(state["vocab_size"]), int(state["rank"]), seed)
+    model.a = [[float(value) for value in row] for row in state["a"]]
+    model.b = [[float(value) for value in row] for row in state["b"]]
+    rows = base._language_data(seed)["test"]
+    results: dict[str, dict[str, float]] = {}
+    for segment in sorted({name for name, _ in rows}):
+        correct = 0
+        total = 0
+        for name, sequence in rows:
+            if name != segment:
+                continue
+            for current, target in zip(sequence, sequence[1:]):
+                prediction = max(range(model.vocab_size), key=lambda index: model.probabilities(current)[index])
+                correct += int(prediction == target)
+                total += 1
+        results[segment] = {"quality": correct / max(1, total)}
+    return results
+
+
+def _canonicalise_candidate(name: str, candidate: dict[str, Any], output_dir: Path, seed: int) -> dict[str, Any]:
     evidence_dict = dict(candidate["evidence"])
     artifact_names = {
         "lora": "micro_lora_adapter.json",
@@ -147,6 +168,13 @@ def _canonicalise_candidate(name: str, candidate: dict[str, Any], output_dir: Pa
     }
     evidence_dict["rollback_artifact"] = f"{name}/{artifact_names[name]}"
     evidence_dict["limitations"] = tuple(evidence_dict.get("limitations") or ())
+    if name == "lora":
+        segment_accuracy = _language_segment_accuracy(output_dir, seed)
+        evidence_dict["segment_metrics"] = segment_accuracy
+        evidence_dict["metrics"] = {
+            **dict(evidence_dict.get("metrics") or {}),
+            "minimum_segment_token_accuracy": min(values["quality"] for values in segment_accuracy.values()),
+        }
     evidence = CandidateEvidence(**evidence_dict)
     gate = EvidenceGate().evaluate(evidence)
     pack = EvidenceGate.write_pack(output_dir / name / "evidence", evidence, gate)
@@ -168,7 +196,7 @@ def run_controlled_microcandidate_lane(output_dir: str | Path, seed: int = 129) 
 
     initial = base.run_microcandidate_lane(output_dir, seed=seed)
     candidates = {
-        name: _canonicalise_candidate(name, initial["candidates"][name], output_dir)
+        name: _canonicalise_candidate(name, initial["candidates"][name], output_dir, seed)
         for name in ("lora", "embedding", "vision")
     }
     packs = [candidates[name]["pack"] for name in ("lora", "embedding", "vision")]
