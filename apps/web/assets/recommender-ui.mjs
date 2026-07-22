@@ -1,5 +1,10 @@
 import { recommendServices } from './neural-recommender.mjs';
 
+const stylesheet = document.createElement('link');
+stylesheet.rel = 'stylesheet';
+stylesheet.href = 'assets/recommender.css';
+document.head.append(stylesheet);
+
 const form = document.getElementById('neural-recommender-form');
 const output = document.getElementById('neural-recommendations');
 const status = document.getElementById('neural-recommender-status');
