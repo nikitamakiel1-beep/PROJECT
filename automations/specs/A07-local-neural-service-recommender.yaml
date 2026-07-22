@@ -1,0 +1,58 @@
+id: A07
+name: Local neural website service recommender
+status: synthetic_shadow
+runtime: visitor_browser
+inputs:
+  personal_data_required: false
+  fields:
+    - main improvement goal
+    - international readiness
+    - multilingual need
+    - implementation complexity tolerance
+    - automation priority
+    - urgency
+    - budget sensitivity
+intelligence:
+  - one-dimensional convolution over bounded need sequence
+  - service compatibility profiles
+  - graph propagation across related services
+  - five-member deterministic ensemble
+  - confidence and uncertainty estimation
+  - bounded explanation generation
+outputs:
+  - ranked active services
+  - model fit percentage
+  - confidence
+  - three bounded reasons
+  - canonical price and delivery window
+  - optional user-selected assessment service
+privacy:
+  local_only: true
+  network_transmission: false
+  storage: none
+  prohibited_inputs:
+    - name
+    - email
+    - phone
+    - company
+    - website
+    - free-text business notes
+autonomy:
+  allowed:
+    - local inference
+    - ranking
+    - explanation
+    - preselecting a service after explicit user action
+  prohibited:
+    - automatic contact
+    - automatic purchase
+    - automatic assessment submission
+    - price changes
+    - hidden-service activation
+    - model self-training
+human_gate:
+  - scope confirmation
+  - final suitability decision
+model:
+  version: web-neural-recommender-shadow-v0.1
+  training_status: synthetic deterministic shadow model
