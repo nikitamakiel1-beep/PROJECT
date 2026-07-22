@@ -1,6 +1,7 @@
 [
   {
-    "code": "DEMO-IVA-001",
+    "code": "DEMO-IVA",
+    "demo_id": "DEMO-IVA-001",
     "service_code": "IVA",
     "business": {
       "en": "Northline Process Instruments",
@@ -28,7 +29,8 @@
     }
   },
   {
-    "code": "DEMO-CRM-001",
+    "code": "DEMO-CRM",
+    "demo_id": "DEMO-CRM-001",
     "service_code": "CRM",
     "business": {
       "en": "Archipelago Design Studio",
@@ -51,12 +53,13 @@
       "es": ["Condiciones de entrada y salida por etapa", "Conciliación sintética de leads y oportunidades", "Ejercicio de duplicados, copia y traspaso"]
     },
     "disclaimer": {
-      "en": "Fictional demonstration using synthetic records. No real contacts, revenue or implementation result.",
+      "en": "Fictional demonstration using synthetic records. No real contacts, revenue or implementation outcome.",
       "es": "Demostración ficticia con registros sintéticos. No contiene contactos, ingresos ni resultados reales de implantación."
     }
   },
   {
-    "code": "DEMO-IOP-001",
+    "code": "DEMO-IOP",
+    "demo_id": "DEMO-IOP-001",
     "service_code": "IOP",
     "business": {
       "en": "Verde Forma Ceramics",
