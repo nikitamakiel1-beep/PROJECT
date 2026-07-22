@@ -103,6 +103,7 @@
     "ml_runtime/evidence.py",
     "ml_runtime/governance.py",
     "ml_runtime/micro_candidates.py",
+    "ml_runtime/microcandidate_controls.py",
     "ml_runtime/review_board.py",
     "orchestration/CURRENT.md",
     "orchestration/instructions/stage-001-website-foundation.md",
