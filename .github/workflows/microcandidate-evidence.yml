@@ -1,0 +1,50 @@
+name: Autonomous microcandidate evidence
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: microcandidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  microcandidate-evidence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      PYTHONHASHSEED: '0'
+      MODEL_DOWNLOADS_DISABLED: 'true'
+      PRODUCTION_DATA_DISABLED: 'true'
+      AUTOMATIC_PROMOTION: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Train and adjudicate microcandidates
+        run: python scripts/run_microcandidate_lane.py --output artifacts/microcandidate-lane --seed 129
+      - name: Run deterministic and adversarial tests
+        run: python scripts/test_microcandidate_lane.py
+      - name: Verify fail-closed custody
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          summary = json.loads(Path('artifacts/microcandidate-lane/SUMMARY.json').read_text())
+          board = json.loads(Path('artifacts/microcandidate-lane/candidate-review-board.json').read_text())
+          assert summary['promotion_permitted'] is False
+          assert summary['human_review_required'] is True
+          assert board['promotion_permitted'] is False
+          assert board['human_review_required'] is True
+          assert board['candidate_count'] == 3
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: autonomous-microcandidate-evidence-${{ github.sha }}
+          path: artifacts/microcandidate-lane
+          if-no-files-found: error
+          retention-days: 14
