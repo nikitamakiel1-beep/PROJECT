@@ -9,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ml_runtime.micro_candidates import run_microcandidate_lane  # noqa: E402
+from ml_runtime.microcandidate_controls import run_controlled_microcandidate_lane  # noqa: E402
 
 
 def prepare_workspace(path: Path) -> Path:
@@ -24,7 +24,7 @@ def main() -> int:
     parser.add_argument("--output", default="artifacts/microcandidate-lane")
     parser.add_argument("--seed", type=int, default=129)
     args = parser.parse_args()
-    result = run_microcandidate_lane(prepare_workspace(Path(args.output)), seed=args.seed)
+    result = run_controlled_microcandidate_lane(prepare_workspace(Path(args.output)), seed=args.seed)
     print(json.dumps(result["summary"], indent=2, sort_keys=True))
     return 0
 
