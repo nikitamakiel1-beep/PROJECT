@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 003p operating evidence execution",
+  "files": [
+    "MANIFEST.stage-003p.json",
+    "automations/specs/A17-operating-evidence-execution.yaml",
+    "docs/architecture/OPERATING_EVIDENCE_EXECUTION.md",
+    "evidence/operating/2026-07-22-zero-state.json",
+    "intelligence/venture_brain/operating_evidence.py",
+    "scripts/reconcile_operating_evidence.py",
+    "scripts/test_operating_evidence_execution.py"
+  ]
+}

@@ -33,6 +33,7 @@ jobs:
       - run: python scripts/test_heavy_candidate_rework.py
       - run: python scripts/test_launch_control_pack.py
       - run: python scripts/test_operating_launch_system.py
+      - run: python scripts/test_operating_evidence_execution.py
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
