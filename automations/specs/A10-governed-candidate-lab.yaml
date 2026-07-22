@@ -1,0 +1,76 @@
+id: A10
+name: Governed datasets and optional-model candidate laboratory
+status: synthetic_shadow
+trigger: manual_workflow_dispatch_only
+inputs:
+  - deterministic synthetic CRM/B2B/B2C records
+  - deterministic synthetic RAG knowledge units
+  - deterministic synthetic geometric vision scenes
+source_policy:
+  allowed:
+    - synthetic
+    - explicitly_approved
+  current: synthetic
+  production_crm_data: prohibited
+splits:
+  strategy: temporal
+  disjoint_record_ids: required
+  segment_reporting: required
+runtime:
+  type: isolated_cpu
+  pinned_requirements: requirements/optional-ml-cpu.txt
+  model_download: false
+  dataset_download: false
+  external_upload: false
+candidates:
+  lora:
+    base: tiny GPT-style model created from configuration
+    pretrained_download: false
+    trainable: LoRA adapters only
+    metrics:
+      - train loss
+      - validation loss
+      - test perplexity
+      - trainable parameter fraction
+  embedding:
+    base: PyTorch EmbeddingBag encoder
+    objective: contrastive retrieval
+    metrics:
+      - retrieval MRR
+      - baseline MRR
+  yolo:
+    base: YOLO11 nano architecture from YAML
+    pretrained: false
+    metrics:
+      - mAP50
+      - precision
+      - recall
+  quantization:
+    runtime: ONNX Runtime dynamic int8
+    metrics:
+      - artifact size
+      - CPU latency
+      - speed-up
+      - relative quality loss
+evidence:
+  required:
+    - dataset digest
+    - code commit
+    - seed
+    - baseline comparison
+    - temporal and segment metrics
+    - quantization regression
+    - privacy and memorisation tests
+    - prompt-injection and reward-hacking tests
+    - model-extraction test
+    - rollback artifact
+    - limitations
+promotion:
+  automatic: false
+  maximum_result: eligible_for_human_review
+  production_deployment: prohibited
+human_custody:
+  - approve any non-synthetic dataset
+  - approve dependency installation and candidate workflow run
+  - review evidence pack
+  - approve any future promotion PR

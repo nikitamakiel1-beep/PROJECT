@@ -26,12 +26,13 @@ jobs:
       - run: python scripts/test_multidimensional_neural_fabric.py
       - run: python scripts/test_connected_execution_planner.py
       - run: python scripts/test_colonial_deep_platform.py
+      - run: python scripts/test_governed_candidate_lab.py
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
       - run: python scripts/test_neural_memory_planner.py
       - run: python scripts/test_neural_provider_bridge.py
-      - run: python -m compileall -q intelligence
+      - run: python -m compileall -q intelligence ml_runtime
       - run: node --check apps/web/assets/app.js
       - run: node --check apps/web/assets/neural-recommender.mjs
       - run: node --check apps/web/assets/recommender-ui.mjs

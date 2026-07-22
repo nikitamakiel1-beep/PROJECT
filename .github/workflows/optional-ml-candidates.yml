@@ -1,0 +1,58 @@
+name: Optional ML candidate laboratory
+
+on:
+  workflow_dispatch:
+    inputs:
+      candidate:
+        description: Candidate to run
+        required: true
+        default: embedding
+        type: choice
+        options:
+          - generate
+          - embedding
+          - lora
+          - yolo
+          - all
+
+permissions:
+  contents: read
+
+concurrency:
+  group: optional-ml-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  candidate-lab:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      PYTHONHASHSEED: '0'
+      TOKENIZERS_PARALLELISM: 'false'
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      ULTRALYTICS_OFFLINE: 'true'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements/optional-ml-cpu.txt
+      - name: Install pinned optional runtime
+        run: python -m pip install --disable-pip-version-check -r requirements/optional-ml-cpu.txt
+      - name: Validate lightweight governance contract
+        run: python scripts/test_governed_candidate_lab.py
+      - name: Run selected candidate
+        run: python scripts/run_optional_candidate_lab.py "${{ inputs.candidate }}" --workspace artifacts/candidate-lab --seed 126
+      - name: Verify no production configuration
+        run: |
+          test ! -f .env
+          grep -q 'model_download.*false' config/optional-ml-runtime.json
+          grep -q 'automatic.*false' config/optional-ml-runtime.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: optional-ml-${{ inputs.candidate }}-${{ github.sha }}
+          path: artifacts/candidate-lab
+          if-no-files-found: error
+          retention-days: 14
