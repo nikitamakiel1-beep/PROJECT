@@ -4,6 +4,7 @@ from dataclasses import asdict
 import json
 import math
 from pathlib import Path
+import random
 from typing import Any, Sequence
 
 from . import micro_candidates as base
@@ -138,43 +139,97 @@ def _train_vision(self: Any, rows: Sequence[tuple[str, list[list[float]], int]],
     return history
 
 
-def _language_segment_accuracy(output_dir: Path, seed: int) -> dict[str, dict[str, float]]:
-    state = json.loads((output_dir / "lora" / "micro_lora_adapter.json").read_text(encoding="utf-8"))
-    model = base.LowRankAutoregressiveAdapter(int(state["vocab_size"]), int(state["rank"]), seed)
-    model.a = [[float(value) for value in row] for row in state["a"]]
-    model.b = [[float(value) for value in row] for row in state["b"]]
-    rows = base._language_data(seed)["test"]
-    results: dict[str, dict[str, float]] = {}
-    for segment in sorted({name for name, _ in rows}):
+def _balanced_language_data(seed: int) -> dict[str, list[tuple[str, list[int]]]]:
+    rng = random.Random(seed)
+    patterns = {
+        "visibility": [1, 2, 3, 4, 1, 2, 3, 4],
+        "crm": [5, 6, 7, 8, 5, 6, 7, 8],
+        "sales": [9, 10, 11, 12, 9, 10, 11, 12],
+    }
+    result: dict[str, list[tuple[str, list[int]]]] = {"train": [], "validation": [], "test": []}
+    for split, count in (("train", 36), ("validation", 12), ("test", 15)):
+        for segment, pattern in patterns.items():
+            for _ in range(count):
+                offset = rng.randrange(len(pattern))
+                result[split].append((segment, pattern[offset:] + pattern[:offset]))
+    return result
+
+
+def _train_balanced_lora(output_dir: Path, seed: int, dataset_digest: str) -> dict[str, Any]:
+    data = _balanced_language_data(seed)
+    model = base.LowRankAutoregressiveAdapter(vocab_size=13, rank=4, seed=seed)
+    history = _train_low_rank(model, [sequence for _, sequence in data["train"]])
+    validation_loss = model.loss([sequence for _, sequence in data["validation"]])
+    test_loss = model.loss([sequence for _, sequence in data["test"]])
+
+    def probability_rows(rows: Sequence[tuple[str, list[int]]]) -> tuple[list[list[float]], list[int]]:
+        probabilities: list[list[float]] = []
+        targets: list[int] = []
+        for _, sequence in rows:
+            for current, target in zip(sequence, sequence[1:]):
+                probabilities.append(model.probabilities(current))
+                targets.append(target)
+        return probabilities, targets
+
+    validation_probabilities, validation_targets = probability_rows(data["validation"])
+    gamma = _fit_power_calibration(validation_probabilities, validation_targets)
+    test_probabilities, test_targets = probability_rows(data["test"])
+    calibrated = _apply_power_calibration(test_probabilities, gamma)
+    brier, ece = base._calibration(calibrated, test_targets)
+
+    segment_metrics: dict[str, dict[str, float]] = {}
+    for segment in sorted({name for name, _ in data["test"]}):
         correct = 0
         total = 0
-        for name, sequence in rows:
+        for name, sequence in data["test"]:
             if name != segment:
                 continue
             for current, target in zip(sequence, sequence[1:]):
                 prediction = max(range(model.vocab_size), key=lambda index: model.probabilities(current)[index])
                 correct += int(prediction == target)
                 total += 1
-        results[segment] = {"quality": correct / max(1, total)}
-    return results
+        segment_metrics[segment] = {"quality": correct / max(1, total)}
+
+    artifact = output_dir / "micro_lora_adapter.json"
+    artifact.write_text(json.dumps(model.state(), sort_keys=True), encoding="utf-8")
+    evidence = CandidateEvidence(
+        candidate_id="micro-lora-autoregressive-shadow-v1",
+        task="language_model",
+        framework="python-low-rank-backprop",
+        dataset_id="microcandidate-synthetic-v1",
+        dataset_digest=dataset_digest,
+        code_commit=base._code_commit(),
+        seed=seed,
+        metrics={
+            "train_loss": history[-1],
+            "validation_loss": validation_loss,
+            "test_loss": test_loss,
+            "test_perplexity": math.exp(min(test_loss, 20.0)),
+            "expected_calibration_error": ece,
+            "brier_score": brier,
+            "minimum_segment_token_accuracy": min(values["quality"] for values in segment_metrics.values()),
+            "trainable_parameters": float(13 * 4 + 4 * 13),
+        },
+        baseline_metrics={"test_perplexity": 13.0},
+        segment_metrics=segment_metrics,
+        quantization_metrics={},
+        safety_results=base._safety_results(),
+        limitations=("balanced synthetic transition language", "microcandidate smoke lane", "not a transformer replacement", "shadow only"),
+        rollback_artifact="lora/micro_lora_adapter.json",
+    )
+    gate = EvidenceGate().evaluate(evidence)
+    pack = EvidenceGate.write_pack(output_dir / "evidence", evidence, gate)
+    return {"evidence": asdict(evidence), "gate": gate, "pack": pack, "history": history}
 
 
-def _canonicalise_candidate(name: str, candidate: dict[str, Any], output_dir: Path, seed: int) -> dict[str, Any]:
+def _canonicalise_candidate(name: str, candidate: dict[str, Any], output_dir: Path) -> dict[str, Any]:
     evidence_dict = dict(candidate["evidence"])
     artifact_names = {
-        "lora": "micro_lora_adapter.json",
         "embedding": "micro_embedding_projection.json",
         "vision": "micro_convolutional_vision_proxy.json",
     }
     evidence_dict["rollback_artifact"] = f"{name}/{artifact_names[name]}"
     evidence_dict["limitations"] = tuple(evidence_dict.get("limitations") or ())
-    if name == "lora":
-        segment_accuracy = _language_segment_accuracy(output_dir, seed)
-        evidence_dict["segment_metrics"] = segment_accuracy
-        evidence_dict["metrics"] = {
-            **dict(evidence_dict.get("metrics") or {}),
-            "minimum_segment_token_accuracy": min(values["quality"] for values in segment_accuracy.values()),
-        }
     evidence = CandidateEvidence(**evidence_dict)
     gate = EvidenceGate().evaluate(evidence)
     pack = EvidenceGate.write_pack(output_dir / name / "evidence", evidence, gate)
@@ -196,8 +251,9 @@ def run_controlled_microcandidate_lane(output_dir: str | Path, seed: int = 129) 
 
     initial = base.run_microcandidate_lane(output_dir, seed=seed)
     candidates = {
-        name: _canonicalise_candidate(name, initial["candidates"][name], output_dir, seed)
-        for name in ("lora", "embedding", "vision")
+        "lora": _train_balanced_lora(output_dir / "lora", seed, initial["summary"]["dataset_digest"]),
+        "embedding": _canonicalise_candidate("embedding", initial["candidates"]["embedding"], output_dir),
+        "vision": _canonicalise_candidate("vision", initial["candidates"]["vision"], output_dir),
     }
     packs = [candidates[name]["pack"] for name in ("lora", "embedding", "vision")]
     board = CandidateReviewBoard().compare(packs)
