@@ -9,7 +9,7 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from ml_runtime.heavy_rework import (  # noqa: E402
+from ml_runtime.heavy_rework_patch import (  # noqa: E402
     build_dataset_bundle,
     federate_heavy_evidence,
     run_heavy_candidate,
