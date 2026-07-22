@@ -31,6 +31,9 @@ jobs:
       - name: Validate market-entry and staging controls
         run: python scripts/test_market_entry_licensing.py
 
+      - name: Validate market-entry operator pack
+        run: python scripts/test_market_entry_operator_pack.py
+
       - name: Validate synthetic intake contract
         run: python scripts/test_intake_contract.py
 
@@ -49,6 +52,9 @@ jobs:
       - name: Generate market-entry audit receipt
         run: python scripts/audit_market_entry_licensing.py --output dist/market-entry-audit.json
 
+      - name: Generate market-entry operator receipt
+        run: python scripts/audit_market_entry_operator_pack.py --output dist/market-entry-operator-receipt.json
+
       - name: Build Apps Script provider bundle
         run: python scripts/package_apps_script.py
 
@@ -60,13 +66,14 @@ jobs:
           if-no-files-found: error
           retention-days: 14
 
-      - name: Upload staged website and market-entry audit
+      - name: Upload staged website and market-entry controls
         uses: actions/upload-artifact@v4
         with:
           name: international-growth-venture-web-staging
           path: |
             dist/web-staging
             dist/market-entry-audit.json
+            dist/market-entry-operator-receipt.json
           if-no-files-found: error
           retention-days: 14
 
