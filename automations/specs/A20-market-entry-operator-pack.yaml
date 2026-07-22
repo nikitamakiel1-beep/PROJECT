@@ -1,0 +1,69 @@
+automation_id: A20
+name: market-entry-operator-pack-and-registration-custody
+status: source_complete_official_registrations_not_started
+purpose: >-
+  Convert the Spain and Catalonia market-entry audit into a service-specific,
+  evidence-custodied operating sequence without filing registrations, inferring
+  professional approval or enabling live publication, personal-data handling,
+  invoicing or paid delivery.
+
+inputs:
+  - market_entry_licensing_register
+  - synthetic_staging_release
+  - bounded_service_catalogue
+  - owner_frozen_review_instruction
+  - official_receipts_supplied_only_through_restricted_storage
+
+outputs:
+  - ordered_pre_invoice_registration_sequence
+  - service_specific_permitted_and_prohibited_scope
+  - official_evidence_register_contract
+  - live_paid_and_data_unlock_rules
+  - deterministic_public_safe_operator_receipt
+
+required_controls:
+  - operating_form_and_address_are_explicit_owner_decisions
+  - municipal_FUE_path_is_address_specific
+  - Modelo_036_and_IAE_are_verified_before_commercial_operations
+  - RETA_or_entity_route_is_verified_before_habitual_paid_activity
+  - invoice_system_is_approved_before_invoice_issue
+  - online_provider_identity_is_complete_before_live_publication
+  - controller_processor_and_AI_controls_are_approved_before_client_data
+  - visibility_audit_never_becomes_statutory_accounts_audit
+  - CRM_setup_never_authorises_data_sale_or_autonomous_contact
+  - WhatsApp_account_and_contact_basis_remain_client_controlled
+  - AI_excludes_employment_credit_biometric_and_emotion_decisions
+  - official_receipts_remain_outside_public_source_control
+  - frozen_professional_reviews_cannot_be_relabelled_as_approved
+
+forbidden_actions:
+  - file_Modelo_036_or_RETA_automatically
+  - select_an_exact_IAE_heading_without_external_confirmation
+  - infer_municipal_clearance_without_address_specific_evidence
+  - publish_a_live_indexable_site
+  - collect_real_personal_data
+  - issue_a_proposal_contract_invoice_or_payment_request
+  - represent_professional_review_as_completed
+  - provide_legal_tax_financial_or_statutory_audit_services
+  - enable_autonomous_external_communications
+  - advance_Stage_003
+
+validation:
+  command: python scripts/test_market_entry_operator_pack.py
+  expected_cases: 12
+  fail_closed: true
+
+maximum_result:
+  operator_pack_ready: true
+  official_filings_verified: 0
+  staging_build_permitted: true
+  live_publication_permitted: false
+  paid_contracting_permitted: false
+  client_personal_data_permitted: false
+  professional_approval_inferred: false
+
+rollback:
+  - preserve_the_previous_market_entry_audit
+  - remove_any_unverified_status_change
+  - keep_the_staged_site_synthetic_and_noindex
+  - retain_all_professional_review_gates_as_frozen

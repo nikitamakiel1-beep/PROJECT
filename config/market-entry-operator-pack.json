@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "programme": "International Growth Venture — market-entry operator pack",
+  "jurisdiction": ["Spain", "Catalonia"],
+  "as_of": "2026-07-22",
+  "current_state": {
+    "website_profile": "synthetic_staging",
+    "website_indexable": false,
+    "website_real_intake": false,
+    "known_clients": 0,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "client_personal_data_permitted": false,
+    "professional_reviews": "frozen_by_owner"
+  },
+  "operating_form_options": [
+    {
+      "id": "AUTONOMO",
+      "label": "Self-employed natural person",
+      "status": "decision_not_taken",
+      "required_controls": ["AEAT_036", "IAE_CLASSIFICATION", "RETA", "MUNICIPAL_ACTIVITY"]
+    },
+    {
+      "id": "COMPANY",
+      "label": "Spanish company or other legal entity",
+      "status": "decision_not_taken",
+      "required_controls": ["ENTITY_FORMATION", "AEAT_036", "IAE_CLASSIFICATION", "MUNICIPAL_ACTIVITY"]
+    }
+  ],
+  "pre_invoice_sequence": [
+    {
+      "order": 1,
+      "id": "OPERATING_FORM",
+      "name": "Choose operating form and operating address",
+      "status": "frozen_not_started",
+      "evidence_required": "Signed owner decision identifying form, address classification and effective date",
+      "blocks": ["commercial_offer_issue", "invoice_issue", "paid_delivery"]
+    },
+    {
+      "order": 2,
+      "id": "MUNICIPAL_PATH",
+      "name": "Run Catalonia FUE guided municipal procedure",
+      "status": "frozen_address_not_supplied",
+      "evidence_required": "Saved FUE result or municipal confirmation for the actual address and use",
+      "blocks": ["opening_client_facing_premises", "receiving_clients_at_address"]
+    },
+    {
+      "order": 3,
+      "id": "AEAT_036",
+      "name": "Register in the Census of Entrepreneurs, Professionals and Withholders",
+      "status": "not_started",
+      "evidence_required": "Official Modelo 036 filing receipt with sensitive identifiers stored outside GitHub",
+      "blocks": ["commercial_operations", "invoice_issue", "paid_delivery"]
+    },
+    {
+      "order": 4,
+      "id": "IAE_CLASSIFICATION",
+      "name": "Confirm economic activity classifications",
+      "status": "frozen_professional_confirmation",
+      "evidence_required": "Accepted activity headings recorded in Modelo 036 or official tax confirmation",
+      "blocks": ["commercial_operations", "invoice_issue"]
+    },
+    {
+      "order": 5,
+      "id": "RETA_OR_ENTITY",
+      "name": "Complete RETA registration or entity formation route",
+      "status": "not_started_operating_form_unknown",
+      "evidence_required": "RETA confirmation or entity formation/registration evidence",
+      "blocks": ["habitual_paid_activity", "invoice_issue", "paid_delivery"]
+    },
+    {
+      "order": 6,
+      "id": "INVOICE_SYSTEM",
+      "name": "Configure compliant invoicing and record retention",
+      "status": "frozen_professional_invoicing_review",
+      "evidence_required": "Approved numbering, tax fields, electronic-invoice route and retention process",
+      "blocks": ["invoice_issue", "paid_delivery"]
+    },
+    {
+      "order": 7,
+      "id": "ONLINE_PROVIDER_INFO",
+      "name": "Complete operator identity and online contracting information",
+      "status": "frozen_identity_not_final",
+      "evidence_required": "Named publication QA of legal identity, contact, pricing and contracting disclosures",
+      "blocks": ["live_publication", "online_contracting"]
+    },
+    {
+      "order": 8,
+      "id": "DATA_AND_AI_CONTROLS",
+      "name": "Approve controller, processor and AI transparency controls",
+      "status": "frozen_professional_privacy_review",
+      "evidence_required": "Approved privacy notice, processing register, processor agreement and AI disclosure",
+      "blocks": ["live_intake", "client_personal_data", "client_ai_use"]
+    }
+  ],
+  "service_boundaries": [
+    {
+      "service_code": "IVA",
+      "market_name": "International Visibility Audit",
+      "sector_specific_licence": "not_identified_for_current_scope",
+      "permitted_scope": ["website visibility review", "commercial clarity review", "international readiness scoring", "prioritised improvement recommendations"],
+      "prohibited_scope": ["audit of annual accounts", "financial statement assurance", "legal compliance certification", "tax certification"],
+      "mandatory_before_delivery": ["AEAT_036", "IAE_CLASSIFICATION", "RETA_OR_ENTITY", "INVOICE_SYSTEM"]
+    },
+    {
+      "service_code": "CRM",
+      "market_name": "CRM & Lead Tracker Setup",
+      "sector_specific_licence": "not_identified_for_current_scope",
+      "permitted_scope": ["pipeline design", "spreadsheet or CRM configuration", "dashboard setup", "workflow documentation", "data minimisation design"],
+      "prohibited_scope": ["selling personal data", "determining unlawful marketing bases", "autonomous prospect contact", "acting outside client instructions when processing client data"],
+      "mandatory_before_client_data": ["DATA_AND_AI_CONTROLS", "article_28_processor_agreement", "approved_subprocessors", "secure_return_or_deletion_process"]
+    },
+    {
+      "service_code": "IOP",
+      "market_name": "International Sales One-Pager",
+      "sector_specific_licence": "not_identified_for_current_scope",
+      "permitted_scope": ["commercial copywriting", "information architecture", "English and Spanish localisation", "claim-evidence register"],
+      "prohibited_scope": ["unsubstantiated performance claims", "legal translation certification", "regulated-sector advertising advice without review", "guaranteed commercial outcomes"],
+      "mandatory_before_delivery": ["AEAT_036", "IAE_CLASSIFICATION", "RETA_OR_ENTITY", "INVOICE_SYSTEM"]
+    },
+    {
+      "service_code": "WAB",
+      "market_name": "WhatsApp Business Setup",
+      "sector_specific_licence": "not_identified_for_current_scope",
+      "permitted_scope": ["account configuration", "catalogue and profile setup", "template preparation", "handover documentation"],
+      "prohibited_scope": ["owning the client number", "sending campaigns without the client's approved legal basis", "circumventing platform rules", "autonomous outbound messaging"],
+      "mandatory_before_delivery": ["client_account_ownership", "platform_terms_acceptance", "approved_contact_basis", "DATA_AND_AI_CONTROLS"]
+    },
+    {
+      "service_code": "ISS",
+      "market_name": "International Starter System",
+      "sector_specific_licence": "inherits_component_requirements",
+      "permitted_scope": ["bounded bundle of approved IVA, CRM and IOP deliverables"],
+      "prohibited_scope": ["adding regulated advice", "unbounded consulting", "automatic external action"],
+      "mandatory_before_delivery": ["all_component_service_gates", "human_scope_approval"]
+    },
+    {
+      "service_code": "WEB",
+      "market_name": "Website construction and staging",
+      "sector_specific_licence": "not_identified_for_current_scope",
+      "permitted_scope": ["website design", "front-end construction", "bilingual content integration", "staging and deployment preparation"],
+      "prohibited_scope": ["publishing false legal identity", "activating unapproved tracking", "collecting personal data without approved controls", "guaranteeing regulatory compliance"],
+      "mandatory_before_live": ["ONLINE_PROVIDER_INFO", "DATA_AND_AI_CONTROLS", "website_publication_qa", "human_live_release_approval"]
+    },
+    {
+      "service_code": "AI",
+      "market_name": "AI-assisted recommendations and internal workflow preparation",
+      "sector_specific_licence": "no_prior_licence_identified_but_ai_act_duties_apply",
+      "permitted_scope": ["assistive recommendations", "synthetic shadow testing", "internal prioritisation", "human-reviewed draft preparation"],
+      "prohibited_scope": ["employment decisions", "credit eligibility decisions", "biometric categorisation", "emotion recognition", "autonomous external communication", "model promotion without evidence"],
+      "mandatory_before_live": ["AI_role_classification", "AI_literacy_record", "Article_50_transparency_assessment", "human_oversight", "incident_and_rollback_process"]
+    }
+  ],
+  "official_evidence_register": {
+    "storage_rule": "Official receipts, NIF, addresses, account numbers and signed professional opinions stay in restricted Drive storage and never in public source control.",
+    "fields": ["control_id", "authority", "filing_or_decision_date", "effective_date", "receipt_location", "reviewer", "status", "expiry_or_review_date", "notes"],
+    "allowed_statuses": ["not_started", "frozen", "submitted", "verified", "not_applicable", "rejected", "expired"]
+  },
+  "unlock_rules": {
+    "staging_publication": ["staging_artifact_checksum_verified", "synthetic_only", "noindex", "no_real_endpoint"],
+    "live_publication": ["AEAT_036", "IAE_CLASSIFICATION", "RETA_OR_ENTITY", "ONLINE_PROVIDER_INFO", "DATA_AND_AI_CONTROLS", "website_publication_qa", "human_live_release_approval"],
+    "paid_delivery": ["AEAT_036", "IAE_CLASSIFICATION", "RETA_OR_ENTITY", "INVOICE_SYSTEM", "service_specific_gates", "human_commercial_approval"],
+    "client_personal_data": ["DATA_AND_AI_CONTROLS", "processor_or_controller_role_confirmed", "secure_storage_ready", "human_activation_approval"]
+  },
+  "owner_instruction": {
+    "professional_privacy_review": "frozen_by_owner",
+    "professional_legal_review": "frozen_by_owner",
+    "professional_invoicing_review": "frozen_by_owner",
+    "effect": "No frozen review may be represented as approved. Staging may continue; live intake and paid delivery remain blocked."
+  }
+}

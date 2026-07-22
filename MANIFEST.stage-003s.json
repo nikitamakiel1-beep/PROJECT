@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 003s market-entry operator pack and registration custody",
+  "files": [
+    "MANIFEST.stage-003s.json",
+    "automations/specs/A20-market-entry-operator-pack.yaml",
+    "config/market-entry-operator-pack.json",
+    "docs/compliance/MARKET_ENTRY_OPERATOR_PACK.md",
+    "evidence/readiness/2026-07-22-market-entry-operator-pack.json",
+    "scripts/audit_market_entry_operator_pack.py",
+    "scripts/test_market_entry_operator_pack.py"
+  ]
+}
