@@ -1,0 +1,287 @@
+{
+  "schema_version": 1,
+  "programme": "International Growth Venture — corporate identity and formation handoff dossier",
+  "jurisdiction": ["Spain", "Catalonia"],
+  "as_of": "2026-07-22",
+  "company_context": {
+    "operating_form": "COMPANY",
+    "planned_company_form": "SOCIEDAD_LIMITADA_UNIPERSONAL",
+    "legal_entity_exists": false,
+    "company_incorporated": false,
+    "brand_seed": "Creixement",
+    "brand_seed_status": "owner_project_label_not_registered_mark"
+  },
+  "corporate_name_strategy": {
+    "status": "shortlist_prepared_no_availability_check",
+    "application_limit": 5,
+    "ordered_candidates": [
+      {
+        "order": 1,
+        "name": "Creixement International Systems, S.L.U.",
+        "distinctiveness_score": 4,
+        "scope_flexibility_score": 5,
+        "cross_language_score": 4,
+        "regulatory_neutrality_score": 5,
+        "brand_cohesion_score": 5,
+        "genericity_risk": "medium",
+        "availability_status": "not_checked",
+        "certificate_status": "not_requested"
+      },
+      {
+        "order": 2,
+        "name": "Creixement Market Operations, S.L.U.",
+        "distinctiveness_score": 4,
+        "scope_flexibility_score": 5,
+        "cross_language_score": 4,
+        "regulatory_neutrality_score": 5,
+        "brand_cohesion_score": 5,
+        "genericity_risk": "medium",
+        "availability_status": "not_checked",
+        "certificate_status": "not_requested"
+      },
+      {
+        "order": 3,
+        "name": "Creixement Digital Expansion, S.L.U.",
+        "distinctiveness_score": 4,
+        "scope_flexibility_score": 4,
+        "cross_language_score": 4,
+        "regulatory_neutrality_score": 5,
+        "brand_cohesion_score": 5,
+        "genericity_risk": "medium",
+        "availability_status": "not_checked",
+        "certificate_status": "not_requested"
+      },
+      {
+        "order": 4,
+        "name": "Creixement Venture Services, S.L.U.",
+        "distinctiveness_score": 4,
+        "scope_flexibility_score": 5,
+        "cross_language_score": 4,
+        "regulatory_neutrality_score": 4,
+        "brand_cohesion_score": 5,
+        "genericity_risk": "medium",
+        "availability_status": "not_checked",
+        "certificate_status": "not_requested"
+      },
+      {
+        "order": 5,
+        "name": "Creixement Global Enablement, S.L.U.",
+        "distinctiveness_score": 5,
+        "scope_flexibility_score": 5,
+        "cross_language_score": 3,
+        "regulatory_neutrality_score": 5,
+        "brand_cohesion_score": 5,
+        "genericity_risk": "low_medium",
+        "availability_status": "not_checked",
+        "certificate_status": "not_requested"
+      }
+    ],
+    "RMC_rules": {
+      "maximum_names_per_request": 5,
+      "names_must_be_ordered_by_preference": true,
+      "social_form_must_be_included": true,
+      "certified_name_must_match_deed_exactly": true,
+      "favourable_certificate_reservation_months": 6,
+      "certificate_valid_for_deed_months": 3,
+      "preliminary_consultation_is_binding": false,
+      "deed_unlock_requires": "favourable_RMC_negative_name_certificate"
+    },
+    "parallel_brand_checks": {
+      "trademark_screen": "not_started",
+      "domain_screen": "not_started",
+      "social_handle_screen": "not_started",
+      "linguistic_and_reputation_screen": "not_started",
+      "rule": "Brand, trademark and domain checks are separate and never replace the RMC certificate."
+    }
+  },
+  "registered_office_strategy": {
+    "status": "options_scored_no_address_selected",
+    "legal_alignment_rule": "The registered office must be in Spain at the centre of effective administration and direction or the principal establishment or operation.",
+    "selected_option": null,
+    "real_address_present": false,
+    "planning_recommendation": "Prefer a coworking or serviced office with genuine physical workspace, contractual domiciliation rights, reliable authority-mail handling and municipal compatibility; reject mail-only domiciliation unless professional substance and KYC review confirms suitability.",
+    "options": [
+      {
+        "id": "HOME_OFFICE",
+        "label": "Founder home office",
+        "cost_score": 5,
+        "privacy_score": 1,
+        "operational_substance_score": 4,
+        "mail_and_KYC_score": 4,
+        "scalability_score": 2,
+        "status": "candidate_not_selected",
+        "required_evidence": ["lawful_use_right", "owner_or_landlord_consent_if_required", "community_and_lease_review", "municipal_FUE_result"],
+        "principal_risks": ["public_address_exposure", "residential_use_restrictions", "client_visit_limits", "lease_or_community_constraints"]
+      },
+      {
+        "id": "COWORKING_PHYSICAL",
+        "label": "Coworking or serviced office with physical access",
+        "cost_score": 3,
+        "privacy_score": 4,
+        "operational_substance_score": 4,
+        "mail_and_KYC_score": 4,
+        "scalability_score": 4,
+        "status": "provisional_preferred_not_selected",
+        "required_evidence": ["signed_contract_allowing_registered_office", "physical_access_terms", "authority_mail_process", "KYC_acceptance", "municipal_FUE_result"],
+        "principal_risks": ["provider_contract_limitations", "shared_premises_classification", "mail_failure", "address_change_dependency"]
+      },
+      {
+        "id": "VIRTUAL_MAIL_ONLY",
+        "label": "Mail-only virtual office",
+        "cost_score": 4,
+        "privacy_score": 5,
+        "operational_substance_score": 1,
+        "mail_and_KYC_score": 2,
+        "scalability_score": 2,
+        "status": "not_recommended_without_professional_review",
+        "required_evidence": ["contractual_domiciliation_right", "authority_mail_process", "effective_management_alignment_opinion", "bank_and_notary_acceptance", "municipal_FUE_result"],
+        "principal_risks": ["effective_management_mismatch", "bank_or_notary_rejection", "mail_delay", "weak_operational_substance"]
+      },
+      {
+        "id": "DEDICATED_OFFICE",
+        "label": "Dedicated leased office",
+        "cost_score": 1,
+        "privacy_score": 5,
+        "operational_substance_score": 5,
+        "mail_and_KYC_score": 5,
+        "scalability_score": 5,
+        "status": "candidate_not_selected",
+        "required_evidence": ["signed_lease", "lawful_use_and_occupancy", "municipal_FUE_result", "works_and_accessibility_review_if_applicable"],
+        "principal_risks": ["fixed_cost", "deposit_and_commitment", "premises_works", "long_term_lock_in"]
+      }
+    ],
+    "mandatory_decision_tests": [
+      "effective_management_alignment",
+      "principal_establishment_alignment",
+      "lawful_right_to_use_address",
+      "public_disclosure_acceptance",
+      "authority_mail_reliability",
+      "bank_and_notary_KYC_acceptance",
+      "municipal_FUE_compatibility",
+      "lease_owner_and_community_constraints",
+      "client_visit_and_employee_plan",
+      "address_change_contingency"
+    ]
+  },
+  "FUE_input_questionnaire": {
+    "status": "template_ready_no_submission",
+    "submission_performed": false,
+    "restricted_fields": ["municipality", "full_address", "cadastral_or_premises_reference", "owner_or_lessors_identity"],
+    "questions": [
+      {"id": "MUNICIPALITY", "value": "not_supplied", "required": true},
+      {"id": "FULL_ADDRESS", "value": "restricted_not_supplied", "required": true},
+      {"id": "ACTIVITY_DESCRIPTION", "value": "digital business services website CRM copy localisation and human-reviewed AI assistance", "required": true},
+      {"id": "PREMISES_TYPE", "value": "not_selected", "required": true},
+      {"id": "PUBLIC_ACCESS", "value": "not_decided", "required": true},
+      {"id": "CLIENT_VISITS", "value": "not_decided", "required": true},
+      {"id": "EMPLOYEES_ON_SITE", "value": "not_decided", "required": true},
+      {"id": "WORKS_REQUIRED", "value": "not_decided", "required": true},
+      {"id": "SIGNAGE", "value": "not_decided", "required": true},
+      {"id": "STORAGE_OR_INVENTORY", "value": "none_planned", "required": true},
+      {"id": "EQUIPMENT_AND_POWER", "value": "ordinary_office_IT_only_planned", "required": true},
+      {"id": "NOISE_EMISSIONS_OR_HAZARDS", "value": "none_planned", "required": true},
+      {"id": "FLOOR_AREA_M2", "value": "not_supplied", "required": true},
+      {"id": "OPENING_HOURS", "value": "not_decided", "required": true},
+      {"id": "ACCESSIBILITY_AND_FIRE_CONTROLS", "value": "not_assessed", "required": true},
+      {"id": "LEASE_OWNER_COMMUNITY_CONSENT", "value": "not_assessed", "required": true}
+    ],
+    "unlock_rule": "No municipal status may become verified until the exact municipality, address, use and authority response are stored in restricted custody."
+  },
+  "activity_classification_candidates": {
+    "status": "candidate_map_only_professional_confirmation_required",
+    "CNAE_version": "CNAE-2025",
+    "CNAE_primary_candidate": "70.20",
+    "CNAE_candidates": [
+      {"code": "70.20", "label": "Otras actividades de consultoría de gestión empresarial", "service_fit": ["international market-readiness", "commercial process design", "business-development support"], "status": "candidate_unconfirmed"},
+      {"code": "62.20", "label": "Actividades de consultoría informática y gestión de instalaciones informáticas", "service_fit": ["CRM configuration", "workflow automation", "digital systems implementation"], "status": "candidate_unconfirmed"},
+      {"code": "62.10", "label": "Actividades de programación informática", "service_fit": ["website development", "software implementation", "automation development"], "status": "candidate_unconfirmed"},
+      {"code": "62.90", "label": "Otros servicios relacionados con las tecnologías de la información y la informática", "service_fit": ["technical digital support", "bounded systems services"], "status": "candidate_unconfirmed"},
+      {"code": "73.11", "label": "Actividades de las agencias de publicidad", "service_fit": ["commercial copy", "campaign asset preparation"], "status": "candidate_unconfirmed"},
+      {"code": "73.20", "label": "Estudios de mercado y realización de encuestas de opinión pública", "service_fit": ["market research", "international opportunity analysis"], "status": "candidate_unconfirmed"},
+      {"code": "73.30", "label": "Relaciones públicas y comunicación", "service_fit": ["commercial communications", "international messaging"], "status": "candidate_unconfirmed"},
+      {"code": "74.12", "label": "Actividades de diseño gráfico y de comunicación visual", "service_fit": ["one-pagers", "website visual communication"], "status": "candidate_unconfirmed"},
+      {"code": "74.30", "label": "Actividades de traducción e interpretación", "service_fit": ["non-certified localisation"], "status": "candidate_unconfirmed", "boundary": "does_not_authorise_sworn_or_certified_translation"},
+      {"code": "85.59", "label": "Otra educación n.c.o.p.", "service_fit": ["digital tool and commercial-process training"], "status": "candidate_unconfirmed"}
+    ],
+    "IAE_system_rule": "IAE and CNAE are separate systems. A CNAE candidate does not determine the IAE heading automatically.",
+    "IAE_candidates": [
+      {"heading": "849.9", "label": "Otros servicios independientes n.c.o.p.", "possible_fit": ["business advisory and implementation services not otherwise specified"], "status": "candidate_unconfirmed"},
+      {"heading": "845", "label": "Explotación electrónica por cuenta de terceros", "possible_fit": ["computer and data-processing services only if the actual facts fit"], "status": "candidate_unconfirmed"},
+      {"heading": "844", "label": "Servicios de publicidad, relaciones públicas y similares", "possible_fit": ["advertising and communications services"], "status": "candidate_unconfirmed"},
+      {"heading": "933.9", "label": "Otras actividades de enseñanza", "possible_fit": ["structured training services"], "status": "candidate_unconfirmed"}
+    ],
+    "confirmation_required_from": ["AEAT_activity_search_or_written_confirmation", "tax_professional", "Modelo_036_final_activity_description"],
+    "CNAE_confirmed": false,
+    "IAE_confirmed": false
+  },
+  "notary_PAE_handoff": {
+    "status": "public_safe_template_ready_not_instructed",
+    "route_selected": false,
+    "notary_or_PAE_instructed": false,
+    "public_safe_fields": [
+      "planned_company_form",
+      "ordered_name_candidate_labels",
+      "registered_office_option_id",
+      "bounded_corporate_purpose_version",
+      "candidate_CNAE_codes",
+      "candidate_IAE_families",
+      "capital_plan_amount",
+      "administrator_model",
+      "professional_review_statuses",
+      "restricted_document_checklist"
+    ],
+    "restricted_placeholders": [
+      "founder_identity",
+      "beneficial_owner_identity",
+      "full_registered_office",
+      "corporate_name_certificate",
+      "capital_contribution_evidence",
+      "administrator_acceptance_and_identity",
+      "tax_and_Social_Security_identifiers",
+      "bank_details",
+      "electronic_certificate_data"
+    ],
+    "pre_handoff_gates": [
+      "favourable_name_certificate",
+      "registered_office_selected_and_evidenced",
+      "municipal_path_assessed",
+      "corporate_purpose_professionally_reviewed",
+      "CNAE_and_IAE_confirmed",
+      "governance_and_remuneration_confirmed",
+      "capital_contribution_method_confirmed",
+      "restricted_identity_documents_complete"
+    ]
+  },
+  "current_decision": {
+    "identity_dossier_build_permitted": true,
+    "name_candidates_prepared": 5,
+    "name_availability_checked": false,
+    "name_certificate_obtained": false,
+    "trademark_or_domain_action_performed": false,
+    "registered_office_selected": false,
+    "real_address_present": false,
+    "FUE_submission_performed": false,
+    "CNAE_confirmed": false,
+    "IAE_confirmed": false,
+    "notary_or_PAE_instructed": false,
+    "legal_entity_exists": false,
+    "incorporation_execution_permitted": false,
+    "live_publication_permitted": false,
+    "live_intake_permitted": false,
+    "client_personal_data_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  },
+  "official_sources": [
+    {"authority": "Registro Mercantil Central", "subject": "Corporate-name certification", "reference": "Up to five ordered names; favourable certificate required; six-month reservation and three-month deed validity"},
+    {"authority": "BOE", "subject": "Registered office", "reference": "Real Decreto Legislativo 1/2010, articles 7, 9, 10 and 23"},
+    {"authority": "Generalitat de Catalunya", "subject": "FUE activity classification", "reference": "Exact municipality and comprehensive activity description required"},
+    {"authority": "BOE and INE", "subject": "CNAE-2025", "reference": "Real Decreto 10/2025 and official CNAE-2025 structure"},
+    {"authority": "Agencia Tributaria", "subject": "IAE", "reference": "IAE activity-search guidance and tariffs; final headings depend on actual activities"}
+  ],
+  "owner_instruction": {
+    "effect": "Prepare decision materials only. Do not query names, select an address, submit FUE, confirm classifications, instruct a notary or PAE, file, incorporate, publish, collect data, contract, invoice or accept payment."
+  }
+}
