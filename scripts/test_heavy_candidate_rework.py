@@ -78,7 +78,7 @@ def run():
     def runtime_contract():
         source = (ROOT / "ml_runtime" / "candidate_rework.py").read_text(encoding="utf-8")
         require('pretrained=False' in source, "YOLO pretrained-weight prohibition missing")
-        require('epochs=18' in source, "extended bounded YOLO schedule missing")
+        require('epochs: int = 18' in source, "extended bounded YOLO schedule missing")
         requirements = (ROOT / "requirements" / "heavy-embedding-cpu.txt").read_text(encoding="utf-8")
         for dependency in ("onnx==", "onnxruntime==", "numpy=="):
             require(dependency in requirements, f"embedding quantization dependency missing: {dependency}")
