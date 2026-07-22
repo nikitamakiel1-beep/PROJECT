@@ -31,6 +31,7 @@
           "axes",
           "route_debt",
           "blockers",
+          "limitations",
           "rollback_status",
           "shadow_rollout",
           "card_digest"
@@ -63,6 +64,7 @@
           },
           "route_debt": {"type": "array", "items": {"type": "string"}},
           "blockers": {"type": "array", "items": {"type": "string"}},
+          "limitations": {"type": "array", "items": {"type": "string"}},
           "rollback_status": {"enum": ["verified", "blocked"]},
           "shadow_rollout": {
             "type": "object",
