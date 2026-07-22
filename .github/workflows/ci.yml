@@ -29,6 +29,7 @@ jobs:
       - run: python scripts/test_colonial_deep_platform.py
       - run: python scripts/test_governed_candidate_lab.py
       - run: python scripts/test_candidate_evidence_board.py
+      - run: python scripts/test_heavy_runtime_federation.py
       - run: python scripts/test_intake_contract.py
       - run: python scripts/test_follow_up_digest.py
       - run: python scripts/test_neural_crm.py
