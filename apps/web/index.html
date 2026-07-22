@@ -32,6 +32,7 @@
 
     <nav id="primary-nav" aria-label="Primary navigation">
       <a href="#services" data-i18n="nav_services">Services</a>
+      <a href="#neural-guide" data-i18n="nav_neural">Neural guide</a>
       <a href="#fit" data-i18n="nav_fit">Who it is for</a>
       <a href="#process" data-i18n="nav_process">Process</a>
       <a href="#examples" data-i18n="nav_examples">Examples</a>
@@ -51,7 +52,7 @@
         <h1 id="hero-title" data-i18n="hero_title">Make your business easier to understand, follow up and sell internationally.</h1>
         <p class="lead" data-i18n="hero_body">Start with a focused audit, a usable CRM or a clear sales document. No oversized consulting programme and no fabricated promises.</p>
         <div class="actions">
-          <a class="button primary" href="#assessment" data-i18n="cta_primary">Review the assessment</a>
+          <a class="button primary" href="#neural-guide" data-i18n="cta_neural">Find the simplest starting point</a>
           <a class="button secondary" href="#services" data-i18n="cta_secondary">Compare services</a>
         </div>
         <p class="stage-note" data-i18n="alpha_note">Validation alpha: the public form cannot transmit data yet.</p>
@@ -71,6 +72,40 @@
         <p data-i18n="services_body">Prices, scope and delivery windows are loaded from one versioned service catalogue.</p>
       </div>
       <div id="service-grid" class="card-grid" aria-live="polite"></div>
+    </section>
+
+    <section id="neural-guide" class="section section-muted" aria-labelledby="neural-title">
+      <div class="shell neural-layout">
+        <div class="neural-intro">
+          <p class="eyebrow" data-i18n="neural_kicker">Local neural service guide</p>
+          <h2 id="neural-title" data-i18n="neural_title">Find the smallest useful first service.</h2>
+          <p data-i18n="neural_body">A local CNN and service relationship graph compare your operational priorities. This step asks for no name, email, company or website and transmits nothing.</p>
+          <div class="mode-banner neural-safety" role="note">
+            <strong data-i18n="neural_safety_title">Private by design</strong>
+            <span data-i18n="neural_safety_body">Inference runs in this browser. Recommendations are directional and remain subject to human review.</span>
+          </div>
+        </div>
+
+        <form id="neural-recommender-form" class="neural-form">
+          <label><span data-i18n="neural_goal">Main improvement needed</span>
+            <select name="goal" required>
+              <option value="visibility" data-i18n="neural_goal_visibility">Make the website clearer internationally</option>
+              <option value="follow_up" data-i18n="neural_goal_follow_up">Organise leads and follow-up</option>
+              <option value="sales_message" data-i18n="neural_goal_sales">Create a clear international sales message</option>
+              <option value="contact_speed" data-i18n="neural_goal_contact">Respond to enquiries faster</option>
+            </select>
+          </label>
+          <label class="range-field"><span><span data-i18n="neural_readiness">International readiness</span><output data-range-output="international_readiness">60%</output></span><input type="range" name="international_readiness" min="0" max="100" value="60"></label>
+          <label class="range-field"><span><span data-i18n="neural_multilingual">Need for multilingual material</span><output data-range-output="multilingual_need">50%</output></span><input type="range" name="multilingual_need" min="0" max="100" value="50"></label>
+          <label class="range-field"><span><span data-i18n="neural_complexity">Tolerance for implementation complexity</span><output data-range-output="complexity_tolerance">30%</output></span><input type="range" name="complexity_tolerance" min="0" max="100" value="30"></label>
+          <label class="range-field"><span><span data-i18n="neural_automation">Automation priority</span><output data-range-output="automation_priority">75%</output></span><input type="range" name="automation_priority" min="0" max="100" value="75"></label>
+          <label class="range-field"><span><span data-i18n="neural_urgency">Urgency</span><output data-range-output="urgency">70%</output></span><input type="range" name="urgency" min="0" max="100" value="70"></label>
+          <label class="range-field"><span><span data-i18n="neural_budget">Budget sensitivity</span><output data-range-output="budget_sensitivity">75%</output></span><input type="range" name="budget_sensitivity" min="0" max="100" value="75"></label>
+          <button class="button primary" type="submit" data-i18n="neural_run">Generate local recommendation</button>
+          <p id="neural-recommender-status" class="form-status" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+      <div class="shell"><div id="neural-recommendations" class="neural-results" aria-live="polite"></div></div>
     </section>
 
     <section id="fit" class="section section-muted">
@@ -159,5 +194,6 @@
   <noscript><p class="noscript">JavaScript is required to load the bilingual service catalogue and demonstration form.</p></noscript>
   <script src="config.js"></script>
   <script src="assets/app.js" type="module"></script>
+  <script src="assets/recommender-ui.mjs" type="module"></script>
 </body>
 </html>
