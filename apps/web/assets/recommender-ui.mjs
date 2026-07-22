@@ -140,10 +140,16 @@ function updateRangeLabels() {
 }
 
 async function initialise() {
-  [services, translations] = await Promise.all([
+  const [serviceData, baseTranslations, plannerTranslations] = await Promise.all([
     fetch('../../schemas/services.json', { cache: 'no-store' }).then(response => response.json()),
-    fetch('assets/translations.json', { cache: 'no-store' }).then(response => response.json())
+    fetch('assets/translations.json', { cache: 'no-store' }).then(response => response.json()),
+    fetch('assets/neural-next-steps.json', { cache: 'no-store' }).then(response => response.json())
   ]);
+  services = serviceData;
+  translations = {
+    en: { ...baseTranslations.en, ...plannerTranslations.en },
+    es: { ...baseTranslations.es, ...plannerTranslations.es }
+  };
   updateRangeLabels();
   form.addEventListener('input', updateRangeLabels);
   form.addEventListener('submit', event => {
