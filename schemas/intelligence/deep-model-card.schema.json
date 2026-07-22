@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Governed Deep Model Card",
+  "type": "object",
+  "required": [
+    "model_name",
+    "model_version",
+    "architecture",
+    "dataset_digest",
+    "hyperparameters",
+    "metrics",
+    "limitations",
+    "safety",
+    "rollback",
+    "promotion"
+  ],
+  "properties": {
+    "model_name": {"type": "string", "minLength": 1},
+    "model_version": {"type": "string", "minLength": 1},
+    "architecture": {
+      "type": "array",
+      "minItems": 1,
+      "items": {"type": "string"}
+    },
+    "dataset_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "schema_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "hyperparameters": {"type": "object"},
+    "metrics": {
+      "type": "object",
+      "properties": {
+        "train_loss": {"type": ["number", "null"]},
+        "validation_loss": {"type": ["number", "null"]},
+        "test_loss": {"type": ["number", "null"]},
+        "perplexity": {"type": ["number", "null"], "minimum": 0},
+        "calibration_error": {"type": ["number", "null"], "minimum": 0},
+        "brier_score": {"type": ["number", "null"], "minimum": 0},
+        "map50": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "precision": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "recall": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "quantization_regression": {"type": ["number", "null"], "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "safety": {
+      "type": "object",
+      "required": ["external_actions_allowed", "personal_data_training_allowed", "online_learning", "red_team_passed"],
+      "properties": {
+        "external_actions_allowed": {"const": false},
+        "personal_data_training_allowed": {"const": false},
+        "online_learning": {"const": false},
+        "red_team_passed": {"type": "boolean"},
+        "drift_reviewed": {"type": "boolean"},
+        "overfit_reviewed": {"type": "boolean"}
+      },
+      "additionalProperties": true
+    },
+    "rollback": {
+      "type": "object",
+      "required": ["verified", "active_model_retained"],
+      "properties": {
+        "verified": {"type": "boolean"},
+        "active_model_retained": {"type": "boolean"},
+        "procedure": {"type": "string"}
+      }
+    },
+    "promotion": {
+      "type": "object",
+      "required": ["status", "human_approved", "pull_request"],
+      "properties": {
+        "status": {"enum": ["shadow", "candidate", "blocked", "approved_for_reviewed_promotion"]},
+        "human_approved": {"type": "boolean"},
+        "pull_request": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "additionalProperties": true
+}
