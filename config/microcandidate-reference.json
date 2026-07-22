@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "reference_id": "autonomous-microcandidate-evidence-a1522b9",
+  "source_pr": 13,
+  "source_commit": "7344ee40c8dcbf06db35078e3af699c4a441484a",
+  "dataset_scope": "balanced synthetic microcandidate tasks",
+  "direct_comparability": false,
+  "comparison_policy": "Report an efficiency and evidence frontier only. Heavy-runtime candidates use different model classes and governed datasets and are not required to beat these values directly.",
+  "candidates": {
+    "language_model": {
+      "candidate_id": "micro-lora-autoregressive-shadow-v1",
+      "primary_metric": "test_perplexity",
+      "direction": "lower",
+      "value": 1.01827,
+      "baseline": 13.0,
+      "trainable_parameters": 104.0,
+      "shadow_rollout_stable": true
+    },
+    "embedding": {
+      "candidate_id": "micro-service-latent-embedding-shadow-v1",
+      "primary_metric": "retrieval_mrr",
+      "direction": "higher",
+      "value": 1.0,
+      "baseline": 0.34691,
+      "shadow_rollout_stable": true
+    },
+    "vision": {
+      "candidate_id": "micro-convolutional-card-vision-proxy-shadow-v1",
+      "primary_metric": "map50",
+      "direction": "higher",
+      "value": 1.0,
+      "baseline": 0.33333,
+      "precision": 1.0,
+      "recall": 1.0,
+      "shadow_rollout_stable": true,
+      "limitation": "Convolutional smoke proxy; not YOLO."
+    }
+  },
+  "promotion_permitted": false,
+  "human_review_required": true
+}
