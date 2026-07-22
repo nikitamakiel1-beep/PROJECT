@@ -1,0 +1,130 @@
+name: Heavy ML candidate federation
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heavy-ml-federation-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHONHASHSEED: '0'
+  HF_HUB_OFFLINE: '1'
+  TRANSFORMERS_OFFLINE: '1'
+  ULTRALYTICS_OFFLINE: 'true'
+  MODEL_DOWNLOADS_DISABLED: 'true'
+  PRODUCTION_DATA_DISABLED: 'true'
+  AUTOMATIC_PROMOTION: 'false'
+
+jobs:
+  prepare-datasets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate governed synthetic datasets
+        run: python scripts/run_heavy_runtime_federation.py generate --workspace artifacts/heavy-federation --seed 130
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heavy-governed-datasets-${{ github.sha }}
+          path: |
+            artifacts/heavy-federation/datasets
+            artifacts/heavy-federation/DATASET_SUMMARY.json
+          if-no-files-found: error
+          retention-days: 14
+
+  train-candidate:
+    needs: prepare-datasets
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - candidate: embedding
+            requirements: requirements/heavy-embedding-cpu.txt
+          - candidate: lora
+            requirements: requirements/heavy-lora-cpu.txt
+          - candidate: yolo
+            requirements: requirements/heavy-yolo-cpu.txt
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: ${{ matrix.requirements }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: heavy-governed-datasets-${{ github.sha }}
+          path: artifacts/heavy-federation
+      - name: Install isolated candidate runtime
+        run: python -m pip install --disable-pip-version-check -r "${{ matrix.requirements }}"
+      - name: Train ${{ matrix.candidate }} candidate
+        run: python scripts/run_heavy_runtime_federation.py "${{ matrix.candidate }}" --workspace artifacts/heavy-federation --seed 130
+      - name: Verify candidate remains shadow-only
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          candidate = '${{ matrix.candidate }}'
+          result = json.loads((Path('artifacts/heavy-federation/candidates') / candidate / 'RESULT.json').read_text())
+          assert result['gate']['promotion_permitted'] is False
+          assert result['gate']['human_approval_required'] is True
+          assert result['runtime']['rollback_exists'] is True
+          assert result['runtime']['automatic_promotion'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: heavy-candidate-${{ matrix.candidate }}-${{ github.sha }}
+          path: artifacts/heavy-federation/candidates
+          if-no-files-found: warn
+          retention-days: 14
+
+  federate-evidence:
+    needs: train-candidate
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: heavy-candidate-*-${{ github.sha }}
+          path: artifacts/heavy-federation/candidates
+          merge-multiple: true
+      - name: Federate candidate evidence
+        run: python scripts/run_heavy_runtime_federation.py federate --workspace artifacts/heavy-federation --reference config/microcandidate-reference.json
+      - name: Verify complete fail-closed board
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/heavy-federation/heavy-runtime-review.json').read_text())
+          assert report['candidate_count'] == 3
+          assert report['missing_tasks'] == []
+          assert report['complete_candidate_set'] is True
+          assert report['promotion_permitted'] is False
+          assert report['human_review_required'] is True
+          assert report['production_deployment'] is False
+          assert report['crm_decision_use'] is False
+          assert report['external_communication'] is False
+          assert report['microcandidate_reference']['direct_comparability'] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heavy-runtime-federated-evidence-${{ github.sha }}
+          path: artifacts/heavy-federation
+          if-no-files-found: error
+          retention-days: 14

@@ -1,0 +1,3 @@
+# Isolated CPU-only PyTorch embedding candidate runtime.
+# No production data, model downloads or external uploads.
+torch==2.13.0

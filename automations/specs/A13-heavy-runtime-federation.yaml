@@ -1,0 +1,56 @@
+automation_id: A13
+name: heavy-runtime-candidate-federation
+version: 1
+status: shadow_only
+trigger:
+  type: pull_request_or_manual
+inputs:
+  - governed synthetic dataset manifest
+  - isolated candidate runtime lock
+  - microcandidate reference frontier
+jobs:
+  prepare_datasets:
+    runtime: python_3_12
+    network_use: repository_and_action_dependencies_only
+    output: governed dataset artifact
+  train_embedding:
+    framework: pytorch
+    output: contrastive embedding evidence pack
+  train_lora:
+    framework: pytorch_transformers_peft
+    output: LoRA adapter evidence pack
+  train_yolo:
+    framework: ultralytics
+    pretrained: false
+    output: YOLO evidence pack
+  federate:
+    framework: dependency_free_python
+    output: heavy runtime review board
+controls:
+  production_data: prohibited
+  model_downloads: prohibited
+  pretrained_weights: prohibited
+  external_uploads: prohibited
+  crm_decision_use: prohibited
+  external_communication: prohibited
+  automatic_promotion: prohibited
+  human_review_required: true
+  rollback_artifact_required: true
+  candidate_set_required:
+    - language_model
+    - embedding
+    - vision
+comparison:
+  microcandidate_reference: config/microcandidate-reference.json
+  direct_comparability: false
+  policy: efficiency_and_evidence_frontier_only
+failure_policy:
+  missing_candidate: fail_closed
+  package_install_failure: preserve_other_candidate_artifacts
+  evidence_digest_mismatch: reject_pack
+  rollback_missing: reject_candidate
+  promotion_flag_true: reject_pack
+outputs:
+  retention_days: 14
+  promotion_permitted: false
+  production_deployment: false
