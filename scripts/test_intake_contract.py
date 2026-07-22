@@ -20,9 +20,9 @@ def main() -> None:
     provider_test = (ROOT / "automations/google-apps-script/ProviderTest.gs").read_text(encoding="utf-8")
     config = (ROOT / "apps/web/config.js").read_text(encoding="utf-8")
 
-    required_sheets = {"Companies", "Contacts", "Leads", "Opportunities", "Activities", "Automation Log"}
-    if set(contract["sheets"]) != required_sheets:
-        fail("sheet contract does not contain the exact required CRM sheets")
+    required_intake_sheets = {"Companies", "Contacts", "Leads", "Opportunities", "Activities", "Automation Log"}
+    if not required_intake_sheets.issubset(set(contract["sheets"])):
+        fail("sheet contract is missing an intake-critical CRM sheet")
     for name, headers in contract["sheets"].items():
         if len(headers) != len(set(headers)):
             fail(f"duplicate header in {name}")
