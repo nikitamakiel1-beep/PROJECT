@@ -97,14 +97,14 @@ def run():
         prediction = result["prediction"]
         for key in ("conversion_probability", "relationship_strength", "urgency_probability", "churn_risk", "confidence", "uncertainty"):
             require(0.0 <= prediction[key] <= 1.0, f"{key} outside probability range")
-        require(prediction["ensemble_size"] == 5, "expected five-member neural ensemble")
+        require(prediction["ensemble_size"] == 7, "expected seven-member multidimensional ensemble")
         require(len(prediction["action_probabilities"]) == 5, "next-action distribution incomplete")
         require(result["eligibility"]["eligible"], "qualified synthetic lead should be eligible")
         require(result["opportunity_plan"]["Value €"] == 149.0, "price must derive from canonical service")
         require(result["execution"]["action"] == "shadow_record", "default mode must remain shadow")
         require(not result["execution"]["mutation_permitted"], "shadow mode must not mutate")
 
-    case("qualified lead produces neural shadow opportunity plan", shadow_plan)
+    case("qualified lead produces multidimensional neural shadow opportunity plan", shadow_plan)
 
     def deterministic():
         engine = NeuralCRMEngine()
@@ -199,7 +199,7 @@ def run():
 
     case("bounded internal autonomy is confidence and uncertainty gated", bounded_auto_is_confidence_gated)
 
-    print(json.dumps({"ok": True, "model": "neural-crm-shadow-v0.1", "tests": evidence}, indent=2))
+    print(json.dumps({"ok": True, "model": "neural-crm-shadow-v0.1-multidimensional-fabric", "tests": evidence}, indent=2))
 
 
 if __name__ == "__main__":
