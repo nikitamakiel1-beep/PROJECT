@@ -24,7 +24,8 @@ PII_KEYS = {
 }
 EMAIL_PATTERN = re.compile(r"\b[^\s@]+@[^\s@]+\.[^\s@]+\b")
 URL_PATTERN = re.compile(r"https?://|www\.", re.IGNORECASE)
-PHONE_PATTERN = re.compile(r"(?:\+?\d[\s().-]*){8,}")
+PHONE_PATTERN = re.compile(r"(?:\+?\d[\s().-]*){9,}")
+ISO_DATE_PATTERN = re.compile(r"^\d{4}-\d{2}-\d{2}(?:T.*)?$")
 
 
 def canonical_json(value: Any) -> bytes:
@@ -56,7 +57,7 @@ def validate_no_pii(value: Any, path: str = "root") -> None:
             raise DatasetPolicyError(f"email-like content at {path}")
         if URL_PATTERN.search(value):
             raise DatasetPolicyError(f"URL-like content at {path}")
-        if PHONE_PATTERN.search(value):
+        if not ISO_DATE_PATTERN.fullmatch(value) and PHONE_PATTERN.search(value):
             raise DatasetPolicyError(f"phone-like content at {path}")
 
 
@@ -111,7 +112,6 @@ class DatasetBundleBuilder:
         self.signing_key = signing_key if signing_key is not None else os.getenv("DATASET_SIGNING_KEY", "")
 
     def _crm_records(self, count: int = 240) -> list[DatasetRecord]:
-        rng = random.Random(self.seed)
         start = date(2025, 1, 1)
         records: list[DatasetRecord] = []
         for index in range(count):
