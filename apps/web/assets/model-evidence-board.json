@@ -1,0 +1,80 @@
+{
+  "board_version": "candidate-review-board-demo-v1",
+  "notice": "Synthetic demonstration evidence only. No candidate has been trained, reviewed or promoted by this board.",
+  "promotion_permitted": false,
+  "human_review_required": true,
+  "cards": [
+    {
+      "candidate_id": "contrastive-rag-demo-v1",
+      "task": "embedding",
+      "framework": "torch",
+      "score": 0.91,
+      "decision": "eligible_for_extended_shadow",
+      "rollback": "verified",
+      "route_debt": [],
+      "blockers": [],
+      "limitations": ["synthetic knowledge units", "directional MRR only"],
+      "rollout": {"disagreement": 0.14, "abstention": 0.12, "incidents": 0.0, "stable": true},
+      "axes": {
+        "performance": 0.94,
+        "generalisation": 0.88,
+        "calibration": 0.87,
+        "privacy": 1.0,
+        "robustness": 1.0,
+        "efficiency": 0.86,
+        "rollback": 1.0,
+        "reproducibility": 1.0
+      },
+      "layer": 2,
+      "connections": ["tiny-lora-demo-v1", "geometric-yolo-demo-v1"]
+    },
+    {
+      "candidate_id": "tiny-lora-demo-v1",
+      "task": "language_model",
+      "framework": "transformers-peft",
+      "score": 0.73,
+      "decision": "human_review_required",
+      "rollback": "verified",
+      "route_debt": ["Daedalus→Pallas"],
+      "blockers": [],
+      "limitations": ["randomly initialised base", "synthetic byte-level corpus"],
+      "rollout": {"disagreement": 0.23, "abstention": 0.19, "incidents": 0.02, "stable": true},
+      "axes": {
+        "performance": 0.78,
+        "generalisation": 0.71,
+        "calibration": 0.66,
+        "privacy": 1.0,
+        "robustness": 0.86,
+        "efficiency": 0.68,
+        "rollback": 1.0,
+        "reproducibility": 1.0
+      },
+      "layer": 3,
+      "connections": ["contrastive-rag-demo-v1"]
+    },
+    {
+      "candidate_id": "geometric-yolo-demo-v1",
+      "task": "vision",
+      "framework": "ultralytics",
+      "score": 0.52,
+      "decision": "reject_or_rework",
+      "rollback": "blocked",
+      "route_debt": ["Argus→Pallas", "Pallas→Atlas", "Janus→Pallas"],
+      "blockers": ["vision_precision_or_recall_below_floor", "rollback_not_verified", "shadow_rollout_not_stable"],
+      "limitations": ["geometric scenes only", "not a trained client-media detector"],
+      "rollout": {"disagreement": 0.36, "abstention": 0.28, "incidents": 0.08, "stable": false},
+      "axes": {
+        "performance": 0.49,
+        "generalisation": 0.55,
+        "calibration": 0.60,
+        "privacy": 1.0,
+        "robustness": 0.72,
+        "efficiency": 0.70,
+        "rollback": 0.0,
+        "reproducibility": 0.82
+      },
+      "layer": 4,
+      "connections": ["contrastive-rag-demo-v1"]
+    }
+  ]
+}

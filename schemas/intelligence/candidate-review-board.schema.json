@@ -1,0 +1,107 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Candidate Evidence Review Board",
+  "type": "object",
+  "required": [
+    "board_version",
+    "candidate_count",
+    "cards",
+    "eligible_for_extended_shadow",
+    "rejected_or_rework",
+    "promotion_permitted",
+    "human_review_required",
+    "board_digest"
+  ],
+  "properties": {
+    "board_version": {"const": "candidate-review-board-v1"},
+    "candidate_count": {"type": "integer", "minimum": 0},
+    "cards": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "candidate_id",
+          "task",
+          "framework",
+          "evidence_digest",
+          "board_score",
+          "decision",
+          "promotion_permitted",
+          "human_review_required",
+          "axes",
+          "route_debt",
+          "blockers",
+          "limitations",
+          "rollback_status",
+          "shadow_rollout",
+          "card_digest"
+        ],
+        "properties": {
+          "candidate_id": {"type": "string", "minLength": 1},
+          "task": {"type": "string"},
+          "framework": {"type": "string"},
+          "evidence_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "board_score": {"type": "number", "minimum": 0, "maximum": 1},
+          "decision": {"enum": ["reject_or_rework", "human_review_required", "eligible_for_extended_shadow"]},
+          "promotion_permitted": {"const": false},
+          "human_review_required": {"const": true},
+          "axes": {
+            "type": "array",
+            "minItems": 8,
+            "items": {
+              "type": "object",
+              "required": ["name", "score", "weight", "status", "reasons", "route"],
+              "properties": {
+                "name": {"type": "string"},
+                "score": {"type": "number", "minimum": 0, "maximum": 1},
+                "weight": {"type": "number", "minimum": 0, "maximum": 1},
+                "status": {"enum": ["pass", "review", "fail"]},
+                "reasons": {"type": "array", "items": {"type": "string"}},
+                "route": {"type": "string"}
+              },
+              "additionalProperties": false
+            }
+          },
+          "route_debt": {"type": "array", "items": {"type": "string"}},
+          "blockers": {"type": "array", "items": {"type": "string"}},
+          "limitations": {"type": "array", "items": {"type": "string"}},
+          "rollback_status": {"enum": ["verified", "blocked"]},
+          "shadow_rollout": {
+            "type": "object",
+            "required": [
+              "candidate_id",
+              "cohort_count",
+              "simulated_decisions",
+              "disagreement_rate",
+              "abstention_rate",
+              "incident_rate",
+              "rollback_recovery_rate",
+              "stable",
+              "digest"
+            ],
+            "properties": {
+              "candidate_id": {"type": "string"},
+              "cohort_count": {"type": "integer", "minimum": 1},
+              "simulated_decisions": {"type": "integer", "minimum": 1},
+              "disagreement_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "abstention_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "incident_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "rollback_recovery_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "stable": {"type": "boolean"},
+              "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+            },
+            "additionalProperties": false
+          },
+          "card_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "eligible_for_extended_shadow": {"type": "array", "items": {"type": "string"}},
+    "rejected_or_rework": {"type": "array", "items": {"type": "string"}},
+    "promotion_permitted": {"const": false},
+    "human_review_required": {"const": true},
+    "board_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

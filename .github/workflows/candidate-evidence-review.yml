@@ -1,0 +1,111 @@
+name: Candidate evidence review board
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Optional workflow run ID containing candidate evidence artifacts
+        required: false
+        type: string
+      use_synthetic_demo:
+        description: Generate synthetic demonstration packs when no run ID is supplied
+        required: true
+        default: true
+        type: boolean
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  review-board:
+    runs-on: ubuntu-latest
+    env:
+      PYTHONHASHSEED: "0"
+      HF_HUB_OFFLINE: "1"
+      TRANSFORMERS_OFFLINE: "1"
+      HF_DATASETS_OFFLINE: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Download candidate artifacts from source run
+        if: ${{ inputs.source_run_id != '' }}
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const runId = Number('${{ inputs.source_run_id }}');
+            if (!Number.isInteger(runId) || runId < 1) core.setFailed('source_run_id must be a positive integer');
+            const response = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: runId,
+              per_page: 100
+            });
+            const selected = response.data.artifacts.filter(item => /candidate|evidence|model/i.test(item.name) && !item.expired);
+            if (!selected.length) core.setFailed('No non-expired candidate evidence artifacts found');
+            fs.mkdirSync('source-artifacts', { recursive: true });
+            for (const artifact of selected) {
+              const download = await github.rest.actions.downloadArtifact({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                artifact_id: artifact.id,
+                archive_format: 'zip'
+              });
+              fs.writeFileSync(path.join('source-artifacts', `${artifact.name}.zip`), Buffer.from(download.data));
+            }
+
+      - name: Extract source artifacts
+        if: ${{ inputs.source_run_id != '' }}
+        run: |
+          mkdir -p source-artifacts/extracted
+          find source-artifacts -maxdepth 1 -name '*.zip' -print0 | while IFS= read -r -d '' archive; do
+            unzip -q "$archive" -d source-artifacts/extracted
+          done
+
+      - name: Generate synthetic demonstration packs
+        if: ${{ inputs.source_run_id == '' && inputs.use_synthetic_demo }}
+        run: python scripts/generate_demo_candidate_packs.py
+
+      - name: Refuse missing evidence source
+        if: ${{ inputs.source_run_id == '' && !inputs.use_synthetic_demo }}
+        run: |
+          echo 'No evidence source was supplied.' >&2
+          exit 1
+
+      - name: Build review board from downloaded evidence
+        if: ${{ inputs.source_run_id != '' }}
+        run: python scripts/review_candidate_packs.py source-artifacts/extracted --output review-output/candidate-review-board.json
+
+      - name: Build review board from synthetic demonstration
+        if: ${{ inputs.source_run_id == '' && inputs.use_synthetic_demo }}
+        run: python scripts/review_candidate_packs.py candidate-demo-packs --output review-output/candidate-review-board.json
+
+      - name: Verify fail-closed board
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          board = json.loads(Path('review-output/candidate-review-board.json').read_text())
+          assert board['candidate_count'] >= 1
+          assert board['promotion_permitted'] is False
+          assert board['human_review_required'] is True
+          assert len(board['board_digest']) == 64
+          for card in board['cards']:
+              assert card['promotion_permitted'] is False
+              assert card['human_review_required'] is True
+              assert card['decision'] in {'reject_or_rework', 'human_review_required', 'eligible_for_extended_shadow'}
+          print(json.dumps({'verified': True, 'candidate_count': board['candidate_count'], 'board_digest': board['board_digest']}, indent=2))
+          PY
+
+      - name: Upload review board
+        uses: actions/upload-artifact@v4
+        with:
+          name: candidate-evidence-review-board
+          path: review-output/
+          retention-days: 14
+          if-no-files-found: error
