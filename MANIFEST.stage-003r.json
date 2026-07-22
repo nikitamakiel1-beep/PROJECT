@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 003r staging and market-entry licensing audit",
+  "files": [
+    "MANIFEST.stage-003r.json",
+    "automations/specs/A19-staging-market-entry-audit.yaml",
+    "config/market-entry-licensing.json",
+    "config/staging-release.json",
+    "docs/compliance/MARKET_ENTRY_LICENCE_AUDIT.md",
+    "evidence/readiness/2026-07-22-staging-market-entry-hold.json",
+    "scripts/audit_market_entry_licensing.py",
+    "scripts/test_market_entry_licensing.py"
+  ]
+}
