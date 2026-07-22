@@ -46,6 +46,8 @@ def main() -> None:
 
         require(lora["metrics"]["test_perplexity"] < lora["baseline_metrics"]["test_perplexity"] * 0.50, "low-rank language adapter uplift too small")
         require(lora["metrics"]["validation_loss"] - lora["metrics"]["train_loss"] <= 0.35, "low-rank language adapter overfit")
+        require(lora["metrics"]["minimum_segment_token_accuracy"] >= 0.95, "language segment token accuracy below floor")
+        require(max(values["quality"] for values in lora["segment_metrics"].values()) - min(values["quality"] for values in lora["segment_metrics"].values()) <= 0.20, "language segment evidence is not comparable")
         require(embedding["metrics"]["retrieval_mrr"] > embedding["baseline_metrics"]["retrieval_mrr"], "embedding candidate did not beat baseline")
         require(embedding["metrics"]["classification_accuracy"] >= 0.90, "embedding latent classifier accuracy below floor")
         require(vision["metrics"]["map50"] > vision["baseline_metrics"]["map50"], "vision proxy did not beat baseline")
@@ -68,6 +70,7 @@ def main() -> None:
         require(all(card["shadow_rollout"]["simulated_decisions"] == 240 for card in board["cards"]), "shadow rollout cohort size changed")
         require(all(card["shadow_rollout"]["stable"] for card in board["cards"]), "one or more corrected candidates have unstable shadow rollout")
         require(all("calibration_error_above_limit" not in card["blockers"] for card in board["cards"]), "calibration route debt remains")
+        require(all("segment_gap_above_limit" not in card["blockers"] for card in board["cards"]), "segment-comparability route debt remains")
         require((first_root / "candidate-review-board.json").exists(), "board artifact missing")
         require((first_root / "SUMMARY.json").exists(), "summary artifact missing")
 
