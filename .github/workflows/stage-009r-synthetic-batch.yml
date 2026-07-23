@@ -1,0 +1,38 @@
+name: Stage 009r synthetic batch adapter
+
+on:
+  pull_request:
+    paths:
+      - 'intelligence/real_estate/**'
+      - 'fixtures/real_estate/**'
+      - 'config/real-estate-synthetic-batch.json'
+      - 'automations/specs/A26-synthetic-real-estate-batch-adapter.yaml'
+      - 'scripts/*real_estate_synthetic_batch.py'
+      - 'docs/architecture/REAL_ESTATE_SYNTHETIC_BATCH_ADAPTER.md'
+      - 'docs/handover/STAGE_009R_SYNTHETIC_BATCH_ADAPTER.md'
+      - 'MANIFEST.stage-009r.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate A30 runtime
+        run: python scripts/test_real_estate_runtime.py
+      - name: Validate Stage 007r contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Validate Stage 008r orchestrator
+        run: python scripts/test_real_estate_synergy_orchestrator.py
+      - name: Validate Stage 009r batch adapter
+        run: python scripts/test_real_estate_synthetic_batch.py
+      - name: Audit Stage 009r fail-closed boundary
+        run: python scripts/audit_real_estate_synthetic_batch.py
+      - name: Validate repository manifests and compilation
+        run: python scripts/validate_repository.py
