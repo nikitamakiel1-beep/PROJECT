@@ -1,0 +1,82 @@
+automation_id: A23
+name: real-estate-crm-vertical-and-restricted-import-custody
+status: source_complete_no_real_data_imported
+purpose: >-
+  Attach a normalized real-estate operating vertical to the existing governed CRM
+  using public-safe structural evidence from the Maumer Capital workbooks without
+  copying personal, property, investor, bank or transaction records into GitHub,
+  importing them into the synthetic CRM, or enabling real-estate mediation,
+  investment advice, valuation, financing, outreach or transaction execution.
+
+inputs:
+  - existing_generic_CRM_contract
+  - existing_company_contact_lead_opportunity_activity_ids
+  - restricted_Maumer_opportunity_workbook
+  - restricted_real_estate_agency_directory
+  - owner_instruction_to_merge_operating_models
+  - Catalonia_real_estate_intermediation_boundary
+
+outputs:
+  - isolated_real_estate_CRM_extension
+  - normalized_property_deal_counterparty_investor_financing_underwriting_due_diligence_and_fee_schemas
+  - generic_CRM_bridge_contract
+  - source_column_mapping_without_source_records
+  - deterministic_import_readiness_receipt
+  - quarantine_and_deduplication_rules
+  - human_authority_and_regulatory_boundaries
+
+required_controls:
+  - generic_CRM_headers_and_intake_contract_remain_unchanged
+  - real_estate_records_reference_generic_company_contact_and_opportunity_IDs
+  - raw_addresses_contacts_investors_financials_and_documents_remain_restricted
+  - source_workbooks_are_never_committed_or_embedded
+  - source_column_names_may_be_mapped_but_source_rows_may_not
+  - import_is_dry_run_quarantine_only
+  - duplicate_agencies_use_domain_email_phone_and_normalized_name_evidence
+  - duplicate_properties_use_source_ID_and_location_hash_without_public_address
+  - ambiguous_rows_enter_quarantine_and_never_overwrite_curated_records
+  - formulas_are_versioned_with_input_provenance_and_human_approval
+  - AI_is_shadow_only_and_cannot_select_investors_or_recommend_transactions
+  - no_autonomous_email_WhatsApp_offer_financing_or_closing_action
+  - Creixement_remains_CRM_and_workflow_implementer_not_real_estate_intermediary
+  - client_or_authorized_agent_owns_transaction_decisions_and_external_actions
+
+forbidden_actions:
+  - import_real_workbook_rows
+  - store_real_names_emails_phones_addresses_tax_IDs_bank_data_or_signatures_in_source_control
+  - enrich_or_contact_real_agencies_owners_investors_or_providers
+  - send_email_WhatsApp_newsletters_surveys_or_campaigns
+  - generate_or_submit_property_offers
+  - approve_property_values_underwriting_due_diligence_or_financing
+  - match_or_solicit_investors_automatically
+  - mediate_negotiate_reserve_close_or_manage_a_real_estate_transaction
+  - represent_Creixement_as_registered_real_estate_agent
+  - publish_live_data_contract_invoice_accept_payment_or_deliver_paid_work
+  - merge_into_main_tag_release_or_deploy
+
+validation:
+  command: python scripts/test_real_estate_crm_vertical.py
+  expected_cases: 22
+  fail_closed: true
+
+maximum_result:
+  vertical_schema_ready: true
+  generic_CRM_preserved: true
+  source_workbooks_profiled: true
+  source_rows_imported: 0
+  personal_data_imported: false
+  real_property_data_imported: false
+  real_investor_data_imported: false
+  import_execution_permitted: false
+  outreach_permitted: false
+  transaction_action_permitted: false
+  synthetic_fixture_permitted: true
+  live_publication_permitted: false
+  paid_contracting_permitted: false
+
+rollback:
+  - preserve_the_generic_CRM_and_Stage_005s_controls
+  - remove_the_real_estate_extension_without_mutating_generic_tables
+  - discard_all_synthetic_extension_records
+  - keep_source_workbooks_in_restricted_Drive_storage
+  - keep_all_import_outreach_and_transaction_actions_blocked
