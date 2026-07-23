@@ -1,0 +1,22 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 006r real-estate CRM vertical and restricted import custody",
+  "files": [
+    "MANIFEST.stage-006r.json",
+    "automations/specs/A23-real-estate-crm-vertical.yaml",
+    "config/real-estate-crm-vertical.json",
+    "docs/operations/REAL_ESTATE_CRM_VERTICAL.md",
+    "evidence/readiness/2026-07-23-real-estate-crm-vertical.json",
+    "schemas/crm/real-estate/counterparty.schema.json",
+    "schemas/crm/real-estate/due-diligence.schema.json",
+    "schemas/crm/real-estate/fee.schema.json",
+    "schemas/crm/real-estate/financing.schema.json",
+    "schemas/crm/real-estate/import-contract.json",
+    "schemas/crm/real-estate/investor.schema.json",
+    "schemas/crm/real-estate/opportunity.schema.json",
+    "schemas/crm/real-estate/property.schema.json",
+    "schemas/crm/real-estate/underwriting.schema.json",
+    "scripts/audit_real_estate_crm_vertical.py",
+    "scripts/test_real_estate_crm_vertical.py"
+  ]
+}
