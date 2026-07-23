@@ -1,0 +1,50 @@
+id: A26
+name: Synthetic real-estate batch adapter
+stage: 009r
+status: local_synthetic_runtime_only
+depends_on:
+  - A30-real-estate-runtime-and-matching
+  - A24-real-estate-synergy-system
+  - A25-synthetic-real-estate-synergy-orchestrator
+runtime:
+  module: intelligence.real_estate.batch
+  input_scope: local_synthetic_fixture_only
+  output_scope: in_memory_fixture_and_local_csv_zip
+  network_clients: none
+  Drive_clients: none
+controls:
+  synthetic_batch_id_required: true
+  synthetic_source_profile_required: true
+  rights_status_required: true
+  batch_correlation_required: true
+  row_idempotency_required: true
+  duplicate_external_code_action: quarantine_later_duplicate
+  invalid_row_action: quarantine_row_continue_batch
+  replay_action: receipt_without_mutation
+  conflicting_replay_action: quarantine
+  real_source_file_access_allowed: false
+  real_CRM_writes_allowed: false
+  automatic_upload_allowed: false
+  external_communication_allowed: false
+outputs:
+  permitted:
+    - batch summary
+    - row processed receipt
+    - row replay receipt
+    - row quarantine receipt
+    - in-memory fixture
+    - deterministic CSV workbook ZIP
+    - contract reconciliation result
+  forbidden:
+    - real workbook open
+    - Google Drive read or write
+    - Google Sheets write
+    - client contact
+    - proposal
+    - invoice
+    - payment request
+    - offer
+    - reservation
+    - financing request
+    - contract
+    - transaction action

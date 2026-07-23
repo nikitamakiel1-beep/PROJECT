@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "programme": "Creixement — deterministic synthetic real-estate batch adapter",
+  "stage": "009r",
+  "as_of": "2026-07-23",
+  "base_stage": "008r",
+  "execution_mode": "local_synthetic_batch_only",
+  "accepted_inputs": [
+    "in-memory mapping",
+    "local UTF-8 CSV string",
+    "local synthetic fixture file used by tests"
+  ],
+  "outputs": [
+    "per-row processed receipt",
+    "per-row replay receipt",
+    "per-row quarantine receipt",
+    "batch summary",
+    "in-memory fixture",
+    "deterministic local CSV workbook ZIP"
+  ],
+  "controls": {
+    "synthetic_batch_id_required": true,
+    "synthetic_source_profile_required": true,
+    "rights_status_required": true,
+    "batch_correlation_required": true,
+    "row_idempotency_required": true,
+    "duplicate_external_code_action": "quarantine_later_duplicate",
+    "invalid_row_action": "quarantine_row_continue_batch",
+    "contract_validation_supported": true,
+    "fixed_zip_metadata_required": true,
+    "real_source_file_access_permitted": false,
+    "network_access_permitted": false,
+    "Drive_access_permitted": false,
+    "real_CRM_write_permitted": false,
+    "external_communication_permitted": false
+  },
+  "bundle": {
+    "format": "ZIP containing UTF-8 CSV sheets and manifest.json",
+    "purpose": "manual inspection and synthetic contract reconciliation",
+    "Google_Sheets_import_performed": false,
+    "automatic_upload_performed": false
+  },
+  "current_decision": {
+    "synthetic_batch_adapter_ready": true,
+    "real_rows_imported": 0,
+    "real_workbook_opened": false,
+    "network_client_present": false,
+    "live_execution_permitted": false
+  }
+}
