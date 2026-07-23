@@ -165,7 +165,7 @@ def render_markdown(summary: Mapping[str, Any]) -> str:
         "",
         f"As of: {summary.get('as_of') or 'unspecified'}",
         "",
-        "A percentage is an evidence-weighted progress indicator, not permission to release.",
+        "The score is an evidence-weighted progress indicator, not release authority or permission to operate live.",
         "",
     ]
     modes = summary.get("modes") or {}
