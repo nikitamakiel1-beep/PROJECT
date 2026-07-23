@@ -1,0 +1,31 @@
+name: Stage 007r real-estate synergy validation
+
+on:
+  pull_request:
+    paths:
+      - 'config/real-estate-synergy-system.json'
+      - 'schemas/crm/real-estate/**'
+      - 'automations/specs/A24-real-estate-synergy-system.yaml'
+      - 'scripts/*real_estate_synergy_system.py'
+      - 'docs/operations/REAL_ESTATE_SYNERGY_SYSTEM.md'
+      - 'docs/handover/STAGE_007R_REAL_ESTATE_SYNERGY.md'
+      - 'MANIFEST.stage-007r.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test A30 runtime
+        run: python scripts/test_real_estate_runtime.py
+      - name: Test Stage 007r contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Audit fail-closed controls
+        run: python scripts/audit_real_estate_synergy_system.py
