@@ -1,0 +1,29 @@
+{
+  "schema_version": 2,
+  "stage": "010r",
+  "programme": "Synthetic real-estate reconciliation and rollback",
+  "as_of": "2026-07-23",
+  "base_branch": "venture/stage-009r-synthetic-batch-adapter",
+  "target_branch": "venture/stage-010r-synthetic-reconciliation-rollback",
+  "files": [
+    ".github/workflows/stage-010r-synthetic-reconciliation.yml",
+    "MANIFEST.stage-010r.json",
+    "automations/specs/A27-synthetic-real-estate-reconciliation.yaml",
+    "config/real-estate-synthetic-reconciliation.json",
+    "docs/architecture/REAL_ESTATE_SYNTHETIC_RECONCILIATION.md",
+    "docs/handover/STAGE_010R_SYNTHETIC_RECONCILIATION.md",
+    "evidence/readiness/2026-07-23-real-estate-synthetic-reconciliation.json",
+    "fixtures/real_estate/stage010r-synthetic-opportunities-target.csv",
+    "intelligence/real_estate/reconciliation.py",
+    "intelligence/real_estate/reconciliation_api.py",
+    "scripts/audit_real_estate_reconciliation.py",
+    "scripts/test_real_estate_reconciliation.py"
+  ],
+  "real_source_rows_in_github": 0,
+  "real_source_rows_imported": 0,
+  "real_workbook_opened": false,
+  "network_client_added": false,
+  "Drive_client_added": false,
+  "real_spreadsheet_client_added": false,
+  "external_actions_permitted": false
+}
