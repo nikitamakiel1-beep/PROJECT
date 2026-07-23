@@ -1,0 +1,25 @@
+{
+  "stage": "007r",
+  "as_of": "2026-07-23",
+  "branch": "venture/stage-007r-real-estate-synergy-runtime",
+  "generic_crm_preserved": true,
+  "original_drive_crm_preserved": true,
+  "synergy_working_copy_created": true,
+  "added_operational_sheet_contracts": 10,
+  "source_registry_seeded_with_metadata_only": true,
+  "A30_runtime_preserved": true,
+  "real_source_rows_in_github": 0,
+  "real_source_rows_imported": 0,
+  "personal_data_imported": false,
+  "full_property_addresses_imported": false,
+  "autonomous_outreach": false,
+  "automated_solicitation": false,
+  "offer_or_transaction_action": false,
+  "live_publication": false,
+  "paid_delivery": false,
+  "validation_commands": [
+    "python scripts/test_real_estate_runtime.py",
+    "python scripts/test_real_estate_synergy_system.py",
+    "python scripts/audit_real_estate_synergy_system.py"
+  ]
+}
