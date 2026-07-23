@@ -1,0 +1,29 @@
+{
+  "stage": "009r",
+  "as_of": "2026-07-23",
+  "branch": "venture/stage-009r-synthetic-batch-adapter",
+  "local_synthetic_csv_parser_created": true,
+  "batch_correlation_created": true,
+  "row_idempotency_created": true,
+  "duplicate_quarantine_created": true,
+  "non_blocking_row_quarantine_created": true,
+  "runtime_contract_reconciliation_created": true,
+  "deterministic_local_bundle_only": true,
+  "synthetic_fixture_rows": 2,
+  "regression_test_cases": 9,
+  "real_source_rows_in_github": 0,
+  "real_source_rows_imported": 0,
+  "real_workbook_opened": false,
+  "Drive_access_added": false,
+  "network_client_added": false,
+  "real_spreadsheet_client_added": false,
+  "external_communication_permitted": false,
+  "live_execution_permitted": false,
+  "validation_commands": [
+    "python scripts/test_real_estate_runtime.py",
+    "python scripts/test_real_estate_synergy_system.py",
+    "python scripts/test_real_estate_synergy_orchestrator.py",
+    "python scripts/test_real_estate_synthetic_batch.py",
+    "python scripts/audit_real_estate_synthetic_batch.py"
+  ]
+}
