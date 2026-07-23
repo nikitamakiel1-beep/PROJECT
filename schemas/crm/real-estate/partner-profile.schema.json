@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/partner-profile.schema.json",
+  "title": "Partner or captor role extension",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["partner_profile_id", "contact_id", "partner_type", "coverage", "contact_basis", "status"],
+  "properties": {
+    "partner_profile_id": {"type": "string", "pattern": "^PAR-[A-Z0-9-]{4,100}$"},
+    "company_id": {"type": "string"},
+    "contact_id": {"type": "string", "minLength": 3},
+    "partner_type": {"type": "string", "enum": ["captor", "agency", "provider", "contractor", "valuer", "legal", "financing", "property_manager", "other"]},
+    "coverage": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["country", "region"],
+        "properties": {
+          "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+          "region": {"type": "string", "minLength": 2},
+          "city": {"type": "string"}
+        }
+      }
+    },
+    "operating_form": {"type": "string", "enum": ["unknown", "individual", "self_employed", "company", "other"]},
+    "registration_status": {"type": "string", "enum": ["not_checked", "not_required", "pending", "verified", "failed"]},
+    "agreement_status": {"type": "string", "enum": ["none", "draft", "pending_signature", "active", "expired", "terminated"]},
+    "contact_basis": {"type": "string", "minLength": 3, "maxLength": 120},
+    "status": {"type": "string", "enum": ["applicant", "review_required", "approved", "inactive", "rejected"]},
+    "evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "notes": {"type": "string", "maxLength": 2000}
+  }
+}
