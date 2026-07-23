@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/synergy-event.schema.json",
+  "title": "Real-estate synergy event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "correlation_id", "event_type", "producer", "consumer", "entity_type", "entity_id", "occurred_at", "idempotency_key", "payload_digest", "human_gate_required"],
+  "properties": {
+    "event_id": {"type": "string", "pattern": "^EVT-[A-Z0-9-]{8,80}$"},
+    "correlation_id": {"type": "string", "minLength": 8, "maxLength": 120},
+    "event_type": {"type": "string", "enum": ["realestate.partner_intake.received", "realestate.investor_intake.received", "realestate.property_case.created", "realestate.visit.submitted", "realestate.underwriting.calculated", "realestate.underwriting.approved", "realestate.report.generated", "realestate.report.approved", "realestate.match.proposed", "realestate.match.approved", "realestate.dashboard.refresh_requested"]},
+    "producer": {"type": "string", "minLength": 2, "maxLength": 80},
+    "consumer": {"type": "string", "minLength": 2, "maxLength": 80},
+    "entity_type": {"type": "string", "enum": ["lead", "company", "contact", "opportunity", "property", "property_source", "partner_profile", "investor_mandate", "visit", "evidence", "underwriting_case", "scenario", "renovation_estimate", "match", "report", "approval", "fee_arrangement", "transaction", "tenancy"]},
+    "entity_id": {"type": "string", "minLength": 3, "maxLength": 120},
+    "occurred_at": {"type": "string", "format": "date-time"},
+    "idempotency_key": {"type": "string", "minLength": 12, "maxLength": 180},
+    "payload_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "human_gate_required": {"type": "boolean"},
+    "human_gate_status": {"type": "string", "enum": ["not_required", "pending", "approved", "rejected"]},
+    "restricted_pointer": {"type": "string", "pattern": "^restricted://"},
+    "notes": {"type": "string", "maxLength": 2000}
+  }
+}
