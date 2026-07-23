@@ -35,6 +35,11 @@
     "transaction_mediation": false,
     "AI_mode": "shadow_only"
   },
+  "official_boundary_source": {
+    "authority": "Generalitat de Catalunya — Canal Empresa",
+    "subject": "Register of Real Estate Agents of Catalonia",
+    "public_safe_conclusion": "Habitual remunerated mediation, advice or management in real-estate transactions belongs within the applicable registered-agent regime; this CRM module does not confer registration or authority."
+  },
   "decisions": {
     "vertical_schema_ready": true,
     "synthetic_fixture_permitted": true,
