@@ -1,83 +1,88 @@
-# Real-estate CRM vertical
+# Real-estate runtime and pairwise mandate-fit layer
 
 ## Purpose
 
-This extension merges a property-investment operating model into the existing venture CRM without replacing the shared commercial core.
+A30 supplements the existing A23 restricted real-estate CRM vertical with executable underwriting, operational runtime sheets and pairwise mandate-fit assessment.
 
-The source material is a private real-estate opportunity workbook with approximately 770 populated property rows, three rental strategies, property underwriting, viewings, investor candidates, fees, presentations and outcome tracking. Only its **structure, field taxonomy and aggregate workflow evidence** are represented in the repository. Row-level property records, names, URLs, cadastral references and free-text notes remain outside source control.
+It does not replace A23. A23 remains authoritative for:
 
-## Non-negotiable object boundary
+- legal and real-estate authority boundaries;
+- restricted-data custody;
+- generic CRM bridging;
+- property, deal, counterparty, investor, financing, underwriting, due-diligence and fee schemas;
+- dry-run import quarantine;
+- prohibition of mediation, investment advice, valuation approval, mortgage advice, outreach and transaction action.
 
-The two meanings of “opportunity” are separated:
+A30 adds only the missing execution layer:
 
-- **Commercial Opportunity** — a CRM sale of a service to a client.
-- **Property Opportunity** — a property or building being researched, underwritten, matched, viewed, offered, reserved or acquired.
+- detailed field mapping for the observed private opportunity workbook;
+- deterministic property and scenario identifiers;
+- traditional, room-rental and temporary-rental calculations;
+- downside, base and upside scenarios;
+- transparent acquisition cost, debt service, yield and cash-flow metrics;
+- a pairwise fit calculation for one supplied mandate and one supplied property scenario;
+- operational property, mandate, match, viewing, transaction and tenancy sheets;
+- dashboard metrics and controlled legacy aliases.
 
-A property match cannot create a CRM Opportunity automatically. A human must separately approve a service engagement, fee, scope and payment path.
+## Source boundary
 
-## Shared CRM core
+The source workbook contains approximately 770 populated property-opportunity rows and includes private or proprietary material such as internal operators, prospective clients, listing URLs, cadastral references, property notes and transaction history.
 
-The existing sheets remain authoritative for:
+Only aggregate structure and field taxonomy are represented in GitHub. The workbook and its row-level records remain restricted.
 
-- Companies
-- Contacts
-- Leads
-- Commercial Opportunities
-- Activities
-- Services
-- Dashboard
-- Config
-- Automation Log
+Current source status:
 
-The real-estate vertical references core IDs rather than duplicating prospect or client identity.
+```text
+rights_status: unverified
+row-level import permitted: false
+source rows imported: 0
+real property rows created: 0
+investor mandates created: 0
+```
 
-## Extension sheets
+Import requires documented evidence that the source is owned, licensed, client-authorised or public, plus a named data-controller purpose and row-level human approval.
 
-The extension contract adds:
+## Object model
 
-1. **Properties** — one record per property/building.
-2. **Property Scenarios** — strategy and downside/base/upside underwriting.
-3. **Investor Mandates** — pseudonymous buyer requirements linked to Leads/Contacts.
-4. **Property Matches** — many-to-many mandate/property/scenario ranking.
-5. **Viewings & Offers** — calls, document requests, viewings, offers, counters and reservations.
-6. **Due Diligence** — cadastral, title, rental, occupancy, taxation and evidence checks.
-7. **Transactions** — reservation through completion and advisory-fee evidence.
-8. **Tenancies** — post-acquisition rental operations linked to Contacts where lawful.
-9. **RE Import Staging** — rights, PII and restricted-field quarantine.
-10. **RE Dashboard** — real-estate operating metrics.
-11. **RE Config** — controlled vocabularies and status aliases.
+The generic CRM remains authoritative for Companies, Contacts, Leads, commercial Opportunities, Activities, Services and Automation Log.
 
-## Source-workbook findings
+A **commercial Opportunity** is a sale of a venture service to a client.
 
-Aggregate findings used to design the extension:
+A **property opportunity** is a property being researched, underwritten, matched, viewed, offered, reserved or acquired.
 
-- Approximately 770 populated opportunity rows.
-- 656 rows in the initial spreadsheet-analysis state.
-- 37 presentation-ready rows.
-- 18 validated rows.
-- 17 shared rows.
-- 15 rejected rows.
-- 12 work-in-progress rows.
-- 4 reserved rows.
-- Traditional-rental analysis is nearly universal.
-- Room-rental and temporary-rental analysis are optional per property.
-- Source records combine acquisition economics, property facts, owner assignment, agency/source, property links, cadastral data, investor candidates and free-text notes.
+A property match cannot automatically create a commercial Opportunity. Property acquisition values, offers, deposits and financing are not venture revenue. Only separately approved service or advisory fees may enter commercial pipeline and cash metrics.
 
-These aggregates are architecture evidence, not a licence to reproduce the source dataset.
+## Runtime sheets
+
+A30 defines the following operational sheets as supplements to the A23 restricted tables:
+
+- Properties;
+- Property Scenarios;
+- Investor Mandates;
+- Property Matches;
+- Viewings & Offers;
+- Due Diligence;
+- Transactions;
+- Tenancies;
+- RE Import Staging;
+- RE Dashboard;
+- RE Config.
+
+The current merged CRM contains these sheets as header-only controlled structures. No source rows have been imported.
 
 ## Underwriting model
 
-Each enabled strategy may produce downside, base and upside scenarios.
+Each enabled strategy may generate downside, base and upside scenarios.
 
 Inputs include:
 
 - purchase price;
 - renovation;
-- transfer tax supplied by the operator;
+- operator-supplied transfer tax;
 - notary and registry;
 - agency and advisory fees;
-- financing ratio, rate and term;
-- monthly rent;
+- financing ratio, interest rate and term;
+- rent;
 - property tax, community, maintenance and insurance;
 - vacancy.
 
@@ -91,98 +96,81 @@ Outputs include:
 - cash-on-cash return;
 - monthly cash flow.
 
-The engine is transparent and deterministic. It does not certify market value, tax treatment, legal title, tenancy legality, finance availability or future returns.
+The engine does not infer legal tax treatment, certify value, guarantee returns or approve financing.
 
-## Investor matching
+## Pairwise mandate-fit assessment
 
-Investor mandates include budget, cash, financing, geography, allowed strategies, return floors, renovation limits, risk appetite and timeline.
+The fit function evaluates one supplied mandate against one supplied property scenario. It does not search the investor database or select investors for solicitation.
 
-The match score combines:
+Weighted evidence:
 
-- budget fit — 24%;
-- geography fit — 18%;
-- strategy fit — 18%;
-- return fit — 24%;
-- risk/renovation fit — 10%;
-- data confidence — 6%.
+- budget fit: 24%;
+- geography fit: 18%;
+- strategy fit: 18%;
+- return fit: 24%;
+- renovation/risk fit: 10%;
+- data confidence: 6%.
 
-Every match is `review_required` and `human_approved=false`. The engine cannot contact an investor, share a property, submit an offer or create a reservation.
+Every result is:
 
-## Data and rights custody
-
-Before any row-level import:
-
-1. record whether the source is owned, licensed, client-authorised or public;
-2. identify the data controller and permitted purpose;
-3. quarantine names, client references, raw notes and internal operators;
-4. tokenise listing URLs and cadastral references in evidence-safe packages;
-5. keep raw evidence in restricted Drive storage;
-6. approve each import batch through a named human review.
-
-`rights_status=unverified` blocks import.
-
-## Fields that must not enter repository evidence
-
-- personal names;
-- potential-client names;
-- direct telephone or email data;
-- raw listing URLs;
-- raw cadastral references;
-- addresses precise enough to identify a private residence where unnecessary;
-- free-text property notes;
-- raw presentations or case histories;
-- internal operator identities.
-
-## CRM lifecycle
-
-```text
-Lead or referral
-→ investor qualification
-→ Investor Mandate
-→ property research
-→ Property Opportunity
-→ strategy underwriting
-→ human-reviewed Property Match
-→ shared with investor
-→ viewing / document request
-→ offer / counteroffer
-→ reservation
-→ due diligence
-→ completion
-→ tenancy / aftercare
+```json
+{
+  "status": "review_required",
+  "human_approved": false
+}
 ```
 
-A separate commercial engagement may be created for advisory, audit, CRM, one-pager or other approved services. Property purchase value is never counted as venture revenue.
+The result cannot contact an investor, share a property, submit an offer, reserve an asset, create a contract or process payment.
 
-## Dashboard metrics
+## Data quarantine
 
-Recommended metrics:
+The runtime detects and quarantines:
 
-- properties by acquisition status;
-- validated and presentation-ready inventory;
-- active investor mandates;
-- approved matches;
-- viewings booked and completed;
-- offers, reservations and completed purchases;
-- median acquisition cost;
-- median base gross/net yield;
-- median cash-on-cash return;
-- data-confidence distribution;
-- time from discovery to validation;
-- time from sharing to viewing;
-- advisory fees invoiced and collected;
-- source/agency conversion;
-- rejection reasons;
-- due-diligence blockers.
+- internal operator names;
+- prospective-client names;
+- email addresses and telephone numbers;
+- raw listing URLs;
+- raw cadastral references;
+- identifiable property notes;
+- unbounded free text.
+
+Evidence-safe records use deterministic digests, aliases and tokens. Raw evidence stays in restricted Drive storage.
+
+## Validation
+
+`python scripts/test_real_estate_runtime.py` covers 13 synthetic/adversarial cases:
+
+- rights rejection;
+- deterministic normalisation;
+- sensitive-field quarantine;
+- three-strategy scenario generation;
+- transparent underwriting;
+- pairwise fit;
+- strategy mismatch;
+- commercial/property separation;
+- missing property code;
+- malformed financial input;
+- A23 baseline preservation;
+- field-mapping governance;
+- runtime-sheet contract.
 
 ## Current boundary
 
-The extension is architecture-ready and synthetic-testable. It does not:
+Permitted now:
 
-- import the private source workbook;
-- assume a licence to reuse the business’s data;
-- create real investors, properties or contacts;
-- alter the live website;
-- expose real-estate inventory publicly;
-- provide regulated legal, tax, valuation, mortgage or investment advice;
-- automate external communication, offers or reservations.
+- schema and runtime development;
+- synthetic tests;
+- empty CRM sheet construction;
+- aggregate source profiling;
+- internal human-reviewed calculations.
+
+Not permitted now:
+
+- row-level source import;
+- public property inventory;
+- investor solicitation;
+- real-estate mediation or negotiation;
+- transaction recommendation;
+- valuation, legal, tax or mortgage advice;
+- offers, reservations, contracts, payments or closing actions;
+- automatic external communication.
