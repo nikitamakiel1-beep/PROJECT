@@ -1,4 +1,4 @@
-"""Project workspace and USANDO workbook plans for RC2."""
+"""Project workspace and fail-closed USANDO workbook plans."""
 from __future__ import annotations
 
 from hashlib import sha256
@@ -65,6 +65,7 @@ def build_usando_update_plan(
     field_values: Mapping[str, Any],
     source_profile: str,
     explicit_transfer_tax_rate: float,
+    transfer_tax_workbook_header: str | None = None,
 ) -> dict[str, Any]:
     code = validate_project_code(project_code)
     workbook = Path(workbook_path)
@@ -72,16 +73,21 @@ def build_usando_update_plan(
         raise AutoPPTXPipelineError("USANDO workbook must be an existing absolute file")
     if workbook.suffix.casefold() not in {".xlsx", ".xlsm"}:
         raise AutoPPTXPipelineError("USANDO workbook must be XLSX or XLSM")
-    if not (0 <= float(explicit_transfer_tax_rate) <= 0.20):
+    transfer_tax_rate = float(explicit_transfer_tax_rate)
+    if not (0 <= transfer_tax_rate <= 0.20):
         raise AutoPPTXPipelineError("explicit transfer-tax rate is invalid")
     if "CODI" in field_values and str(field_values["CODI"]).strip().upper() != code:
         raise AutoPPTXPipelineError("CODI value conflicts with project code")
+    if transfer_tax_workbook_header is not None and not transfer_tax_workbook_header.strip():
+        raise AutoPPTXPipelineError("transfer-tax workbook header cannot be blank")
 
     values = dict(field_values)
     values["CODI"] = code
-    values["Transfer Tax Rate"] = float(explicit_transfer_tax_rate)
+    header = transfer_tax_workbook_header.strip() if transfer_tax_workbook_header else None
+    if header:
+        values[header] = transfer_tax_rate
     plan = {
-        "schema_version": 1,
+        "schema_version": 2,
         "plan_type": "usando_excel_com_update",
         "project_code": code,
         "workbook_path": str(workbook),
@@ -91,6 +97,11 @@ def build_usando_update_plan(
         "key_header": "CODI",
         "selected_project_cell": "B3",
         "field_values": values,
+        "reviewed_assumptions": {
+            "transfer_tax_rate": transfer_tax_rate,
+        },
+        "transfer_tax_workbook_header": header,
+        "manual_transfer_tax_binding_required": header is None,
         "source_profile": source_profile,
         "formula_recalculation": "CalculateFullRebuild",
         "save_required": True,
