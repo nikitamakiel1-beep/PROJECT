@@ -24,6 +24,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Validate repository manifests and compilation
+        run: python scripts/validate_repository.py
       - name: Validate A30 runtime
         run: python scripts/test_real_estate_runtime.py
       - name: Validate Stage 007r contracts
@@ -34,5 +36,3 @@ jobs:
         run: python scripts/test_real_estate_synthetic_batch.py
       - name: Audit Stage 009r fail-closed boundary
         run: python scripts/audit_real_estate_synthetic_batch.py
-      - name: Validate repository manifests and compilation
-        run: python scripts/validate_repository.py
