@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "programme": "Creixement — real-estate synergy runtime",
+  "stage": "007r",
+  "as_of": "2026-07-23",
+  "base_stage": "006r",
+  "mode": "independent_modules_with_event_contracts",
+  "integration_decision": {
+    "generic_crm_preserved": true,
+    "real_estate_vertical_preserved": true,
+    "existing_master_modified": false,
+    "working_copy_created_in_restricted_drive": true,
+    "legal_entity_or_licence_merge_performed": false,
+    "real_source_rows_imported": 0,
+    "meaning": "Connect the commercial CRM and real-estate domain through stable identifiers, restricted source pointers, explicit events and human gates."
+  },
+  "systems_of_record": {
+    "generic_crm": {"alias": "CREIXEMENT_CRM_MASTER", "owns": ["leads", "companies", "contacts", "commercial opportunities", "activities", "services", "automation log", "consent", "next actions", "revenue"]},
+    "real_estate_domain": {"alias": "REAL_ESTATE_SYNERGY_CRM", "owns": ["properties", "property sources", "investor mandates", "property matches", "visits", "evidence", "underwriting scenarios", "renovation estimates", "reports", "approvals", "fee arrangements", "transactions", "tenancies"]},
+    "restricted_drive": {"alias": "REAL_ESTATE_RESTRICTED_CUSTODY", "owns": ["raw workbooks", "personal data", "full addresses", "cadastral references", "visit media", "due diligence documents", "agreements", "offers", "reports with identifiable transactions"]},
+    "github": {"owns": ["schemas", "configuration", "event contracts", "synthetic fixtures", "validation scripts", "public-safe receipts"], "forbidden": ["real names", "emails", "phone numbers", "full property addresses", "cadastral references", "investor identities", "raw source rows", "restricted Drive identifiers"]},
+    "linear": {"owns": ["execution ledger", "milestones", "dependencies", "decisions", "completion evidence"]}
+  },
+  "modules": [
+    {"id": "property_source_registry", "mode": "interactive", "status": "schema_ready", "human_gate": "source eligibility and duplicate review"},
+    {"id": "partner_captor_intake", "mode": "interactive", "status": "schema_ready", "human_gate": "consent, identity, authority and approval"},
+    {"id": "visit_evidence", "mode": "interactive", "status": "schema_ready", "human_gate": "completeness and source validation"},
+    {"id": "underwriting_engine", "mode": "independent_calculator", "status": "synthetic_runtime_available_via_A30", "human_gate": "assumption and formula approval"},
+    {"id": "renovation_estimator", "mode": "independent_calculator", "status": "schema_ready", "human_gate": "scope and contractor review"},
+    {"id": "report_renderer", "mode": "independent_renderer", "status": "contract_ready", "human_gate": "financial, evidence, legal and commercial approval"},
+    {"id": "property_client_matching", "mode": "decision_support", "status": "pairwise_runtime_available_via_A30", "human_gate": "suitability and communication approval"},
+    {"id": "fee_custody", "mode": "interactive", "status": "schema_ready", "human_gate": "agreement, invoice and payment approval"},
+    {"id": "dashboard", "mode": "read_only_analytics", "status": "metric_contract_ready", "human_gate": "metric definition and refresh review"}
+  ],
+  "extension_sheets": ["Properties", "Property Scenarios", "Investor Mandates", "Property Matches", "Viewings & Offers", "Due Diligence", "Transactions", "Tenancies", "RE Import Staging", "RE Dashboard", "RE Config", "Property Sources", "Partners & Captors", "Visits", "Evidence & Media", "Renovation Estimates", "Reports & Approvals", "Fee Arrangements", "Synergy Event Log", "Source Registry", "Synergy Dashboard"],
+  "events": ["realestate.partner_intake.received", "realestate.investor_intake.received", "realestate.property_case.created", "realestate.visit.submitted", "realestate.underwriting.calculated", "realestate.underwriting.approved", "realestate.report.generated", "realestate.report.approved", "realestate.match.proposed", "realestate.match.approved", "realestate.dashboard.refresh_requested"],
+  "human_gates": {"underwriting_approval": true, "report_sharing": true, "match_to_outreach": true, "offer_or_transaction_action": true, "external_submission": true},
+  "formula_controls": {"calculation_version_required": true, "input_snapshot_digest_required": true, "monthly_loan_convention_required": true, "tax_rate_must_be_explicit": true, "source_cached_values_authoritative": false, "human_review_required": true},
+  "import_controls": {"real_import_permitted": false, "synthetic_import_permitted": true, "rights_status_required": true, "pii_detection_required": true, "restricted_field_detection_required": true, "ambiguous_match_action": "quarantine", "weak_single_key_overwrite_permitted": false, "manual_curated_record_overwrite_permitted": false},
+  "AI_controls": {"mode": "shadow_only", "permitted": ["mapping suggestions", "missing-field detection", "duplicate suggestions", "draft scenario explanations", "draft match reasons", "draft report preparation"], "prohibited": ["autonomous contact", "investor solicitation", "suitability decision", "property valuation approval", "offer approval", "financing approval", "due diligence clearance", "contract execution", "external submission"], "named_human_required": true},
+  "current_decision": {"synergy_schema_ready": true, "drive_working_copy_ready": true, "source_registry_seeded": true, "real_rows_imported": 0, "dry_run_real_import_permitted": false, "real_import_permitted": false, "outreach_permitted": false, "transaction_action_permitted": false, "live_publication_permitted": false, "paid_delivery_permitted": false},
+  "runtime_dependency": {
+    "automation": "A30-real-estate-runtime-and-matching",
+    "engine": "intelligence/real_estate/engine.py",
+    "runtime_sheet_contract": "schemas/crm/real-estate/runtime-sheets-contract.json",
+    "workbook_field_mapping": "config/real-estate-workbook-field-mapping.json",
+    "role": "A30 performs synthetic underwriting and one-mandate/one-scenario fit. Stage 007r adds source, visit, evidence, renovation, report, fee and event orchestration around it.",
+    "replacement": false
+  }
+}
