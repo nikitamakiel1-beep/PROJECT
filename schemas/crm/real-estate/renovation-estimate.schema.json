@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/renovation-estimate.schema.json",
+  "title": "Versioned renovation estimate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["estimate_id", "property_id", "version", "status", "line_items", "currency", "human_review_status"],
+  "properties": {
+    "estimate_id": {"type": "string", "pattern": "^REN-[A-Z0-9-]{4,100}$"},
+    "property_id": {"type": "string", "minLength": 3, "maxLength": 120},
+    "scenario_id": {"type": "string"},
+    "version": {"type": "string", "minLength": 1, "maxLength": 40},
+    "status": {"type": "string", "enum": ["draft", "review_required", "approved", "rejected", "superseded"]},
+    "currency": {"const": "EUR"},
+    "contingency_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "client_margin_rate": {"type": "number", "minimum": 0, "maximum": 1},
+    "line_items": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["line_item_id", "description", "unit", "quantity", "material_unit_cost", "labour_unit_cost"],
+        "properties": {
+          "line_item_id": {"type": "string"},
+          "description": {"type": "string", "minLength": 1, "maxLength": 300},
+          "unit": {"type": "string", "maxLength": 40},
+          "quantity": {"type": "number", "minimum": 0},
+          "material_unit_cost": {"type": "number", "minimum": 0},
+          "labour_unit_cost": {"type": "number", "minimum": 0},
+          "source_evidence_pointer": {"type": "string", "pattern": "^restricted://"}
+        }
+      }
+    },
+    "human_review_status": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+    "reviewer_token": {"type": "string", "pattern": "^restricted://"},
+    "notes": {"type": "string", "maxLength": 3000}
+  }
+}
