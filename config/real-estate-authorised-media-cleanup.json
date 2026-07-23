@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc2",
+  "adapter": {
+    "id": "watermarkremover_ai_authorised_local",
+    "entrypoint_env": "WATERMARK_REMOVER_ENTRYPOINT",
+    "execution_mode": "local_restricted_workspace",
+    "detector": "Florence-2 open-vocabulary detection",
+    "inpainter": "LaMA context-aware inpainting",
+    "command_contract": "python remwm.py source_directory output_directory",
+    "shell_execution": false,
+    "network_access": false
+  },
+  "cleanup_allowed_rights": [
+    "owned",
+    "licensed",
+    "client_authorised",
+    "portal_authorised"
+  ],
+  "cleanup_forbidden_source_types": [
+    "lavanguardia_map_capture",
+    "news_map_capture",
+    "streetview_capture",
+    "map_screenshot",
+    "public_source_capture"
+  ],
+  "controls": {
+    "authorisation_evidence_required": true,
+    "named_reviewer_required": true,
+    "specific_reason_required": true,
+    "original_must_be_preserved": true,
+    "overwrite_original": false,
+    "before_and_after_hashes_required": true,
+    "cleaned_output_requires_human_review": true,
+    "automatic_external_distribution": false
+  },
+  "preferred_order": [
+    "obtain the original clean image from the owner or authorised source",
+    "search for a separately authorised clean copy",
+    "use the original marked image with attribution when cleanup is not authorised",
+    "run AI cleanup only when explicit rights evidence exists"
+  ]
+}

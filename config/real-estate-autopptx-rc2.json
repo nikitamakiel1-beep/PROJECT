@@ -1,0 +1,70 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc2",
+  "workbook": {
+    "expected_name": "Maumer_Capital-Oportunidades_USANDO",
+    "primary_sheet": "#Pre-analisis",
+    "project_code_header": "CODI",
+    "selected_project_cell": "B3",
+    "header_search_rows": 30,
+    "writer": "Windows Excel COM via pywin32",
+    "recalculation": "CalculateFullRebuild",
+    "cached_values_authoritative": false
+  },
+  "project_workspace": [
+    "01 Source",
+    "02 Property Data",
+    "03 Catastro and Legal",
+    "04 Financial Inputs",
+    "05 Comparables",
+    "06 Visit and Photos",
+    "07 Underwriting",
+    "08 Report Output",
+    "09 Approvals",
+    "AutoPPTX/Piso/<PROJECT_CODE>",
+    "AutoPPTX/Zona/<PROJECT_CODE>",
+    "AutoPPTX/Proyectos/<PROJECT_CODE>"
+  ],
+  "media": {
+    "natural_numeric_sorting": true,
+    "minimum_property_photos": 1,
+    "minimum_zone_surroundings_photos": 2,
+    "map_screenshot_required": true,
+    "rights_status_required": true,
+    "original_media_preserved": true
+  },
+  "slides": {
+    "slide_6": "review and adjust nearby services/categories",
+    "slide_8": "La Vanguardia map screenshot, Zone 1-5 and household income",
+    "photo_slides": "ordered property and surroundings photographs",
+    "strategy_slides": "retain only approved traditional, room or temporary strategies"
+  },
+  "execution_sequence": [
+    "create project workspace",
+    "ingest source and confidential fields",
+    "prepare authorised media",
+    "capture and approve La Vanguardia zone evidence",
+    "write USANDO row by header name",
+    "select project in #Pre-analisis!B3",
+    "force full Excel recalculation",
+    "review profitability and approve strategies",
+    "stage Piso and Zona media in natural order",
+    "run AutoPPTX main.py with shell=false",
+    "export PDF using PowerPoint COM",
+    "run full report checklist",
+    "hash and archive PPTX/PDF",
+    "obtain client presentation approval"
+  ],
+  "fail_closed_conditions": [
+    "unverified zone",
+    "missing source year",
+    "missing map screenshot",
+    "fewer than two surroundings images",
+    "unapproved media rights",
+    "stale Excel calculation",
+    "missing transfer-tax rate",
+    "unapproved strategy",
+    "missing report reviewers",
+    "empty PPTX or required PDF"
+  ]
+}

@@ -1,0 +1,52 @@
+name: Real-estate architecture RC2 validation
+
+on:
+  pull_request:
+    paths:
+      - 'intelligence/real_estate/**'
+      - 'config/real-estate-zone-lavanguardia.json'
+      - 'config/real-estate-authorised-media-cleanup.json'
+      - 'config/real-estate-autopptx-rc2.json'
+      - 'automations/specs/A29-zone-media-autopptx.yaml'
+      - 'scripts/test_real_estate_architecture_rc2.py'
+      - 'scripts/audit_real_estate_architecture_rc2.py'
+      - 'scripts/real_estate_rc2_cli.py'
+      - 'scripts/windows_usando_excel_adapter.py'
+      - 'docs/architecture/REAL_ESTATE_ARCHITECTURE_RC2.md'
+      - 'docs/handover/REAL_ESTATE_ARCHITECTURE_RC2_HANDOVER.md'
+      - 'docs/manuals/REAL_ESTATE_GREATER_OPERATOR_MANUAL.md'
+      - 'evidence/readiness/2026-07-23-real-estate-architecture-rc2.json'
+      - 'MANIFEST.real-estate-architecture-rc2.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate repository manifests and compilation
+        run: python scripts/validate_repository.py
+      - name: Validate A30 underwriting and matching
+        run: python scripts/test_real_estate_runtime.py
+      - name: Validate Stage 007r CRM synergy contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Validate Stage 008r event orchestrator
+        run: python scripts/test_real_estate_synergy_orchestrator.py
+      - name: Validate Stage 009r synthetic batch adapter
+        run: python scripts/test_real_estate_synthetic_batch.py
+      - name: Validate Stage 010r reconciliation and rollback
+        run: python scripts/test_real_estate_reconciliation.py
+      - name: Validate RC1 acquisition and report release
+        run: python scripts/test_real_estate_architecture_release.py
+      - name: Validate RC2 zone, media and AutoPPTX controls
+        run: python scripts/test_real_estate_architecture_rc2.py
+      - name: Audit RC2 fail-closed boundary
+        run: python scripts/audit_real_estate_architecture_rc2.py
+      - name: Compile release Python modules
+        run: python -m compileall -q intelligence scripts

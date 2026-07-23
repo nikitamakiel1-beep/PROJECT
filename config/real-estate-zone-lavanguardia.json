@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc2",
+  "provider": {
+    "id": "lavanguardia_household_income_map",
+    "page_url": "https://stories.lavanguardia.com/sociedad/20221007/58738/ganas-mas-o-menos-que-tu-vecino-consulta-tu-calle-en-este-mapa",
+    "page_title": "¿Ganas más o menos que tu vecino? Consulta tu calle en este mapa",
+    "underlying_dataset": "INE Atlas de Distribución de Renta de los Hogares",
+    "published_story_date": "2022-10-07",
+    "expected_data_year": 2020,
+    "canonical_use": "exact-address census-section income evidence for report slide 8"
+  },
+  "capture_mode": {
+    "mode": "supervised_browser_capture",
+    "automatic_page_scraping": false,
+    "browser_automation_in_public_repository": false,
+    "captcha_or_access_bypass": false,
+    "operator_exact_address_search_required": true,
+    "manual_polygon_confirmation_required": true,
+    "map_screenshot_required": true,
+    "minimum_surroundings_images": 2
+  },
+  "zone_classification": {
+    "zones": [1, 2, 3, 4, 5],
+    "method": "reviewed visible legend bucket or reviewed threshold set",
+    "income_thresholds_eur": null,
+    "threshold_status": "not_verified_from_source",
+    "rule": "Do not hard-code or infer Zone 1-5 limits until the interactive legend is captured, reviewed and versioned.",
+    "failure_action": "zone_unverified_manual_review_required"
+  },
+  "required_evidence": [
+    "exact requested address",
+    "matched address",
+    "latitude and longitude",
+    "address match confidence",
+    "visible household income",
+    "source data year",
+    "selected Zone 1-5",
+    "legend label and version",
+    "map screenshot with marker, polygon, value and legend",
+    "at least two surroundings images",
+    "named operator confirmation"
+  ],
+  "report_controls": {
+    "slide": 8,
+    "show_source_year": true,
+    "show_stale_data_warning": true,
+    "map_watermark_removal_permitted": false,
+    "source_attribution_required": true,
+    "missing_zone_blocks_report": true
+  }
+}
