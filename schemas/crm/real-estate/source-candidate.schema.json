@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/source-candidate.schema.json",
+  "title": "Authorised Spanish property source candidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "candidate_id",
+    "connector_id",
+    "source_kind",
+    "capture_mode",
+    "rights_status",
+    "captured_at",
+    "external_reference",
+    "facts",
+    "media_policy",
+    "review_status"
+  ],
+  "properties": {
+    "candidate_id": {"type": "string", "pattern": "^SRC-CAND-[A-Z0-9-]{8,100}$"},
+    "connector_id": {"type": "string", "minLength": 3, "maxLength": 100},
+    "source_kind": {"type": "string", "enum": ["idealista", "fotocasa", "habitaclia", "pisos", "yaencontre", "milanuncios", "bank_asset_portal", "fund_portal", "agency_site", "social_source", "off_market", "partner_feed"]},
+    "capture_mode": {"type": "string", "enum": ["official_api", "partner_feed", "user_owned_alert", "manual_capture"]},
+    "rights_status": {"type": "string", "enum": ["unverified", "owned", "licensed", "client_authorised", "public_source", "contracted_feed"]},
+    "captured_at": {"type": "string", "format": "date-time"},
+    "external_reference": {"type": "string", "minLength": 1, "maxLength": 300},
+    "source_url_token": {"type": "string", "pattern": "^restricted://"},
+    "source_organisation_id": {"type": "string", "maxLength": 100},
+    "off_market_claimed": {"type": "boolean"},
+    "off_market_verified": {"type": "boolean"},
+    "facts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["price_eur", "municipality", "province"],
+      "properties": {
+        "price_eur": {"type": "number", "exclusiveMinimum": 0},
+        "municipality": {"type": "string", "minLength": 1, "maxLength": 120},
+        "province": {"type": "string", "minLength": 1, "maxLength": 120},
+        "autonomous_community": {"type": "string", "maxLength": 120},
+        "area_m2": {"type": "number", "exclusiveMinimum": 0},
+        "bedrooms": {"type": "integer", "minimum": 0},
+        "bathrooms": {"type": "integer", "minimum": 0},
+        "floor": {"type": ["integer", "string", "null"]},
+        "elevator": {"type": ["boolean", "null"]},
+        "property_type": {"type": "string", "maxLength": 80},
+        "occupancy_status": {"type": "string", "maxLength": 80},
+        "description_excerpt": {"type": "string", "maxLength": 1000}
+      }
+    },
+    "media_policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reuse_permitted", "rights_basis"],
+      "properties": {
+        "reuse_permitted": {"type": "boolean"},
+        "rights_basis": {"type": "string", "enum": ["none", "owned", "licensed", "client_authorised", "portal_authorised"]},
+        "media_tokens": {"type": "array", "items": {"type": "string", "pattern": "^restricted://"}, "uniqueItems": true}
+      }
+    },
+    "channel_classification": {"type": "string", "enum": ["idealista_listing", "non_idealista_portal", "off_market", "bank_or_fund", "social_capture"]},
+    "review_status": {"type": "string", "enum": ["pending", "approved", "quarantined", "rejected"]},
+    "reviewer_token": {"type": "string", "pattern": "^restricted://"},
+    "notes": {"type": "string", "maxLength": 2000}
+  }
+}
