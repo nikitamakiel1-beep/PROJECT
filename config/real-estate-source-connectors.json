@@ -1,0 +1,153 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc1",
+  "as_of": "2026-07-23",
+  "country": "ES",
+  "principles": {
+    "authorised_access_only": true,
+    "robots_or_scrapers_without_written_permission": false,
+    "terms_review_required": true,
+    "source_rights_required": true,
+    "source_provenance_required": true,
+    "manual_capture_is_supervised": true,
+    "portal_media_reuse_requires_rights": true,
+    "real_credentials_in_repository": false
+  },
+  "connectors": [
+    {
+      "id": "idealista_search_api",
+      "source": "idealista",
+      "mode": "official_api",
+      "status": "access_request_required",
+      "allowed": true,
+      "automation": "authorised_api_only",
+      "credentials": ["IDEALISTA_API_KEY", "IDEALISTA_API_SECRET"],
+      "supports": ["search", "listing_reference", "price", "location", "features"],
+      "forbidden": ["web_scraping", "robot_bypass", "media_republication_without_rights"],
+      "terms_reviewed_on": "2026-07-23",
+      "terms_reference": "https://www.idealista.com/ayuda/articulos/legal-statement/",
+      "access_reference": "https://developers.idealista.com/access-request?action=main"
+    },
+    {
+      "id": "idealista_supervised_capture",
+      "source": "idealista",
+      "mode": "manual_capture",
+      "status": "available",
+      "allowed": true,
+      "automation": "none",
+      "supports": ["user_supplied_reference", "user_supplied_facts", "evidence_screenshot_token"],
+      "forbidden": ["bulk_copy", "unattended_browser", "media_republication_without_rights"]
+    },
+    {
+      "id": "fotocasa_authorised_feed",
+      "source": "fotocasa",
+      "mode": "partner_feed",
+      "status": "agreement_required",
+      "allowed": true,
+      "automation": "contracted_feed_only",
+      "supports": ["csv", "json", "xml", "professional_export"],
+      "forbidden": ["web_scraping", "content_copy_without_permission"]
+    },
+    {
+      "id": "habitaclia_authorised_feed",
+      "source": "habitaclia",
+      "mode": "partner_feed",
+      "status": "agreement_required",
+      "allowed": true,
+      "automation": "contracted_feed_only",
+      "supports": ["csv", "json", "xml", "professional_export"],
+      "forbidden": ["web_scraping", "content_copy_without_permission"]
+    },
+    {
+      "id": "portal_alert_mailbox",
+      "source": "multi_portal",
+      "mode": "user_owned_alert",
+      "status": "available_after_mailbox_configuration",
+      "allowed": true,
+      "automation": "parse_user_requested_alerts_only",
+      "supports": ["idealista_alert", "fotocasa_alert", "habitaclia_alert", "pisos_alert", "yaencontre_alert", "bank_portal_alert"],
+      "forbidden": ["account_impersonation", "automated_contact", "bulk_content_republication"]
+    },
+    {
+      "id": "supervised_url_capture",
+      "source": "multi_portal",
+      "mode": "manual_capture",
+      "status": "available",
+      "allowed": true,
+      "automation": "none",
+      "supports": ["idealista", "fotocasa", "habitaclia", "pisos", "yaencontre", "milanuncios", "bank_asset_portal", "fund_portal", "agency_site", "social_source"],
+      "forbidden": ["unattended_extraction", "login_bypass", "captcha_bypass", "bulk_copy"]
+    },
+    {
+      "id": "partner_feed",
+      "source": "agency_bank_fund_partner",
+      "mode": "partner_feed",
+      "status": "agreement_required",
+      "allowed": true,
+      "automation": "contracted_feed_only",
+      "supports": ["csv", "json", "xml", "sftp", "signed_download"],
+      "forbidden": ["undocumented_feed", "unknown_rights", "silent_schema_change"]
+    },
+    {
+      "id": "catastro_public_services",
+      "source": "direccion_general_catastro",
+      "mode": "public_api",
+      "status": "available",
+      "allowed": true,
+      "automation": "rate_limited_public_service",
+      "supports": ["non_protected_data", "WFS_INSPIRE", "ATOM_INSPIRE", "single_view_WMS"],
+      "forbidden": ["protected_data_without_authority", "massive_tiled_WMS_download"],
+      "terms_reviewed_on": "2026-07-23",
+      "reference": "https://www.catastro.hacienda.gob.es/ayuda/servicios_web.htm"
+    },
+    {
+      "id": "ine_json_api",
+      "source": "instituto_nacional_estadistica",
+      "mode": "public_api",
+      "status": "available",
+      "allowed": true,
+      "automation": "rate_limited_public_service",
+      "supports": ["demographics", "households", "population", "economic_context"],
+      "forbidden": ["personal_data_inference"],
+      "reference": "https://www.ine.es/dyngs/DAB/es/index.htm?cid=1099"
+    }
+  ],
+  "portal_default_policy": {
+    "idealista": "official_api_or_supervised_capture",
+    "fotocasa": "authorised_feed_alert_or_supervised_capture",
+    "habitaclia": "authorised_feed_alert_or_supervised_capture",
+    "pisos": "authorised_feed_alert_or_supervised_capture",
+    "yaencontre": "authorised_feed_alert_or_supervised_capture",
+    "milanuncios": "authorised_feed_alert_or_supervised_capture",
+    "bank_asset_portal": "partner_feed_or_supervised_capture",
+    "fund_portal": "partner_feed_or_supervised_capture",
+    "agency_site": "partner_feed_or_supervised_capture"
+  },
+  "channel_rules": {
+    "idealista_listing": {
+      "psi_plus_eligible": false,
+      "channel_eligible": false,
+      "reason": "Internal Procedure-Analisis V8 exclusion."
+    },
+    "non_idealista_portal": {
+      "psi_plus_eligible": true,
+      "channel_eligible": false,
+      "reason": "PSI+ may accept non-Idealista portal sources; Channel still requires off-market or an explicit exception."
+    },
+    "off_market": {
+      "psi_plus_eligible": true,
+      "channel_eligible": true,
+      "reason": "Internal procedure allows off-market sourcing, subject to review."
+    },
+    "bank_or_fund": {
+      "psi_plus_eligible": true,
+      "channel_eligible": true,
+      "reason": "Internal procedure records a bank/fund exception, subject to source and rights review."
+    },
+    "social_capture": {
+      "psi_plus_eligible": true,
+      "channel_eligible": true,
+      "reason": "Internal procedure records a social-source exception, subject to provenance review."
+    }
+  }
+}
