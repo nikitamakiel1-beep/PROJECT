@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Financing Scenario",
+  "type": "object",
+  "required": ["financing_id", "deal_id", "status", "source_class", "advice_state", "application_state"],
+  "properties": {
+    "financing_id": {"type": "string", "pattern": "^FIN-[A-Z0-9]{8,}$"},
+    "deal_id": {"type": "string", "pattern": "^REDEAL-"},
+    "lender_counterparty_id": {"type": "string", "pattern": "^CP-"},
+    "status": {"enum": ["scenario", "documents_pending", "client_review", "client_submitted", "indicative", "approved", "declined", "cancelled"]},
+    "source_class": {"enum": ["human_assumption", "lender_indication", "client_document", "executed_agreement"]},
+    "financing_percent": {"type": "number", "minimum": 0, "maximum": 100},
+    "principal_eur": {"type": "number", "minimum": 0},
+    "interest_percent": {"type": "number", "minimum": 0},
+    "term_years": {"type": "number", "minimum": 0},
+    "monthly_payment_eur": {"type": "number", "minimum": 0},
+    "total_debt_eur": {"type": "number", "minimum": 0},
+    "restricted_evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "advice_state": {"const": "no_mortgage_or_financial_advice_by_platform"},
+    "application_state": {"enum": ["blocked", "human_approved_client_action", "executed_by_client"]},
+    "human_owner": {"type": "string"}
+  },
+  "additionalProperties": false
+}
