@@ -1,0 +1,33 @@
+name: Stage 008r synthetic synergy orchestrator
+
+on:
+  pull_request:
+    paths:
+      - 'intelligence/real_estate/**'
+      - 'config/real-estate-synthetic-orchestrator.json'
+      - 'automations/specs/A25-synthetic-real-estate-synergy-orchestrator.yaml'
+      - 'scripts/*real_estate_synergy_orchestrator.py'
+      - 'docs/architecture/REAL_ESTATE_SYNTHETIC_ORCHESTRATOR.md'
+      - 'docs/handover/STAGE_008R_SYNTHETIC_ORCHESTRATOR.md'
+      - 'MANIFEST.stage-008r.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate A30 underwriting runtime
+        run: python scripts/test_real_estate_runtime.py
+      - name: Validate Stage 007r contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Validate Stage 008r orchestrator
+        run: python scripts/test_real_estate_synergy_orchestrator.py
+      - name: Audit Stage 008r fail-closed boundary
+        run: python scripts/audit_real_estate_synergy_orchestrator.py

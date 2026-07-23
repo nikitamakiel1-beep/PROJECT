@@ -1,0 +1,58 @@
+id: A25
+name: Synthetic real-estate synergy orchestrator
+stage: 008r
+status: synthetic_runtime_only
+depends_on:
+  - A23-real-estate-crm-vertical
+  - A30-real-estate-runtime-and-matching
+  - A24-real-estate-synergy-system
+runtime:
+  module: intelligence.real_estate.synergy
+  fixture: in_memory_only
+  network_clients: none
+  real_spreadsheet_clients: none
+accepted_events:
+  - realestate.property_case.created
+  - realestate.visit.submitted
+  - realestate.report.generated
+  - realestate.report.approved
+  - realestate.match.proposed
+controls:
+  synthetic_flag_required: true
+  idempotency_required: true
+  correlation_id_required: true
+  payload_digest_required: true
+  rights_gate_required: true
+  restricted_payload_scan_required: true
+  conflicting_replay_action: quarantine
+  report_approval_roles:
+    - financial
+    - evidence
+    - legal
+    - commercial
+  distinct_report_reviewers_required: true
+  real_writes_allowed: false
+  external_communication_allowed: false
+  transaction_action_allowed: false
+outputs:
+  permitted:
+    - fixture mutation plan
+    - deterministic plan digest
+    - processed receipt
+    - replay receipt
+    - quarantine receipt
+    - synthetic A30 underwriting artifacts
+    - synthetic pairwise fit artifacts
+  forbidden:
+    - real CRM mutation
+    - Drive upload
+    - email or WhatsApp
+    - client message
+    - proposal
+    - invoice
+    - payment request
+    - offer
+    - reservation
+    - financing request
+    - contract
+    - closing action

@@ -1,0 +1,27 @@
+{
+  "stage": "008r",
+  "as_of": "2026-07-23",
+  "branch": "venture/stage-008r-synthetic-synergy-orchestrator",
+  "A30_underwriting_reused": true,
+  "A30_pairwise_matching_reused": true,
+  "synthetic_event_runtime_created": true,
+  "in_memory_fixture_only": true,
+  "supported_event_handlers": 5,
+  "adversarial_test_cases": 12,
+  "real_source_rows_in_github": 0,
+  "real_source_rows_imported": 0,
+  "personal_data_imported": false,
+  "full_property_addresses_imported": false,
+  "network_client_added": false,
+  "real_spreadsheet_client_added": false,
+  "email_or_messaging_client_added": false,
+  "external_communication_permitted": false,
+  "transaction_action_permitted": false,
+  "live_deployment_permitted": false,
+  "validation_commands": [
+    "python scripts/test_real_estate_runtime.py",
+    "python scripts/test_real_estate_synergy_system.py",
+    "python scripts/test_real_estate_synergy_orchestrator.py",
+    "python scripts/audit_real_estate_synergy_orchestrator.py"
+  ]
+}

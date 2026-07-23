@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "programme": "Creixement — synthetic real-estate synergy orchestrator",
+  "stage": "008r",
+  "as_of": "2026-07-23",
+  "base_stage": "007r",
+  "runtime_dependencies": [
+    "A23-real-estate-crm-vertical",
+    "A30-real-estate-runtime-and-matching",
+    "A24-real-estate-synergy-system"
+  ],
+  "execution_mode": "synthetic_in_memory_only",
+  "supported_events": [
+    "realestate.property_case.created",
+    "realestate.visit.submitted",
+    "realestate.report.generated",
+    "realestate.report.approved",
+    "realestate.match.proposed"
+  ],
+  "controls": {
+    "synthetic_flag_required": true,
+    "synthetic_event_id_required": true,
+    "synthetic_idempotency_key_required": true,
+    "payload_digest_required": true,
+    "correlation_id_required": true,
+    "rights_gate_required": true,
+    "restricted_payload_scan_required": true,
+    "idempotent_replay_required": true,
+    "conflicting_replay_action": "quarantine",
+    "fixture_writes_permitted": true,
+    "real_spreadsheet_writes_permitted": false,
+    "network_clients_permitted": false,
+    "external_communication_permitted": false,
+    "transaction_action_permitted": false
+  },
+  "report_gate": {
+    "required_roles": ["financial", "evidence", "legal", "commercial"],
+    "distinct_reviewers_required": true,
+    "approval_unlocks": "approved_internal_share_state_only",
+    "automatic_sharing_permitted": false
+  },
+  "matching_boundary": {
+    "mode": "one_supplied_mandate_against_supplied_scenarios",
+    "database_search_permitted": false,
+    "investor_selection_for_solicitation_permitted": false,
+    "human_approved_default": false,
+    "commercial_opportunity_creation_permitted": false
+  },
+  "current_decision": {
+    "synthetic_runtime_ready": true,
+    "real_source_rows_imported": 0,
+    "real_data_execution_permitted": false,
+    "Drive_or_CRM_write_client_present": false,
+    "outreach_client_present": false,
+    "live_deployment_permitted": false
+  }
+}
