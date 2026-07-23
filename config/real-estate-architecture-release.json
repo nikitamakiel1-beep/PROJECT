@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "release_id": "REAL-ESTATE-ARCHITECTURE-RC1",
+  "release_name": "Creixement Real-Estate Acquisition, Underwriting and Reporting Architecture",
+  "as_of": "2026-07-23",
+  "base_branch": "venture/stage-010r-synthetic-reconciliation-rollback",
+  "release_branch": "release/real-estate-architecture-rc1",
+  "components": {
+    "A23": "normalized real-estate CRM vertical",
+    "A30": "deterministic underwriting and human-gated matching",
+    "A24": "CRM synergy and event contracts",
+    "A25": "synthetic event orchestrator",
+    "A26": "synthetic batch adapter",
+    "A27": "reconciliation and rollback custody",
+    "A28": "authorised source acquisition and report release"
+  },
+  "release_planes": {
+    "source_acquisition": {
+      "status": "contract_and_runtime_ready",
+      "live_status": "blocked_pending_provider_access_or_feed_agreement",
+      "supported_modes": ["official_api", "partner_feed", "user_owned_alert", "manual_capture"],
+      "uncontrolled_scraping": false
+    },
+    "public_enrichment": {
+      "status": "contract_ready",
+      "supported_sources": ["Catastro non-protected services", "Catastro INSPIRE", "INE JSON API"],
+      "massive_tiled_WMS_download": false
+    },
+    "underwriting": {
+      "status": "synthetic_runtime_validated",
+      "live_status": "blocked_pending_real-data approval",
+      "formula_versioning": true,
+      "input_digest_required": true
+    },
+    "CRM": {
+      "status": "controlled_working_copy_ready",
+      "original_master_modified": false,
+      "real_rows_imported": 0
+    },
+    "reports": {
+      "status": "local_adapter_ready",
+      "renderer_status": "configuration_required",
+      "PPTX_supported": true,
+      "PDF_supported": true,
+      "external_delivery": false
+    },
+    "release_governance": {
+      "status": "approval_custody_ready",
+      "required_roles": ["source_policy_reviewer", "privacy_reviewer", "architecture_release_approver"],
+      "reviewers_must_be_distinct": true,
+      "digest_binding_required": true
+    }
+  },
+  "environment_variables": {
+    "source_access": ["IDEALISTA_API_KEY", "IDEALISTA_API_SECRET", "IDEALISTA_SEARCH_API_ENDPOINT"],
+    "report_renderer": ["AUTOPPTX_ENTRYPOINT", "AUTOPPTX_WORKDIR", "AUTOPPTX_TEMPLATE_PATH", "AUTOPPTX_WORKBOOK_PATH", "AUTOPPTX_OUTPUT_DIR", "AUTOPPTX_PDF_CONVERTER"]
+  },
+  "release_gates": [
+    "all repository tests green",
+    "public-safety workflow green",
+    "source connector registry reviewed",
+    "portal access or feed agreements documented",
+    "privacy and data-controller purpose approved",
+    "recovered credentials revoked and rotated",
+    "AutoPPTX golden tests passed for traditional, rooms and temporary strategies",
+    "PPTX/PDF visual QA passed",
+    "three-role architecture approval qualified",
+    "rollback and reconciliation evidence retained",
+    "restricted deployment identity configured",
+    "no direct merge to main without review"
+  ],
+  "current_decision": {
+    "architecture_release_candidate_prepared": true,
+    "live_portal_acquisition_permitted": false,
+    "real_data_import_permitted": false,
+    "report_local_generation_permitted": false,
+    "report_external_delivery_permitted": false,
+    "merge_to_main_permitted": false,
+    "deployment_permitted": false
+  }
+}
