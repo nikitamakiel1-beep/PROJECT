@@ -1,0 +1,46 @@
+{
+  "schema_version": 2,
+  "release": "real-estate-architecture-rc3-operator-control",
+  "as_of": "2026-07-23",
+  "base_branch": "release/real-estate-architecture-rc2",
+  "target_branch": "release/real-estate-architecture-rc3-operator-control",
+  "files": [
+    ".github/workflows/real-estate-architecture-rc3.yml",
+    "MANIFEST.real-estate-architecture-rc3.json",
+    "automations/specs/A31-real-estate-operator-control.yaml",
+    "config/real-estate-release-readiness-rc3.json",
+    "docs/architecture/REAL_ESTATE_ARCHITECTURE_RC3_OPERATOR_CONTROL.md",
+    "docs/handover/REAL_ESTATE_ARCHITECTURE_RC3_HANDOVER.md",
+    "docs/manuals/REAL_ESTATE_DAILY_OPERATOR_RUNBOOK_RC3.md",
+    "docs/status/REAL_ESTATE_RELEASE_STATUS_RC3.md",
+    "evidence/readiness/2026-07-23-real-estate-architecture-rc3.json",
+    "evidence/readiness/2026-07-23-real-estate-release-evidence-rc3.json",
+    "intelligence/real_estate/operator_control.py",
+    "intelligence/real_estate/release_readiness.py",
+    "scripts/audit_real_estate_operator_control_rc3.py",
+    "scripts/real_estate_operator_control.py",
+    "scripts/test_real_estate_operator_control_rc3.py"
+  ],
+  "modified_inherited_files": [
+    "intelligence/real_estate/autopptx_release_plan.py",
+    "intelligence/real_estate/autopptx_workspace.py",
+    "intelligence/real_estate/media_rights.py",
+    "scripts/real_estate_rc2_cli.py",
+    "scripts/test_real_estate_architecture_rc2.py",
+    "scripts/windows_usando_excel_adapter.py"
+  ],
+  "release_percentages": {
+    "architecture_package": 98.8,
+    "controlled_operator_use": 81.5,
+    "live_client_production": 47.0
+  },
+  "operator_control_added": true,
+  "case_readiness_added": true,
+  "single_media_cleanup_isolation_added": true,
+  "idempotent_autopptx_staging_added": true,
+  "transfer_tax_false_header_write_removed": true,
+  "live_source_collection_added": false,
+  "real_CRM_writes_added": false,
+  "client_delivery_added": false,
+  "purchase_execution_added": false
+}

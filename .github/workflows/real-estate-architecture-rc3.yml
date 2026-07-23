@@ -1,0 +1,104 @@
+name: Real-estate architecture RC3 operator-control validation
+
+on:
+  pull_request:
+    paths:
+      - 'intelligence/real_estate/**'
+      - 'config/real-estate-release-readiness-rc3.json'
+      - 'automations/specs/A31-real-estate-operator-control.yaml'
+      - 'scripts/real_estate_operator_control.py'
+      - 'scripts/real_estate_rc2_cli.py'
+      - 'scripts/windows_usando_excel_adapter.py'
+      - 'scripts/test_real_estate_architecture_rc2.py'
+      - 'scripts/test_real_estate_operator_control_rc3.py'
+      - 'scripts/audit_real_estate_operator_control_rc3.py'
+      - 'docs/architecture/REAL_ESTATE_ARCHITECTURE_RC3_OPERATOR_CONTROL.md'
+      - 'docs/handover/REAL_ESTATE_ARCHITECTURE_RC3_HANDOVER.md'
+      - 'docs/manuals/REAL_ESTATE_DAILY_OPERATOR_RUNBOOK_RC3.md'
+      - 'docs/status/REAL_ESTATE_RELEASE_STATUS_RC3.md'
+      - 'evidence/readiness/2026-07-23-real-estate-architecture-rc3.json'
+      - 'evidence/readiness/2026-07-23-real-estate-release-evidence-rc3.json'
+      - 'MANIFEST.real-estate-architecture-rc3.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate repository manifests and compilation
+        run: python scripts/validate_repository.py
+      - name: Validate A30 underwriting and matching
+        run: python scripts/test_real_estate_runtime.py
+      - name: Validate Stage 007r CRM synergy contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Validate Stage 008r event orchestrator
+        run: python scripts/test_real_estate_synergy_orchestrator.py
+      - name: Validate Stage 009r synthetic batch adapter
+        run: python scripts/test_real_estate_synthetic_batch.py
+      - name: Validate Stage 010r reconciliation and rollback
+        run: python scripts/test_real_estate_reconciliation.py
+      - name: Validate RC1 acquisition and report release
+        run: python scripts/test_real_estate_architecture_release.py
+      - name: Validate inherited RC2 zone, media and AutoPPTX controls
+        run: python scripts/test_real_estate_architecture_rc2.py
+      - name: Audit inherited RC2 fail-closed boundary
+        run: python scripts/audit_real_estate_architecture_rc2.py
+      - name: Validate RC3 release scoring
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_percentages_are_deterministic \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_decisions_do_not_follow_percentage_alone \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_markdown_reports_all_three_modes
+      - name: Validate RC3 case control
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_new_case_starts_at_zero \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_approved_intake_and_facts_unlock_preanalysis \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_blocked_component_is_prioritised \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_non_restricted_evidence_pointer_is_rejected \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_case_markdown_contains_manual_and_automatic_actions
+      - name: Validate RC3 automation hardening
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_transfer_tax_is_reviewed_without_false_header_write \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_cleanup_command_uses_isolated_single_file_directories \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_cleanup_cannot_overwrite_original \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_media_staging_removes_stale_and_duplicate_files
+      - name: Audit RC3 readiness, hardening and use boundary
+        run: python scripts/audit_real_estate_operator_control_rc3.py
+      - name: Exercise release-status command
+        run: |
+          python scripts/real_estate_operator_control.py release-status \
+            --output-json /tmp/release-status.json \
+            --output-markdown /tmp/RELEASE_STATUS.md
+          grep -q '98.8' /tmp/RELEASE_STATUS.md
+          grep -q '81.5' /tmp/RELEASE_STATUS.md
+          grep -q '47.0' /tmp/RELEASE_STATUS.md
+      - name: Exercise synthetic case lifecycle
+        run: |
+          mkdir -p /tmp/real-estate-cases
+          python scripts/real_estate_operator_control.py init-case \
+            /tmp/real-estate-cases \
+            BA_BARCELONA_GRACIA01 \
+            'Synthetic operator case' \
+            listing_link \
+            --date 2026-07-23
+          python scripts/real_estate_operator_control.py mark \
+            /tmp/real-estate-cases/BA_BARCELONA_GRACIA01/case-control.json \
+            source_intake approved \
+            --date 2026-07-23 \
+            --actor restricted://operator/ci \
+            --evidence restricted://evidence/source
+          python scripts/real_estate_operator_control.py status \
+            /tmp/real-estate-cases/BA_BARCELONA_GRACIA01/case-control.json \
+            --markdown /tmp/CASE_STATUS.md
+          grep -q '10.0%' /tmp/CASE_STATUS.md
+      - name: Compile release Python modules
+        run: python -m compileall -q intelligence scripts

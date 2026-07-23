@@ -1,0 +1,157 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc3-operator-control",
+  "as_of": "2026-07-23",
+  "evidence": {
+    "arch_code_ci": {
+      "status": "passed",
+      "evidence": ["restricted://github/pr/31", "restricted://github/branch/rc3-operator-control"],
+      "note": "Stacked release architecture and validation workflows exist.",
+      "next_action": "Keep the RC3 workflow green after every change."
+    },
+    "arch_tests": {
+      "status": "passed",
+      "evidence": ["restricted://github/actions/rc2-green"],
+      "note": "Inherited real-estate stages, RC1, RC2 and repository validation passed before RC3.",
+      "next_action": "Add and pass the RC3 operator-control regression suite."
+    },
+    "arch_boundaries": {
+      "status": "passed",
+      "evidence": ["restricted://github/audit/rc2", "restricted://github/config/public-safety"],
+      "note": "No scraping bypass, real CRM writes, report delivery or purchase execution is enabled.",
+      "next_action": "Retain the fail-closed audit in RC3."
+    },
+    "arch_manual": {
+      "status": "passed",
+      "evidence": ["restricted://drive/doc/greater-operator-manual-rc2"],
+      "note": "A complete operator manual exists in Drive and GitHub.",
+      "next_action": "Publish the RC3 daily runbook and percentage guide."
+    },
+    "arch_operator_control": {
+      "status": "passed",
+      "evidence": ["restricted://github/module/operator-control", "restricted://github/module/release-readiness"],
+      "note": "Deterministic case and programme readiness engines are implemented.",
+      "next_action": "Validate the engines through CI and a synthetic operator case."
+    },
+    "arch_traceability": {
+      "status": "passed",
+      "evidence": ["restricted://drive/source-registry", "restricted://drive/start-here"],
+      "note": "Source Registry and canonical handover are maintained.",
+      "next_action": "Register RC3 after validation."
+    },
+    "arch_release_approval": {
+      "status": "ready_for_review",
+      "evidence": ["restricted://github/pr/rc3-draft"],
+      "note": "RC3 is stacked and will remain a draft until validation and review are complete.",
+      "next_action": "Review and approve the RC3 draft; do not merge to main automatically."
+    },
+    "operator_control": {
+      "status": "passed",
+      "evidence": ["restricted://github/module/operator-control"],
+      "note": "The operator can initialise a case, update components, view readiness and obtain next actions.",
+      "next_action": "Run one synthetic case end to end."
+    },
+    "manual_source_intake": {
+      "status": "proven_manual",
+      "evidence": ["restricted://drive/procedure-analysis-v8", "restricted://drive/operator-manual"],
+      "note": "Listing-link and confidential intake are documented and can be operated manually.",
+      "next_action": "Obtain portal permissions before adding any live automated connector."
+    },
+    "project_workspace": {
+      "status": "passed",
+      "evidence": ["restricted://github/module/autopptx-workspace"],
+      "note": "The controlled project folder structure is generated locally.",
+      "next_action": "Use the operator CLI to initialise each new property."
+    },
+    "financial_adapter": {
+      "status": "implemented_unvalidated",
+      "evidence": ["restricted://github/script/windows-usando-adapter"],
+      "note": "The Excel COM writer is implemented but has not been validated against a copied live USANDO workbook.",
+      "next_action": "Run the adapter on a copied USANDO workbook and compare every written field and formula."
+    },
+    "zone_workflow": {
+      "status": "proven_manual",
+      "evidence": ["restricted://github/module/zone-evidence", "restricted://external/lavanguardia-map"],
+      "note": "Exact-address capture and evidence validation are ready for supervised use; the five numerical thresholds are not yet verified.",
+      "next_action": "Capture the visible legend and validate three real addresses."
+    },
+    "authorised_media_pipeline": {
+      "status": "implemented_unvalidated",
+      "evidence": ["restricted://github/module/media-rights", "restricted://drive/watermarkremover-ai"],
+      "note": "Rights gates and local cleanup planning exist but require an authorised sample test.",
+      "next_action": "Test one authorised property photo and record before/after hashes and visual approval."
+    },
+    "autopptx_pipeline": {
+      "status": "implemented_unvalidated",
+      "evidence": ["restricted://github/module/autopptx-pipeline", "restricted://drive/autopptx-archive"],
+      "note": "The digest-bound plan exists but the recovered renderer is not yet configured and golden-tested.",
+      "next_action": "Configure a copied AutoPPTX workspace and generate three golden reports."
+    },
+    "report_qa": {
+      "status": "proven_manual",
+      "evidence": ["restricted://drive/checklist-report-analysis", "restricted://drive/procedure-ppt-v3"],
+      "note": "The report and slide checklist can be executed manually.",
+      "next_action": "Convert checklist outcomes into machine-readable receipts during golden-report tests."
+    },
+    "operator_governance": {
+      "status": "passed",
+      "evidence": ["restricted://github/report-release/four-reviewers", "restricted://drive/source-registry"],
+      "note": "Distinct approval, rights and restricted-custody controls are defined.",
+      "next_action": "Assign real named reviewers before a live case."
+    },
+    "live_validated_foundation": {
+      "status": "passed",
+      "evidence": ["restricted://github/pr/31", "restricted://github/actions/repository-green"],
+      "note": "The architecture foundation is validated in synthetic and controlled local modes.",
+      "next_action": "Keep production-specific evidence separate from architecture evidence."
+    },
+    "live_governance": {
+      "status": "passed",
+      "evidence": ["restricted://github/audit/public-safety", "restricted://drive/source-registry"],
+      "note": "Fail-closed governance exists.",
+      "next_action": "Complete named controller, processor and retention approvals."
+    },
+    "live_operator_runbook": {
+      "status": "passed",
+      "evidence": ["restricted://drive/operator-manual", "restricted://github/manual/operator"],
+      "note": "The operational procedure is documented.",
+      "next_action": "Complete an observed operator rehearsal and record deviations."
+    },
+    "live_source_permissions": {
+      "status": "not_started",
+      "evidence": [],
+      "note": "No verified live portal/API permission pack has been approved.",
+      "next_action": "Obtain written source permissions or authorised API terms for each live source."
+    },
+    "live_identity_privacy": {
+      "status": "partial",
+      "evidence": ["restricted://drive/restricted-custody-design"],
+      "note": "Restricted custody is designed, but live service identity, controller instruction, processor terms and retention approval are incomplete.",
+      "next_action": "Approve the live data-controller, processor, service-account and retention package."
+    },
+    "live_source_adapters": {
+      "status": "not_started",
+      "evidence": [],
+      "note": "No live authorised property-source connector has been enabled.",
+      "next_action": "Implement one authorised source adapter with rate, rights and rollback controls."
+    },
+    "live_zone_validation": {
+      "status": "not_started",
+      "evidence": [],
+      "note": "No three-address real validation receipt exists.",
+      "next_action": "Validate three real addresses and approve the five-zone legend."
+    },
+    "live_workbook_golden_reports": {
+      "status": "not_started",
+      "evidence": [],
+      "note": "No copied-workbook execution and no traditional, room or temporary golden report is approved.",
+      "next_action": "Produce and approve all three golden reports with Excel/PPTX/PDF parity."
+    },
+    "live_report_qa": {
+      "status": "proven_manual",
+      "evidence": ["restricted://drive/checklist-report-analysis"],
+      "note": "Manual QA is available, but no live release receipt exists.",
+      "next_action": "Complete a signed report QA receipt for each golden report."
+    }
+  }
+}

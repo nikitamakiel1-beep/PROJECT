@@ -30,10 +30,10 @@ from intelligence.real_estate.zone_evidence import (  # noqa: E402
 
 
 class RC2Tests(unittest.TestCase):
-    def _file(self, root: Path, name: str, body: bytes = b"x") -> Path:
+    def _file(self, root: Path, name: str, body: bytes | None = None) -> Path:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(body)
+        path.write_bytes(body if body is not None else name.encode("utf-8"))
         return path
 
     def test_capture_plan_is_supervised_and_no_scraping(self):

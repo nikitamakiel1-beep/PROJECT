@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-"""Local RC2 operator CLI. No web, Drive, CRM or messaging client is included."""
+"""Local zone, workbook and authorised-media planning CLI.
+
+No web, Drive, CRM or messaging client is included.
+"""
 from __future__ import annotations
 
 import argparse
@@ -38,7 +41,7 @@ def load_json(path: str) -> dict:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="RC2 real-estate local operator CLI")
+    parser = argparse.ArgumentParser(description="Real-estate local planning CLI")
     sub = parser.add_subparsers(dest="command", required=True)
 
     workspace = sub.add_parser("create-workspace")
@@ -64,6 +67,10 @@ def main() -> int:
     workbook.add_argument("field_values_json")
     workbook.add_argument("source_profile")
     workbook.add_argument("transfer_tax_rate", type=float)
+    workbook.add_argument(
+        "--transfer-tax-header",
+        help="Confirmed USANDO header for transfer tax. Omit until the real header is verified.",
+    )
     workbook.add_argument("--output")
 
     media = sub.add_parser("cleanup-plan")
@@ -104,6 +111,7 @@ def main() -> int:
                 field_values=load_json(args.field_values_json),
                 source_profile=args.source_profile,
                 explicit_transfer_tax_rate=args.transfer_tax_rate,
+                transfer_tax_workbook_header=args.transfer_tax_header,
             ),
             args.output,
         )
