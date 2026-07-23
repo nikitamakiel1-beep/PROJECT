@@ -83,9 +83,15 @@ def build_usando_update_plan(
 
     values = dict(field_values)
     values["CODI"] = code
+    values["Transfer Tax Rate"] = transfer_tax_rate
     header = transfer_tax_workbook_header.strip() if transfer_tax_workbook_header else None
+    metadata_only_fields: list[str] = []
     if header:
-        values[header] = transfer_tax_rate
+        if header != "Transfer Tax Rate":
+            values[header] = transfer_tax_rate
+            metadata_only_fields.append("Transfer Tax Rate")
+    else:
+        metadata_only_fields.append("Transfer Tax Rate")
     plan = {
         "schema_version": 2,
         "plan_type": "usando_excel_com_update",
@@ -97,6 +103,7 @@ def build_usando_update_plan(
         "key_header": "CODI",
         "selected_project_cell": "B3",
         "field_values": values,
+        "metadata_only_fields": metadata_only_fields,
         "reviewed_assumptions": {
             "transfer_tax_rate": transfer_tax_rate,
         },
