@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Underwriting Scenario",
+  "type": "object",
+  "required": ["scenario_id", "deal_id", "scenario_type", "formula_version", "input_provenance", "decision_state", "human_review_state"],
+  "properties": {
+    "scenario_id": {"type": "string", "pattern": "^UW-[A-Z0-9]{8,}$"},
+    "deal_id": {"type": "string", "pattern": "^REDEAL-"},
+    "scenario_type": {"enum": ["acquisition", "renovate_and_sell", "long_term_rental", "short_term_rental", "mixed", "sensitivity"]},
+    "formula_version": {"type": "string", "minLength": 3},
+    "input_provenance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["field", "source_class", "source_pointer"],
+        "properties": {
+          "field": {"type": "string"},
+          "source_class": {"enum": ["source_workbook", "third_party_document", "human_assumption", "calculated"]},
+          "source_pointer": {"type": "string"},
+          "as_of": {"type": "string", "format": "date"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "purchase_price_eur": {"type": "number", "minimum": 0},
+    "acquisition_costs_eur": {"type": "number", "minimum": 0},
+    "project_cost_eur": {"type": "number", "minimum": 0},
+    "total_investment_eur": {"type": "number", "minimum": 0},
+    "valuation_eur": {"type": "number", "minimum": 0},
+    "annual_rent_eur": {"type": "number", "minimum": 0},
+    "annual_operating_cost_eur": {"type": "number", "minimum": 0},
+    "gross_return_percent": {"type": "number"},
+    "net_return_percent": {"type": "number"},
+    "irr_percent": {"type": "number"},
+    "duration_months": {"type": "number", "minimum": 0},
+    "financing_id": {"type": "string", "pattern": "^FIN-"},
+    "decision_state": {"const": "analysis_only_no_transaction_recommendation"},
+    "human_review_state": {"enum": ["not_reviewed", "reviewed_with_changes", "accepted_as_internal_scenario", "rejected"]},
+    "reviewer": {"type": "string"},
+    "reviewed_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}
