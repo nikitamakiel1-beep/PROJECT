@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/report-approval.schema.json",
+  "title": "Generated report and approval custody",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["report_id", "property_id", "report_type", "template_version", "calculation_version", "generation_status", "approvals", "share_status"],
+  "properties": {
+    "report_id": {"type": "string", "pattern": "^RPT-[A-Z0-9-]{4,100}$"},
+    "property_id": {"type": "string", "minLength": 3, "maxLength": 120},
+    "scenario_ids": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+    "report_type": {"type": "string", "enum": ["investment_analysis", "channel_pack", "source_pack", "internal_review", "other"]},
+    "template_version": {"type": "string", "minLength": 1, "maxLength": 80},
+    "calculation_version": {"type": "string", "minLength": 1, "maxLength": 80},
+    "input_snapshot_digest": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$"},
+    "pptx_pointer": {"type": "string", "pattern": "^restricted://"},
+    "pdf_pointer": {"type": "string", "pattern": "^restricted://"},
+    "generation_status": {"type": "string", "enum": ["draft", "generated", "qa_required", "failed"]},
+    "approvals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["financial", "evidence", "legal", "commercial"],
+      "properties": {
+        "financial": {"$ref": "#/$defs/approval"},
+        "evidence": {"$ref": "#/$defs/approval"},
+        "legal": {"$ref": "#/$defs/approval"},
+        "commercial": {"$ref": "#/$defs/approval"}
+      }
+    },
+    "share_status": {"type": "string", "enum": ["not_shareable", "approved", "shared", "superseded"]},
+    "supersedes_report_id": {"type": "string"},
+    "notes": {"type": "string", "maxLength": 3000}
+  },
+  "$defs": {
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status"],
+      "properties": {
+        "status": {"type": "string", "enum": ["pending", "approved", "rejected", "not_required"]},
+        "reviewer_token": {"type": "string", "pattern": "^restricted://"},
+        "reviewed_at": {"type": "string", "format": "date-time"},
+        "evidence_pointer": {"type": "string", "pattern": "^restricted://"}
+      }
+    }
+  }
+}
