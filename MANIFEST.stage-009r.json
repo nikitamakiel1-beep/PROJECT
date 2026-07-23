@@ -1,0 +1,28 @@
+{
+  "schema_version": 2,
+  "stage": "009r",
+  "programme": "Deterministic synthetic real-estate batch adapter",
+  "as_of": "2026-07-23",
+  "base_branch": "venture/stage-008r-synthetic-synergy-orchestrator",
+  "target_branch": "venture/stage-009r-synthetic-batch-adapter",
+  "files": [
+    ".github/workflows/stage-009r-synthetic-batch.yml",
+    "MANIFEST.stage-009r.json",
+    "automations/specs/A26-synthetic-real-estate-batch-adapter.yaml",
+    "config/real-estate-synthetic-batch.json",
+    "docs/architecture/REAL_ESTATE_SYNTHETIC_BATCH_ADAPTER.md",
+    "docs/handover/STAGE_009R_SYNTHETIC_BATCH_ADAPTER.md",
+    "evidence/readiness/2026-07-23-real-estate-synthetic-batch.json",
+    "fixtures/real_estate/stage009r-synthetic-opportunities.csv",
+    "intelligence/real_estate/batch.py",
+    "scripts/audit_real_estate_synthetic_batch.py",
+    "scripts/test_real_estate_synthetic_batch.py"
+  ],
+  "real_source_rows_in_github": 0,
+  "real_source_rows_imported": 0,
+  "real_workbook_opened": false,
+  "network_client_added": false,
+  "Drive_client_added": false,
+  "real_spreadsheet_client_added": false,
+  "external_actions_permitted": false
+}
