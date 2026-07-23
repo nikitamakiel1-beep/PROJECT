@@ -50,8 +50,27 @@ jobs:
         run: python scripts/test_real_estate_architecture_rc2.py
       - name: Audit inherited RC2 fail-closed boundary
         run: python scripts/audit_real_estate_architecture_rc2.py
-      - name: Validate RC3 operator control and percentages
-        run: python scripts/test_real_estate_operator_control_rc3.py
+      - name: Validate RC3 release scoring
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_percentages_are_deterministic \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_decisions_do_not_follow_percentage_alone \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_release_markdown_reports_all_three_modes
+      - name: Validate RC3 case control
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_new_case_starts_at_zero \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_approved_intake_and_facts_unlock_preanalysis \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_blocked_component_is_prioritised \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_non_restricted_evidence_pointer_is_rejected \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_case_markdown_contains_manual_and_automatic_actions
+      - name: Validate RC3 automation hardening
+        run: |
+          python -m unittest \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_transfer_tax_is_reviewed_without_false_header_write \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_cleanup_command_uses_isolated_single_file_directories \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_cleanup_cannot_overwrite_original \
+            scripts.test_real_estate_operator_control_rc3.RC3OperatorControlTests.test_media_staging_removes_stale_and_duplicate_files
       - name: Audit RC3 readiness, hardening and use boundary
         run: python scripts/audit_real_estate_operator_control_rc3.py
       - name: Exercise release-status command
