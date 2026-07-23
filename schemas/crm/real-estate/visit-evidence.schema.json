@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/visit-evidence.schema.json",
+  "title": "Property visit and evidence bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["visit_id", "property_id", "visit_status", "evidence_items", "human_review_status"],
+  "properties": {
+    "visit_id": {"type": "string", "pattern": "^VIS-[A-Z0-9-]{4,100}$"},
+    "property_id": {"type": "string", "minLength": 3, "maxLength": 120},
+    "visitor_contact_token": {"type": "string", "pattern": "^restricted://"},
+    "scheduled_at": {"type": "string", "format": "date-time"},
+    "visited_at": {"type": "string", "format": "date-time"},
+    "visit_status": {"type": "string", "enum": ["scheduled", "completed", "incomplete", "cancelled"]},
+    "access_status": {"type": "string", "enum": ["unknown", "accessed", "no_access", "partial_access"]},
+    "ite_status": {"type": "string", "enum": ["unknown", "not_applicable", "pending", "available", "issue_detected"]},
+    "habitability_status": {"type": "string", "enum": ["unknown", "not_applicable", "pending", "available", "expired", "issue_detected"]},
+    "follow_up_required": {"type": "boolean"},
+    "evidence_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["evidence_id", "category", "rights_status", "validation_status", "restricted_pointer"],
+        "properties": {
+          "evidence_id": {"type": "string", "pattern": "^EVD-[A-Z0-9-]{4,100}$"},
+          "category": {"type": "string", "enum": ["street", "facade", "portal", "common_area", "electrical", "heating", "living_room", "kitchen", "bedroom", "bathroom", "distribution", "outdoor", "view", "parking", "storage", "defect", "map", "cadastral", "legal", "financial", "comparable", "video", "other"]},
+          "rights_status": {"type": "string", "enum": ["unverified", "owned", "licensed", "client_authorised", "public_source"]},
+          "validation_status": {"type": "string", "enum": ["review_required", "verified", "rejected", "expired"]},
+          "restricted_pointer": {"type": "string", "pattern": "^restricted://"},
+          "captured_at": {"type": "string", "format": "date-time"},
+          "notes": {"type": "string", "maxLength": 1000}
+        }
+      }
+    },
+    "human_review_status": {"type": "string", "enum": ["pending", "approved", "rejected"]},
+    "reviewed_by_token": {"type": "string", "pattern": "^restricted://"},
+    "notes": {"type": "string", "maxLength": 3000}
+  }
+}
