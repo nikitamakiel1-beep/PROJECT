@@ -1,0 +1,41 @@
+id: A31
+name: Real-estate operator control and release readiness
+release: real-estate-architecture-rc3-operator-control
+status: local_controlled_runtime
+triggers:
+  - new property case created
+  - case component status changed
+  - release evidence changed
+inputs:
+  - release readiness policy
+  - release evidence document
+  - local case-control manifest
+outputs:
+  - architecture package percentage
+  - controlled operator-use percentage
+  - live client-production percentage
+  - per-property readiness percentage
+  - gate status
+  - critical blockers
+  - next manual actions
+  - available automation actions
+controls:
+  percentage_is_release_authority: false
+  critical_blockers_override_score: true
+  restricted_evidence_pointers_required: true
+  external_actions_allowed: false
+  purchase_execution_allowed: false
+  network_access_allowed: false
+hardening:
+  watermark_cleanup_single_media_isolation: true
+  autopptx_stale_managed_media_removal: true
+  autopptx_media_sha256_verification: true
+  transfer_tax_requires_confirmed_workbook_header: true
+  unconfirmed_transfer_tax_is_metadata_only: true
+forbidden:
+  - live scraping
+  - portal access bypass
+  - real CRM write
+  - automatic report delivery
+  - offer or reservation submission
+  - contract, invoice, payment or purchase execution
