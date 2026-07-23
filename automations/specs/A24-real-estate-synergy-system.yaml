@@ -1,0 +1,62 @@
+id: A24
+name: Real-estate synergy runtime
+stage: 007r
+status: contract_ready_no_real_execution
+depends_on:
+  - A23-real-estate-crm-vertical
+  - A30-real-estate-runtime-and-matching
+trigger:
+  type: internal_event
+  accepted_events:
+    - realestate.partner_intake.received
+    - realestate.investor_intake.received
+    - realestate.property_case.created
+    - realestate.visit.submitted
+    - realestate.underwriting.calculated
+    - realestate.underwriting.approved
+    - realestate.report.generated
+    - realestate.report.approved
+    - realestate.match.proposed
+    - realestate.match.approved
+    - realestate.dashboard.refresh_requested
+controls:
+  idempotency_required: true
+  correlation_id_required: true
+  payload_digest_required: true
+  rights_status_required_for_source_import: true
+  pii_detection_required: true
+  restricted_field_detection_required: true
+  real_source_rows_allowed: false
+  autonomous_outreach_allowed: false
+  autonomous_matching_to_solicitation_allowed: false
+  offer_or_transaction_action_allowed: false
+  named_human_gate_required:
+    - underwriting approval
+    - report sharing
+    - match approval
+    - external contact
+    - offer
+    - financing
+    - due diligence clearance
+    - transaction action
+outputs:
+  permitted:
+    - validation receipt
+    - quarantine receipt
+    - synthetic event fixture
+    - restricted pointer
+    - draft report metadata
+    - dashboard refresh request
+  forbidden:
+    - real personal data
+    - full property address
+    - cadastral reference
+    - investor identity
+    - external message
+    - proposal
+    - invoice
+    - payment request
+    - contract
+    - offer
+    - financing application
+    - transaction submission
