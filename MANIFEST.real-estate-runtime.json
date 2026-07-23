@@ -1,0 +1,15 @@
+{
+  "schema_version": 2,
+  "generated_from": "A30 real-estate runtime and pairwise mandate-fit layer",
+  "files": [
+    "MANIFEST.real-estate-runtime.json",
+    "automations/specs/A30-real-estate-runtime-and-matching.yaml",
+    "config/real-estate-workbook-field-mapping.json",
+    "docs/architecture/REAL_ESTATE_RUNTIME_AND_MATCHING.md",
+    "intelligence/real_estate/__init__.py",
+    "intelligence/real_estate/engine.py",
+    "schemas/crm/real-estate/mandate-fit.schema.json",
+    "schemas/crm/real-estate/runtime-sheets-contract.json",
+    "scripts/test_real_estate_runtime.py"
+  ]
+}

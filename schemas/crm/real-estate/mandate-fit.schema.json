@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/schemas/real-estate/deal-match.schema.json",
+  "title": "Property to Investor Match",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version","match_id","mandate_id","property_id","scenario_id","scores","status","human_approved"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "match_id": {"type": "string", "pattern": "^MATCH-[A-F0-9]{16}$"},
+    "mandate_id": {"type": "string", "pattern": "^MAND-[A-F0-9]{12}$"},
+    "property_id": {"type": "string", "pattern": "^PROP-[A-F0-9]{12}$"},
+    "scenario_id": {"type": "string", "pattern": "^SCN-[A-F0-9]{16}$"},
+    "scores": {
+      "type": "object", "additionalProperties": false,
+      "required": ["overall","budget","geography","strategy","return","risk","confidence"],
+      "properties": {
+        "overall": {"type": "number", "minimum": 0, "maximum": 1},
+        "budget": {"type": "number", "minimum": 0, "maximum": 1},
+        "geography": {"type": "number", "minimum": 0, "maximum": 1},
+        "strategy": {"type": "number", "minimum": 0, "maximum": 1},
+        "return": {"type": "number", "minimum": 0, "maximum": 1},
+        "risk": {"type": "number", "minimum": 0, "maximum": 1},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1}
+      }
+    },
+    "status": {"enum": ["generated","review_required","approved","shared","interested","rejected","expired"]},
+    "human_approved": {"type": "boolean"},
+    "explanations": {"type": "array", "maxItems": 8, "items": {"type": "string", "maxLength": 180}},
+    "evidence_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }
+}
