@@ -52,7 +52,7 @@
     "payment_collection_permitted": false,
     "paid_delivery_permitted": false
   },
-  "adversarial_test_cases": 22,
+  "adversarial_test_cases": 23,
   "professional_approval_inferred": false,
   "human_review_required": true
 }
