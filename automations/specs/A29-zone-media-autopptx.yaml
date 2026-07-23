@@ -1,0 +1,38 @@
+id: A29
+name: Zone evidence, authorised media and AutoPPTX pipeline
+release: real-estate-architecture-rc2
+status: local_controlled_runtime
+triggers:
+  - exact address ready for zone analysis
+  - authorised property media ready
+  - approved underwriting ready for report generation
+depends_on:
+  - A28-real-estate-source-acquisition-and-report-release
+controls:
+  lavanguardia_scraping_allowed: false
+  supervised_address_search_required: true
+  map_screenshot_required: true
+  source_year_required: true
+  reviewed_zone_legend_required: true
+  minimum_surroundings_images: 2
+  map_watermark_removal_allowed: false
+  property_media_cleanup_rights_required: true
+  preserve_original_media: true
+  windows_excel_com_required_for_real_USANDO_write: true
+  full_excel_recalculation_required: true
+  report_delivery_allowed: false
+outputs:
+  - zone capture plan
+  - zone evidence bundle
+  - authorised media cleanup job
+  - USANDO workbook update plan
+  - media staging receipt
+  - AutoPPTX pipeline plan
+forbidden:
+  - browser scraping
+  - captcha bypass
+  - access-control bypass
+  - removal of map or news attribution
+  - unverified portal-photo cleanup
+  - automatic client delivery
+  - offer or purchase execution
