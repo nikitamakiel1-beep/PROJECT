@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "programme": "Creixement — synthetic real-estate reconciliation and rollback",
+  "stage": "010r",
+  "as_of": "2026-07-23",
+  "base_stage": "009r",
+  "execution_mode": "local_synthetic_reconciliation_only",
+  "inputs": [
+    "Stage 009r synthetic batch result",
+    "Stage 010r synthetic reconciliation bundle",
+    "in-memory synthetic fixture snapshot"
+  ],
+  "outputs": [
+    "canonical fixture snapshot",
+    "machine-readable stable-ID diff",
+    "human-readable Markdown diff",
+    "forward mutation plan",
+    "inverse rollback plan",
+    "rollback verification receipt",
+    "deterministic reconciliation ZIP"
+  ],
+  "identity": {
+    "sheet_rows_require_stable_id": true,
+    "duplicate_stable_ids_rejected": true,
+    "quarantine_identity": "batch_id_plus_source_row",
+    "field_level_change_explanations": true
+  },
+  "mutation_controls": {
+    "source_snapshot_digest_required": true,
+    "operation_digest_required": true,
+    "row_precondition_required": true,
+    "target_snapshot_digest_required": true,
+    "inverse_plan_generated": true,
+    "rollback_digest_verification_required": true,
+    "partial_or_unverified_rollback_accepted": false
+  },
+  "bundle_controls": {
+    "fixed_file_order": true,
+    "fixed_zip_timestamps": true,
+    "per_file_sha256": true,
+    "snapshot_digest_required": true,
+    "tampered_bundle_rejected": true,
+    "automatic_upload_permitted": false
+  },
+  "safety": {
+    "real_source_file_access_permitted": false,
+    "network_access_permitted": false,
+    "Drive_access_permitted": false,
+    "real_CRM_write_permitted": false,
+    "external_communication_permitted": false,
+    "transaction_action_permitted": false
+  },
+  "current_decision": {
+    "synthetic_reconciliation_ready": true,
+    "rollback_verification_ready": true,
+    "real_rows_imported": 0,
+    "real_workbook_opened": false,
+    "live_execution_permitted": false
+  }
+}
