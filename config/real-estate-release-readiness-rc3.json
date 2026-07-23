@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc3-operator-control",
+  "status_values": {
+    "passed": 1.0,
+    "proven_manual": 0.85,
+    "implemented_unvalidated": 0.65,
+    "partial": 0.35,
+    "not_started": 0.0,
+    "blocked": 0.0
+  },
+  "modes": {
+    "architecture_package": {
+      "label": "Architecture package release",
+      "decision_threshold": 95,
+      "criteria": [
+        {"id": "arch_code_ci", "weight": 20, "critical": true},
+        {"id": "arch_tests", "weight": 20, "critical": true},
+        {"id": "arch_boundaries", "weight": 15, "critical": true},
+        {"id": "arch_manual", "weight": 15, "critical": true},
+        {"id": "arch_operator_control", "weight": 15, "critical": true},
+        {"id": "arch_traceability", "weight": 10, "critical": true},
+        {"id": "arch_release_approval", "weight": 5, "critical": false}
+      ]
+    },
+    "controlled_operator_use": {
+      "label": "Controlled operator use",
+      "decision_threshold": 80,
+      "criteria": [
+        {"id": "operator_control", "weight": 15, "critical": true},
+        {"id": "manual_source_intake", "weight": 10, "critical": true},
+        {"id": "project_workspace", "weight": 5, "critical": true},
+        {"id": "financial_adapter", "weight": 15, "critical": true},
+        {"id": "zone_workflow", "weight": 10, "critical": true},
+        {"id": "authorised_media_pipeline", "weight": 10, "critical": true},
+        {"id": "autopptx_pipeline", "weight": 15, "critical": true},
+        {"id": "report_qa", "weight": 10, "critical": true},
+        {"id": "operator_governance", "weight": 10, "critical": true}
+      ]
+    },
+    "live_client_production": {
+      "label": "Live client production",
+      "decision_threshold": 90,
+      "criteria": [
+        {"id": "live_validated_foundation", "weight": 15, "critical": true},
+        {"id": "live_governance", "weight": 10, "critical": true},
+        {"id": "live_operator_runbook", "weight": 10, "critical": true},
+        {"id": "live_source_permissions", "weight": 10, "critical": true},
+        {"id": "live_identity_privacy", "weight": 10, "critical": true},
+        {"id": "live_source_adapters", "weight": 10, "critical": true},
+        {"id": "live_zone_validation", "weight": 10, "critical": true},
+        {"id": "live_workbook_golden_reports", "weight": 15, "critical": true},
+        {"id": "live_report_qa", "weight": 10, "critical": true}
+      ]
+    }
+  },
+  "case_components": [
+    {"id": "source_intake", "label": "Source intake and rights", "weight": 10},
+    {"id": "property_facts", "label": "Property facts and evidence", "weight": 10},
+    {"id": "financial_underwriting", "label": "USANDO underwriting", "weight": 20},
+    {"id": "zone_evidence", "label": "La Vanguardia zone evidence", "weight": 10},
+    {"id": "media", "label": "Property and surroundings media", "weight": 10},
+    {"id": "report_generation", "label": "PPTX and PDF generation", "weight": 15},
+    {"id": "report_approvals", "label": "Four-role report approvals", "weight": 10},
+    {"id": "due_diligence", "label": "Legal, technical and occupancy diligence", "weight": 10},
+    {"id": "client_decision", "label": "Client decision and instruction", "weight": 5}
+  ],
+  "case_status_values": {
+    "not_started": 0.0,
+    "in_progress": 0.4,
+    "ready_for_review": 0.75,
+    "approved": 1.0,
+    "blocked": 0.0,
+    "not_applicable": null
+  },
+  "case_gates": {
+    "preanalysis_ready": ["source_intake", "property_facts"],
+    "report_ready": ["source_intake", "property_facts", "financial_underwriting", "zone_evidence", "media", "report_approvals"],
+    "client_presentation_ready": ["source_intake", "property_facts", "financial_underwriting", "zone_evidence", "media", "report_generation", "report_approvals"],
+    "acquisition_ready": ["source_intake", "property_facts", "financial_underwriting", "zone_evidence", "media", "report_generation", "report_approvals", "due_diligence", "client_decision"]
+  }
+}
