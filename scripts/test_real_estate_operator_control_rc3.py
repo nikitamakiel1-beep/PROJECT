@@ -49,7 +49,7 @@ class RC3OperatorControlTests(unittest.TestCase):
         self.evidence = load_json(EVIDENCE)
         self.component_ids = [item["id"] for item in self.policy["case_components"]]
 
-    def _file(self, root: Path, name: str, body: bytes) -> Path:
+    def _file(self, root: Path, name: str | Path, body: bytes) -> Path:
         path = root / name
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(body)
@@ -180,8 +180,12 @@ class RC3OperatorControlTests(unittest.TestCase):
     def test_cleanup_command_uses_isolated_single_file_directories(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            source = self._file(root, "source" / "photo.jpg", b"source")
-            entrypoint = self._file(root, "tool" / "remwm.py", b"print('test')")
+            source = self._file(root, Path("source") / "photo.jpg", b"source")
+            entrypoint = self._file(
+                root,
+                Path("tool") / "remwm.py",
+                b"print('test')",
+            )
             record = build_media_record(
                 media_id="MEDIA-1",
                 source_path=source,
@@ -229,11 +233,11 @@ class RC3OperatorControlTests(unittest.TestCase):
             workspace = create_project_workspace(root, "BA_BARCELONA_GRACIA01")
             piso = Path(workspace["autopptx_piso"])
             stale = self._file(piso, "01_piso.jpg", b"stale")
-            property_a = self._file(root, "input" / "2.jpg", b"same")
-            property_b = self._file(root, "input" / "10.jpg", b"same")
-            map_file = self._file(root, "zone" / "map.png", b"map")
-            zone_1 = self._file(root, "zone" / "1.png", b"zone1")
-            zone_2 = self._file(root, "zone" / "2.png", b"zone2")
+            property_a = self._file(root, Path("input") / "2.jpg", b"same")
+            property_b = self._file(root, Path("input") / "10.jpg", b"same")
+            map_file = self._file(root, Path("zone") / "map.png", b"map")
+            zone_1 = self._file(root, Path("zone") / "1.png", b"zone1")
+            zone_2 = self._file(root, Path("zone") / "2.png", b"zone2")
             zone = {
                 "evidence_type": "lavanguardia_census_income_zone",
                 "manual_confirmation": True,
