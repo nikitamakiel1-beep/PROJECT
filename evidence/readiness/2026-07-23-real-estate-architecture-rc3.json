@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc3-operator-control",
+  "as_of": "2026-07-23",
+  "branch": "release/real-estate-architecture-rc3-operator-control",
+  "scores": {
+    "architecture_package": 98.8,
+    "controlled_operator_use": 81.5,
+    "live_client_production": 47.0
+  },
+  "decisions": {
+    "architecture_package": "ready_for_release_review",
+    "controlled_operator_use": "controlled_use_ready",
+    "live_client_production": "not_ready"
+  },
+  "closed_defects": [
+    "WatermarkRemover jobs now isolate one authorised media file instead of exposing an entire source directory.",
+    "AutoPPTX staging now removes stale managed files, deduplicates by SHA-256 and verifies copied hashes.",
+    "Transfer-tax assumptions remain metadata-only until an exact USANDO workbook header is confirmed."
+  ],
+  "live_critical_blockers": [
+    "live_source_permissions",
+    "live_source_adapters",
+    "live_zone_validation",
+    "live_workbook_golden_reports"
+  ],
+  "architecture_release_permitted": false,
+  "controlled_manual_operation_permitted": true,
+  "live_client_production_permitted": false,
+  "external_actions_permitted": false,
+  "purchase_execution_permitted": false,
+  "validation_commands": [
+    "python scripts/test_real_estate_architecture_rc2.py",
+    "python scripts/test_real_estate_operator_control_rc3.py",
+    "python scripts/audit_real_estate_architecture_rc2.py",
+    "python scripts/audit_real_estate_operator_control_rc3.py",
+    "python scripts/validate_repository.py",
+    "python -m compileall -q intelligence scripts"
+  ],
+  "validation_status": "candidate_pending_ci"
+}
