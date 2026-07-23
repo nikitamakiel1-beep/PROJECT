@@ -34,6 +34,13 @@ def load_plan(path: Path) -> dict[str, Any]:
     return plan
 
 
+def workbook_write_values(plan: dict[str, Any]) -> dict[str, Any]:
+    values = dict(plan.get("field_values") or {})
+    for field in plan.get("metadata_only_fields") or []:
+        values.pop(str(field), None)
+    return values
+
+
 def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
     errors: list[str] = []
     warnings: list[str] = []
@@ -54,9 +61,9 @@ def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
         errors.append("unexpected selected-project cell")
     if plan.get("formula_recalculation") != "CalculateFullRebuild":
         errors.append("full calculation rebuild is not configured")
-    values = plan.get("field_values")
-    if not isinstance(values, dict) or values.get("CODI") != plan.get("project_code"):
-        errors.append("field values do not contain the bound project code")
+    values = workbook_write_values(plan)
+    if values.get("CODI") != plan.get("project_code"):
+        errors.append("workbook values do not contain the bound project code")
     if plan.get("manual_transfer_tax_binding_required"):
         warnings.append(
             "transfer-tax rate is reviewed but not mapped to a confirmed workbook header"
@@ -66,6 +73,8 @@ def validate_plan(plan: dict[str, Any]) -> dict[str, Any]:
         "errors": errors,
         "warnings": warnings,
         "plan_digest": plan.get("plan_digest"),
+        "workbook_field_count": len(values),
+        "metadata_only_fields": sorted(plan.get("metadata_only_fields") or []),
         "manual_transfer_tax_binding_required": bool(
             plan.get("manual_transfer_tax_binding_required")
         ),
@@ -122,6 +131,7 @@ def execute(plan: dict[str, Any]) -> dict[str, Any]:
         raise RuntimeError("pywin32 is required") from exc
 
     workbook_path = Path(plan["workbook_path"])
+    write_values = workbook_write_values(plan)
     before = file_sha256(workbook_path)
     excel = win32com.client.DispatchEx("Excel.Application")
     excel.Visible = False
@@ -154,12 +164,10 @@ def execute(plan: dict[str, Any]) -> dict[str, Any]:
             header_map[plan["key_header"]],
             plan["project_code"],
         )
-        missing_headers = sorted(
-            header for header in plan["field_values"] if header not in header_map
-        )
+        missing_headers = sorted(header for header in write_values if header not in header_map)
         if missing_headers:
             raise RuntimeError(f"USANDO headers not found: {missing_headers}")
-        for header, value in plan["field_values"].items():
+        for header, value in write_values.items():
             sheet.Cells(target_row, header_map[header]).Value = value
             written_headers.append(header)
         sheet.Range(plan["selected_project_cell"]).Value = plan["project_code"]
@@ -183,6 +191,7 @@ def execute(plan: dict[str, Any]) -> dict[str, Any]:
         "workbook_changed": before != after,
         "target_row": target_row,
         "written_headers": sorted(written_headers),
+        "metadata_only_fields": sorted(plan.get("metadata_only_fields") or []),
         "full_recalculation_executed": True,
         "selected_project_cell": f"{plan['sheet']}!{plan['selected_project_cell']}",
         "reviewed_assumptions": dict(plan.get("reviewed_assumptions") or {}),
