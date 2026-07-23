@@ -1,0 +1,75 @@
+id: A28
+name: Authorised Spanish property acquisition and report release
+release: real-estate-architecture-rc1
+status: release_candidate_no_live_execution
+depends_on:
+  - A23-real-estate-crm-vertical
+  - A30-real-estate-runtime-and-matching
+  - A24-real-estate-synergy-system
+  - A25-synthetic-real-estate-synergy-orchestrator
+  - A26-synthetic-real-estate-batch-adapter
+  - A27-synthetic-real-estate-reconciliation
+source_acquisition:
+  allowed_modes:
+    - official_api
+    - partner_feed
+    - user_owned_alert
+    - manual_capture
+  prohibited_modes:
+    - unauthorised_scraping
+    - robot_or_spider
+    - captcha_bypass
+    - account_impersonation
+    - login_bypass
+    - bulk_media_copy_without_rights
+  provider_controls:
+    Idealista: official API approval or supervised capture
+    Fotocasa: written feed agreement, user alert or supervised capture
+    Habitaclia: written feed agreement, user alert or supervised capture
+    Pisos: written feed agreement, user alert or supervised capture
+    Yaencontre: written feed agreement, user alert or supervised capture
+    Milanuncios: written feed agreement, user alert or supervised capture
+    Bank_or_fund_portal: partner feed or supervised capture
+public_enrichment:
+  allowed:
+    - Catastro non-protected services
+    - Catastro INSPIRE WFS and ATOM
+    - single-view Catastro WMS
+    - INE JSON API
+  prohibited:
+    - protected cadastral data without authority
+    - massive tiled Catastro WMS downloads
+report_generation:
+  renderer: recovered AutoPPTX local adapter
+  required_approvals:
+    - financial_reviewer
+    - evidence_reviewer
+    - legal_reviewer
+    - commercial_reviewer
+  reviewers_must_be_distinct: true
+  local_execution_requires_explicit_approval: true
+  shell_execution: false
+  output_hashes_required: true
+  external_delivery: false
+release_approval:
+  required_roles:
+    - source_policy_reviewer
+    - privacy_reviewer
+    - architecture_release_approver
+  reviewers_must_be_distinct: true
+  bound_artifacts:
+    - connector registry
+    - source candidate schema
+    - report renderer configuration
+    - release manifest
+  digest_change_invalidates_approval: true
+boundaries:
+  real_source_rows_allowed: false
+  real_CRM_writes_allowed: false
+  automatic_portal_contact_allowed: false
+  proposal_or_invoice_allowed: false
+  payment_allowed: false
+  offer_or_reservation_allowed: false
+  financing_submission_allowed: false
+  contract_or_closing_action_allowed: false
+  merge_to_main_allowed: false
