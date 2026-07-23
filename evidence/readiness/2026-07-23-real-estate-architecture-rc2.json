@@ -1,0 +1,27 @@
+{
+  "release": "real-estate-architecture-rc2",
+  "as_of": "2026-07-23",
+  "branch": "release/real-estate-architecture-rc2",
+  "lavanguardia_source_reviewed": true,
+  "lavanguardia_article_data_year": 2020,
+  "automatic_lavanguardia_scraping_added": false,
+  "supervised_exact_address_capture_added": true,
+  "zone_thresholds_verified": false,
+  "zone_failure_default_removed": true,
+  "minimum_surroundings_images": 2,
+  "map_watermark_removal_permitted": false,
+  "authorised_property_media_cleanup_adapter_added": true,
+  "original_media_preservation_required": true,
+  "USANDO_windows_excel_adapter_added": true,
+  "full_excel_recalculation_required": true,
+  "AutoPPTX_end_to_end_plan_added": true,
+  "real_CRM_writes_added": false,
+  "report_delivery_added": false,
+  "purchase_execution_added": false,
+  "validation_commands": [
+    "python scripts/test_real_estate_architecture_rc2.py",
+    "python scripts/audit_real_estate_architecture_rc2.py",
+    "python scripts/validate_repository.py",
+    "python -m compileall -q intelligence scripts"
+  ]
+}
