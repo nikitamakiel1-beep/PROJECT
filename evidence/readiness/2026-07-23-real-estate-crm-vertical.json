@@ -1,0 +1,53 @@
+{
+  "schema_version": 1,
+  "control_id": "NIK-136",
+  "programme": "International Growth Venture — real-estate CRM vertical",
+  "stage": "006r",
+  "as_of": "2026-07-23",
+  "source_branch": "venture/stage-006r-real-estate-crm-vertical",
+  "base_branch": "venture/stage-003-provider-runtime",
+  "source_evidence": {
+    "opportunity_workbook": "restricted_pointer_only",
+    "agency_directory": "restricted_pointer_only",
+    "source_workbooks_in_GitHub": false,
+    "source_rows_in_GitHub": 0,
+    "source_rows_imported": 0,
+    "column_level_mapping_prepared": true
+  },
+  "architecture": {
+    "generic_CRM_preserved": true,
+    "generic_intake_modified": false,
+    "extension_entities": 8,
+    "extension_sheets": 10,
+    "generic_bridge_keys": ["Company ID", "Contact ID", "Opportunity ID"],
+    "quarantine_present": true,
+    "formula_provenance_present": true,
+    "restricted_custody_present": true
+  },
+  "boundaries": {
+    "Creixement_is_real_estate_intermediary": false,
+    "Creixement_provides_CRM_and_workflow_implementation": true,
+    "autonomous_outreach": false,
+    "autonomous_investor_matching": false,
+    "property_valuation_approval": false,
+    "offer_or_financing_action": false,
+    "due_diligence_clearance": false,
+    "transaction_mediation": false,
+    "AI_mode": "shadow_only"
+  },
+  "decisions": {
+    "vertical_schema_ready": true,
+    "synthetic_fixture_permitted": true,
+    "dry_run_real_import_permitted": false,
+    "real_import_permitted": false,
+    "client_personal_data_permitted": false,
+    "live_publication_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  },
+  "adversarial_test_cases": 22,
+  "professional_approval_inferred": false,
+  "human_review_required": true
+}
