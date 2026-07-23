@@ -56,7 +56,7 @@ forbidden_actions:
 
 validation:
   command: python scripts/test_real_estate_crm_vertical.py
-  expected_cases: 22
+  expected_cases: 23
   fail_closed: true
 
 maximum_result:
