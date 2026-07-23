@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://creixement.invalid/schemas/real-estate/source-registry.schema.json",
+  "title": "Restricted source registry entry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["source_id", "source_alias", "source_type", "authority_level", "rights_status", "contains_pii", "contains_restricted_data", "import_policy", "status"],
+  "properties": {
+    "source_id": {"type": "string", "pattern": "^SRC-[A-Z0-9-]{3,80}$"},
+    "source_alias": {"type": "string", "pattern": "^[A-Z][A-Z0-9_]{2,80}$"},
+    "source_type": {"type": "string", "enum": ["drive_folder", "google_sheet", "google_doc", "drive_archive", "form_responses", "calculation_workbook", "report_template", "external_reference"]},
+    "restricted_pointer": {"type": "string", "pattern": "^restricted://"},
+    "authority_level": {"type": "string", "enum": ["canonical", "controlled_working_master", "renderer_baseline", "restricted_source", "reference", "historical"]},
+    "rights_status": {"type": "string", "enum": ["unverified", "owned", "licensed", "client_authorised", "public_source"]},
+    "contains_pii": {"type": "boolean"},
+    "contains_restricted_data": {"type": "boolean"},
+    "import_policy": {"type": "string", "enum": ["reference", "reference_and_copy_only", "header_only_until_review", "profile_then_quarantine", "synthetic_only", "code_only_after_secret_removal", "no_import"]},
+    "status": {"type": "string", "enum": ["active", "review_required", "inactive", "archived"]},
+    "last_verified": {"type": "string", "format": "date"},
+    "notes": {"type": "string", "maxLength": 2000}
+  }
+}
