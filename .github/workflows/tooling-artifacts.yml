@@ -40,6 +40,9 @@ jobs:
       - name: Validate corporate identity dossier
         run: python scripts/test_corporate_identity_dossier.py
 
+      - name: Validate real-estate CRM vertical
+        run: python scripts/test_real_estate_crm_vertical.py
+
       - name: Validate synthetic intake contract
         run: python scripts/test_intake_contract.py
 
@@ -67,6 +70,9 @@ jobs:
       - name: Generate corporate identity dossier receipt
         run: python scripts/audit_corporate_identity_dossier.py --output dist/corporate-identity-dossier-receipt.json
 
+      - name: Generate real-estate CRM vertical receipt
+        run: python scripts/audit_real_estate_crm_vertical.py --output dist/real-estate-crm-vertical-receipt.json
+
       - name: Build Apps Script provider bundle
         run: python scripts/package_apps_script.py
 
@@ -88,6 +94,7 @@ jobs:
             dist/market-entry-operator-receipt.json
             dist/company-formation-readiness-receipt.json
             dist/corporate-identity-dossier-receipt.json
+            dist/real-estate-crm-vertical-receipt.json
           if-no-files-found: error
           retention-days: 14
 

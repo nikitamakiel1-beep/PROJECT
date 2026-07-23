@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Due Diligence Item",
+  "type": "object",
+  "required": ["item_id", "deal_id", "category", "status", "evidence_state", "approval_state"],
+  "properties": {
+    "item_id": {"type": "string", "pattern": "^DD-[A-Z0-9]{8,}$"},
+    "deal_id": {"type": "string", "pattern": "^REDEAL-"},
+    "category": {"enum": ["title", "occupancy", "planning", "technical", "valuation", "tax", "community", "utilities", "insurance", "financing", "contract", "other"]},
+    "status": {"enum": ["not_started", "requested", "received", "under_review", "issue_found", "cleared_by_named_professional", "not_applicable"]},
+    "evidence_state": {"enum": ["none", "restricted_pointer_only", "verified_restricted_document"]},
+    "restricted_evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "issue_summary_redacted": {"type": "string", "maxLength": 1000},
+    "responsible_role": {"type": "string", "maxLength": 200},
+    "approval_state": {"const": "platform_cannot_clear_due_diligence"},
+    "professional_reviewer": {"type": "string", "maxLength": 200},
+    "reviewed_at": {"type": "string", "format": "date-time"}
+  },
+  "additionalProperties": false
+}

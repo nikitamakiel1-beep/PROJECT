@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Fee Record",
+  "type": "object",
+  "required": ["fee_id", "deal_id", "fee_type", "basis", "status", "approval_state"],
+  "properties": {
+    "fee_id": {"type": "string", "pattern": "^FEE-[A-Z0-9]{8,}$"},
+    "deal_id": {"type": "string", "pattern": "^REDEAL-"},
+    "counterparty_id": {"type": "string", "pattern": "^CP-"},
+    "fee_type": {"enum": ["agency", "project_management", "legal", "technical", "valuation", "financing", "property_management", "other"]},
+    "basis": {"enum": ["fixed", "percentage_purchase", "percentage_investment", "percentage_rent", "percentage_profit", "other"]},
+    "rate_percent": {"type": "number", "minimum": 0},
+    "amount_eur": {"type": "number", "minimum": 0},
+    "tax_included": {"type": "boolean"},
+    "status": {"enum": ["source_assumption", "quoted", "agreed", "invoiced", "paid", "cancelled"]},
+    "restricted_agreement_pointer": {"type": "string", "pattern": "^restricted://"},
+    "approval_state": {"enum": ["not_approved", "human_approved", "client_executed"]},
+    "human_owner": {"type": "string"}
+  },
+  "additionalProperties": false
+}

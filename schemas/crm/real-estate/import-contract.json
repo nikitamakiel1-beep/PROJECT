@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "name": "Restricted real-estate workbook import contract",
+  "mode": "dry_run_quarantine_only",
+  "source_records_permitted": false,
+  "destination_extension_sheets": {
+    "Properties": ["Property ID", "Source System", "Source Record Ref", "Location Hash", "Municipality", "Province", "Asset Type", "Status", "Asking Price €", "Valuation €", "Valuation Status", "Evidence Pointer", "Human Owner"],
+    "Real Estate Deals": ["Deal ID", "Opportunity ID", "Property ID", "Agency Counterparty ID", "Strategy", "Stage", "Asking Price €", "Planned Purchase Price €", "Total Investment €", "Authority Owner", "External Action State", "Next Step", "Next Step Date"],
+    "Counterparties": ["Counterparty ID", "Company ID", "Contact ID", "Roles", "Relationship Status", "Contact Authority", "Agent Registration Status", "Restricted Identity Pointer"],
+    "Investors": ["Investor ID", "Company ID", "Contact ID", "Relationship Stage", "Mandate State", "Recommendation State", "Restricted Profile Pointer", "Human Owner"],
+    "Financing": ["Financing ID", "Deal ID", "Lender Counterparty ID", "Status", "Source Class", "Financing %", "Principal €", "Interest %", "Term Years", "Monthly Payment €", "Advice State", "Application State"],
+    "Underwriting": ["Scenario ID", "Deal ID", "Scenario Type", "Formula Version", "Purchase Price €", "Acquisition Costs €", "Project Cost €", "Total Investment €", "Valuation €", "Annual Rent €", "Annual Costs €", "Gross Return %", "Net Return %", "IRR %", "Duration Months", "Human Review State"],
+    "Due Diligence": ["Item ID", "Deal ID", "Category", "Status", "Evidence State", "Restricted Evidence Pointer", "Responsible Role", "Approval State"],
+    "Fees": ["Fee ID", "Deal ID", "Counterparty ID", "Fee Type", "Basis", "Rate %", "Amount €", "Status", "Approval State"],
+    "Source Evidence": ["Evidence ID", "Entity Type", "Entity ID", "Source Class", "Restricted Pointer", "As Of", "Reviewer Role", "Status"],
+    "Import Quarantine": ["Quarantine ID", "Source Alias", "Source Sheet", "Source Row Ref", "Reason", "Candidate Entity", "Candidate Match IDs", "Human Decision", "Resolved At"]
+  },
+  "generic_CRM_bridges": {
+    "company": "Company ID",
+    "contact": "Contact ID",
+    "opportunity": "Opportunity ID",
+    "activity": "Activities remain in the generic CRM and reference Opportunity ID"
+  },
+  "deduplication": {
+    "agency": ["normalized_domain_hash", "normalized_email_hash", "normalized_phone_hash", "normalized_legal_or_trade_name"],
+    "contact": ["normalized_email_hash", "normalized_phone_hash", "existing_generic_contact_id"],
+    "property": ["source_system_plus_source_record_ref", "location_ref_hash", "restricted_cadastral_reference_hash_when_available"],
+    "deal": ["source_system_plus_source_record_ref", "property_id_plus_strategy_plus_created_period"],
+    "investor": ["existing_generic_contact_id", "normalized_email_hash", "restricted_identity_match"],
+    "rule": "No single weak key may overwrite an existing curated record. Conflicts and multiple candidate matches enter quarantine."
+  },
+  "quarantine_reasons": [
+    "missing_required_key",
+    "multiple_company_matches",
+    "multiple_contact_matches",
+    "multiple_property_matches",
+    "unparseable_amount_or_date",
+    "formula_without_cached_value",
+    "unsupported_stage_or_status",
+    "real_identifier_in_public_field",
+    "missing_contact_authority",
+    "missing_restricted_evidence",
+    "cross_entity_reference_failure"
+  ],
+  "source_column_families": {
+    "opportunity_workbook": ["Oportunidad", "Fecha", "Análisis Maumer", "Resultado Oferta", "Cliente", "Inversor", "Cashflow", "Comunidad", "IBI", "Precio de compra", "Inversión Total", "Valor de tasación", "Duración prevista (meses)", "Duración real inversión", "% Beneficio TOTAL", "Beneficio Neto", "Rentabilidad Bruta", "Rentabilidad Neta", "TIR", "Nueva Inversión"],
+    "agency_directory": ["Province", "Town", "Agency", "Offices", "Agents", "Contact", "Charge", "Contact Email", "Agency Email", "Phone", "Mobile", "Web", "Facebook", "Instagram", "Youtube", "Twitter", "LinkedIn", "Notes (EN)", "Notas (ES)", "Contacted", "Newsletter", "Visited", "Sent Survey", "Filled Survey", "Registration Date", "Survey Date", "Micro Site"],
+    "auxiliary_models": ["Proveedores servicio", "Hipoteca", "Proyecto", "Alquiler", "Inversor", "Agencia Inmobiliaria", "Honorarios GESTIÓN DE PROYECTOS según importe de inversión total"]
+  },
+  "source_custody": {
+    "opportunity_workbook": "restricted://real-estate-source/maumer-opportunities-v1",
+    "agency_directory": "restricted://real-estate-source/agency-directory-v1",
+    "raw_workbooks_in_GitHub": false,
+    "raw_rows_in_synthetic_CRM": false,
+    "public_schema_contains_only": ["column_names", "mapping_rules", "hash_fields", "synthetic_fixtures", "restricted_pointers"]
+  },
+  "execution": {
+    "dry_run_permitted": false,
+    "real_import_permitted": false,
+    "synthetic_fixture_import_permitted": true,
+    "autonomous_outreach_permitted": false,
+    "autonomous_investor_matching_permitted": false,
+    "autonomous_offer_or_financing_action_permitted": false,
+    "human_approval_required": true
+  }
+}
