@@ -1,0 +1,392 @@
+{
+  "schema_version": 1,
+  "source_profile_id": "RE-SOURCE-001",
+  "source_description": "Supplementary field-level mapping for the existing governed real-estate CRM vertical. Structure only; row-level data remains restricted.",
+  "observed_record_count": 770,
+  "rights_status": "unverified",
+  "repository_import_permitted": false,
+  "private_drive_import_requires": [
+    "documented ownership, licence or client authorisation",
+    "named data controller and processing purpose",
+    "field-level minimisation review",
+    "human approval of every row-level import batch"
+  ],
+  "source_status_mapping": {
+    "EXCEL": "discovered",
+    "WIP": "analysis_in_progress",
+    "Validat": "validated",
+    "PPT": "presentation_ready",
+    "Compartit": "shared",
+    "Reservat": "reserved",
+    "Descartat": "rejected"
+  },
+  "strategy_mapping": {
+    "Tradicional": "traditional_rental",
+    "Habitacional": "room_rental",
+    "Temporal": "temporary_rental"
+  },
+  "field_mappings": [
+    {
+      "source": "CODI",
+      "entity": "property",
+      "target": "external_code",
+      "classification": "internal"
+    },
+    {
+      "source": "FINANCIACION",
+      "entity": "scenario",
+      "target": "financing_ratio",
+      "classification": "financial"
+    },
+    {
+      "source": "PRECIO DE COMPRA",
+      "entity": "scenario",
+      "target": "purchase_price_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "REFORMA ESTIMADA TRADICIONAL",
+      "entity": "scenario",
+      "target": "renovation_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "REFORMA ESTIMADA HABITACIONES",
+      "entity": "scenario",
+      "target": "renovation_eur",
+      "strategy": "room_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "REFORMA ESTIMADA TEMPORAL",
+      "entity": "scenario",
+      "target": "renovation_eur",
+      "strategy": "temporary_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Tipo interes",
+      "entity": "scenario",
+      "target": "interest_rate",
+      "classification": "financial"
+    },
+    {
+      "source": "Años prestamo",
+      "entity": "scenario",
+      "target": "loan_term_years",
+      "classification": "financial"
+    },
+    {
+      "source": "Downside Tradicional",
+      "entity": "scenario",
+      "target": "monthly_rent_downside_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Base Tradicional",
+      "entity": "scenario",
+      "target": "monthly_rent_base_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Upside Tradicional",
+      "entity": "scenario",
+      "target": "monthly_rent_upside_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Downside Habitacions",
+      "entity": "scenario",
+      "target": "monthly_rent_downside_eur",
+      "strategy": "room_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Base Habitacions",
+      "entity": "scenario",
+      "target": "monthly_rent_base_eur",
+      "strategy": "room_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Upside Habitacions",
+      "entity": "scenario",
+      "target": "monthly_rent_upside_eur",
+      "strategy": "room_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Downside Temporal",
+      "entity": "scenario",
+      "target": "monthly_rent_downside_eur",
+      "strategy": "temporary_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Base Temporal",
+      "entity": "scenario",
+      "target": "monthly_rent_base_eur",
+      "strategy": "temporary_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Upside Temporal",
+      "entity": "scenario",
+      "target": "monthly_rent_upside_eur",
+      "strategy": "temporary_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Habitaciones (en habitacional)",
+      "entity": "property",
+      "target": "room_rental_units",
+      "classification": "operational"
+    },
+    {
+      "source": "HONORARIOS INMOBILIARIA",
+      "entity": "scenario",
+      "target": "agency_fee_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "HONORARIOS MAUMER CAPITAL",
+      "entity": "scenario",
+      "target": "advisory_fee_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "Valor referencia",
+      "entity": "due_diligence",
+      "target": "reference_value_eur",
+      "classification": "restricted"
+    },
+    {
+      "source": "IBI",
+      "entity": "scenario",
+      "target": "monthly_property_tax_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "COMUNIDAD",
+      "entity": "scenario",
+      "target": "monthly_community_fee_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "MANTENIMIENTO TRADICIONAL",
+      "entity": "scenario",
+      "target": "monthly_maintenance_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "INMUEBLE ALQUILADO ÚLTIMOS 5 AÑOS?",
+      "entity": "due_diligence",
+      "target": "rented_last_five_years",
+      "classification": "restricted"
+    },
+    {
+      "source": "SEGURO HOGAR",
+      "entity": "scenario",
+      "target": "monthly_insurance_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "MANTENIMIENTO HABITACIONAL",
+      "entity": "scenario",
+      "target": "monthly_maintenance_eur",
+      "strategy": "room_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "MANTENIMIENTO TEMPORAL",
+      "entity": "scenario",
+      "target": "monthly_maintenance_eur",
+      "strategy": "temporary_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "Responsable",
+      "entity": "import_staging",
+      "target": "source_owner_alias",
+      "classification": "personal_data",
+      "action": "quarantine"
+    },
+    {
+      "source": "Estat",
+      "entity": "property",
+      "target": "acquisition_status",
+      "classification": "operational"
+    },
+    {
+      "source": "Inmo",
+      "entity": "company",
+      "target": "source_organisation_name",
+      "classification": "business_contact",
+      "action": "human_review"
+    },
+    {
+      "source": "Habitantes",
+      "entity": "property",
+      "target": "municipality_population",
+      "classification": "public_fact"
+    },
+    {
+      "source": "M2",
+      "entity": "property",
+      "target": "area_m2",
+      "classification": "property"
+    },
+    {
+      "source": "Ciudad",
+      "entity": "property",
+      "target": "city",
+      "classification": "property"
+    },
+    {
+      "source": "Provincia",
+      "entity": "property",
+      "target": "province",
+      "classification": "property"
+    },
+    {
+      "source": "CCAA",
+      "entity": "property",
+      "target": "autonomous_community",
+      "classification": "property"
+    },
+    {
+      "source": "Transporte",
+      "entity": "property",
+      "target": "transport_score",
+      "classification": "property"
+    },
+    {
+      "source": "Tradicional",
+      "entity": "scenario",
+      "target": "strategy_enabled",
+      "strategy": "traditional_rental",
+      "classification": "operational"
+    },
+    {
+      "source": "Habitacional",
+      "entity": "scenario",
+      "target": "strategy_enabled",
+      "strategy": "room_rental",
+      "classification": "operational"
+    },
+    {
+      "source": "Temporal",
+      "entity": "scenario",
+      "target": "strategy_enabled",
+      "strategy": "temporary_rental",
+      "classification": "operational"
+    },
+    {
+      "source": "Habitaciones",
+      "entity": "property",
+      "target": "bedrooms",
+      "classification": "property"
+    },
+    {
+      "source": "Baños",
+      "entity": "property",
+      "target": "bathrooms",
+      "classification": "property"
+    },
+    {
+      "source": "Planta",
+      "entity": "property",
+      "target": "floor",
+      "classification": "property"
+    },
+    {
+      "source": "Ascensor",
+      "entity": "property",
+      "target": "has_elevator",
+      "classification": "property"
+    },
+    {
+      "source": "Visitat",
+      "entity": "viewing",
+      "target": "visited",
+      "classification": "operational"
+    },
+    {
+      "source": "Clientes potenciales",
+      "entity": "import_staging",
+      "target": "potential_client_names",
+      "classification": "personal_data",
+      "action": "quarantine"
+    },
+    {
+      "source": "Ref.Catastral",
+      "entity": "due_diligence",
+      "target": "cadastral_reference",
+      "classification": "restricted",
+      "action": "private_drive_only"
+    },
+    {
+      "source": "Link",
+      "entity": "property",
+      "target": "listing_url",
+      "classification": "restricted",
+      "action": "private_drive_only"
+    },
+    {
+      "source": "ÍNDICE ALQUILER",
+      "entity": "due_diligence",
+      "target": "rent_index_eur",
+      "classification": "public_fact"
+    },
+    {
+      "source": "PRECIO MERCADO ALQUILER TRADICIONAL",
+      "entity": "scenario",
+      "target": "market_rent_eur",
+      "strategy": "traditional_rental",
+      "classification": "financial"
+    },
+    {
+      "source": "PVP",
+      "entity": "property",
+      "target": "asking_price_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "Precio PPT",
+      "entity": "scenario",
+      "target": "underwritten_purchase_price_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "LLOGUER BASE",
+      "entity": "scenario",
+      "target": "selected_base_rent_eur",
+      "classification": "financial"
+    },
+    {
+      "source": "% REND. BRUTA",
+      "entity": "scenario",
+      "target": "source_gross_yield",
+      "classification": "financial"
+    },
+    {
+      "source": "Renta",
+      "entity": "due_diligence",
+      "target": "rent_control_status",
+      "classification": "restricted"
+    },
+    {
+      "source": "CARACTERISTIQUES PIS",
+      "entity": "import_staging",
+      "target": "raw_property_notes",
+      "classification": "restricted_free_text",
+      "action": "quarantine"
+    }
+  ],
+  "baseline_contract": "config/real-estate-crm-vertical.json"
+}

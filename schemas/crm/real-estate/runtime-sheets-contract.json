@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "extension_id": "real-estate-crm-v1",
+  "core_crm_contract": "schemas/crm/sheets-contract.json",
+  "principles": {
+    "commercial_opportunity": "A sale of a service to a client.",
+    "property_opportunity": "A property or building being evaluated, matched, viewed, offered or acquired.",
+    "zero_client_state_valid": true,
+    "row_level_source_import_requires_rights_review": true,
+    "no_raw_source_rows_in_repository": true
+  },
+  "sheets": {
+    "Properties": ["Property ID","External Code","Source Organisation ID","Source Record Digest","Address Alias","City","Province","Autonomous Community","Property Type","Area m²","Bedrooms","Bathrooms","Floor","Elevator","Occupancy Status","Cadastral Ref Token","Listing URL Token","Acquisition Status","Data Confidence %","Internal Owner","Last Verified","Notes"],
+    "Property Scenarios": ["Scenario ID","Property ID","Strategy","Scenario Band","Purchase Price €","Renovation €","Transfer Tax €","Notary & Registry €","Agency Fee €","Advisory Fee €","Other Costs €","Financing Ratio %","Interest Rate %","Loan Term Years","Monthly Rent €","Monthly Property Tax €","Monthly Community €","Monthly Maintenance €","Monthly Insurance €","Monthly Debt Service €","Gross Yield %","Net Yield %","ROE %","Cash-on-Cash %","Monthly Cash Flow €","Vacancy %","Data Confidence %","Model Version","Last Calculated"],
+    "Investor Mandates": ["Mandate ID","Lead ID","Contact ID","Investor Type","Budget Min €","Budget Max €","Cash Available €","Financing Required","Max LTV %","Preferred Regions","Preferred Cities","Strategies","Min Gross Yield %","Min Net Yield %","Min Monthly Cash Flow €","Min Bedrooms","Max Renovation €","Risk Appetite","Timeline","Status","Contact Basis","Internal Owner","Last Reviewed","Notes"],
+    "Property Matches": ["Match ID","Mandate ID","Property ID","Scenario ID","Match Score %","Budget Fit %","Geography Fit %","Strategy Fit %","Return Fit %","Risk Fit %","Data Confidence %","Status","Shared Date","Client Response","Rejection Reason","Human Approved","Internal Owner","Last Updated"],
+    "Viewings & Offers": ["Event ID","Match ID","Property ID","Mandate ID","Event Type","Event Date","Status","Offer Amount €","Counter Amount €","Deposit €","Financing Condition","Due Diligence Condition","Outcome","Next Action","Next Action Date","Internal Owner","Evidence Link"],
+    "Due Diligence": ["Check ID","Property ID","Check Type","Status","Source Type","Result Summary","Severity","Required Before","Reviewer","Verified Date","Expiry Date","Evidence Link","Notes"],
+    "Transactions": ["Transaction ID","Property ID","Mandate ID","Commercial Opportunity ID","Reservation Date","Contract Date","Completion Date","Purchase Price €","Transfer Tax €","Agency Fee €","Advisory Fee €","Financing Amount €","Lender","Status","Invoice Status","Payment Status","Client Folder URL","Internal Owner","Notes"],
+    "Tenancies": ["Tenancy ID","Property ID","Transaction ID","Strategy","Unit or Room","Tenant Contact ID","Start Date","End Date","Monthly Rent €","Deposit €","Occupancy Status","Payment Status","Incident Count","Renewal Review Date","Internal Owner","Notes"],
+    "RE Import Staging": ["Import ID","Source Profile","Source File Digest","Source Sheet","Source Row","External Code","Source Record Digest","Rights Status","PII Detected","Restricted Fields Detected","Import Status","Quarantine Reason","Imported Property ID","Imported Scenario IDs","Reviewed By","Review Date","Notes"],
+    "RE Dashboard": ["Metric","Value","Definition","Last Updated"],
+    "RE Config": ["Category","Value","Canonical Value","Active","Notes"]
+  },
+  "controlled_values": {
+    "property_status": ["discovered","analysis_in_progress","validated","presentation_ready","shared","viewing","offer","reserved","acquired","rejected","archived"],
+    "strategy": ["traditional_rental","room_rental","temporary_rental","rent_to_rent","resale"],
+    "scenario_band": ["downside","base","upside"],
+    "mandate_status": ["draft","qualified","active","paused","fulfilled","closed"],
+    "match_status": ["generated","review_required","approved","shared","interested","rejected","expired"],
+    "event_type": ["call","document_request","viewing","offer","counteroffer","reservation","contract","completion"],
+    "rights_status": ["unverified","owned","licensed","client_authorised","public_source"],
+    "import_status": ["quarantined","review_required","approved","imported","rejected"]
+  }
+}

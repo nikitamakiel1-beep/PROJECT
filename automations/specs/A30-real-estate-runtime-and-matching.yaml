@@ -1,0 +1,54 @@
+id: A30
+name: real-estate-runtime-and-pairwise-mandate-fit
+version: 1
+status: shadow
+purpose: >
+  Add executable underwriting, operational runtime sheets and pairwise mandate-fit
+  assessment to the existing restricted real-estate CRM vertical without importing
+  private source rows or enabling investor solicitation or transaction action.
+inputs:
+  - existing_A23_real_estate_vertical
+  - rights_status
+  - source_profile
+  - source_row
+  - operator_supplied_tax_and_cost_assumptions
+  - optional_single_investor_mandate
+controls:
+  - A23 authority, restricted-data and import-custody rules remain authoritative
+  - source rights must be owned, licensed, client_authorised or public_source
+  - personal names, potential clients, raw URLs, cadastral references and free text are quarantined
+  - pairwise fit assesses one supplied mandate against one property scenario only
+  - fit output cannot select investors for solicitation or create a commercial Opportunity
+  - transfer-tax assumptions must be supplied; no legal tax treatment is inferred
+  - every output remains review_required and human_approved=false
+  - no external communication, property sharing, offer, reservation, payment or CRM mutation
+outputs:
+  - deterministic property and scenario records
+  - transparent acquisition and cash-flow metrics
+  - pairwise mandate-fit assessment
+  - runtime sheet contract
+  - import receipt and merge plan
+evidence:
+  - deterministic source_record_digest
+  - deterministic property, scenario and fit identifiers
+  - field-level quarantine list
+  - rights-state receipt
+  - fit evidence digest
+stop_conditions:
+  - unverified rights
+  - missing property code or city
+  - malformed or non-finite financial value
+  - personal data in evidence-safe output
+  - automatic commercial Opportunity creation
+  - investor selection for solicitation
+  - external contact or transaction action
+human_approval:
+  required: true
+  applies_to:
+    - row-level import
+    - source organisation creation
+    - mandate activation
+    - fit approval
+    - property sharing
+    - commercial engagement creation
+    - offer, reservation and completion
