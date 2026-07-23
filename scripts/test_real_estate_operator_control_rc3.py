@@ -258,7 +258,8 @@ class RC3OperatorControlTests(unittest.TestCase):
             self.assertEqual(staging["property_media_count"], 1)
             self.assertIn(str(property_b), staging["property_duplicate_sources_removed"])
             self.assertIn(str(stale), staging["stale_managed_files_removed"])
-            self.assertFalse(stale.exists())
+            self.assertTrue(stale.exists())
+            self.assertEqual(stale.read_bytes(), b"same")
             self.assertTrue(staging["minimum_zone_media_satisfied"])
 
 
