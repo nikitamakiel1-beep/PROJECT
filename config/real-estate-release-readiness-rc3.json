@@ -4,6 +4,7 @@
   "status_values": {
     "passed": 1.0,
     "proven_manual": 0.85,
+    "ready_for_review": 0.75,
     "implemented_unvalidated": 0.65,
     "partial": 0.35,
     "not_started": 0.0,
