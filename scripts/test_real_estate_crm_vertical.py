@@ -148,7 +148,7 @@ def main() -> None:
     assert first["evidence_digest"] == second["evidence_digest"]
     cases.append("deterministic_receipt")
 
-    assert len(cases) == 22
+    assert len(cases) == 23
     print(f"real-estate CRM vertical validation passed ({len(cases)} cases)")
 
 
