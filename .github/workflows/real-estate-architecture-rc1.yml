@@ -1,0 +1,46 @@
+name: Real-estate architecture RC1 validation
+
+on:
+  pull_request:
+    paths:
+      - 'intelligence/real_estate/**'
+      - 'schemas/crm/real-estate/**'
+      - 'config/real-estate-*.json'
+      - 'automations/specs/A28-real-estate-source-acquisition-and-report-release.yaml'
+      - 'scripts/*real_estate_architecture_release.py'
+      - 'scripts/real_estate_release_cli.py'
+      - 'docs/architecture/REAL_ESTATE_ARCHITECTURE_RELEASE_RC1.md'
+      - 'docs/handover/REAL_ESTATE_ARCHITECTURE_RC1_HANDOVER.md'
+      - 'evidence/readiness/2026-07-23-real-estate-architecture-rc1.json'
+      - 'MANIFEST.real-estate-architecture-rc1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate repository manifests and compilation
+        run: python scripts/validate_repository.py
+      - name: Validate A30 underwriting and matching
+        run: python scripts/test_real_estate_runtime.py
+      - name: Validate Stage 007r CRM synergy contracts
+        run: python scripts/test_real_estate_synergy_system.py
+      - name: Validate Stage 008r event orchestrator
+        run: python scripts/test_real_estate_synergy_orchestrator.py
+      - name: Validate Stage 009r synthetic batch adapter
+        run: python scripts/test_real_estate_synthetic_batch.py
+      - name: Validate Stage 010r reconciliation and rollback
+        run: python scripts/test_real_estate_reconciliation.py
+      - name: Validate acquisition and report release candidate
+        run: python scripts/test_real_estate_architecture_release.py
+      - name: Audit fail-closed release boundary
+        run: python scripts/audit_real_estate_architecture_release.py
+      - name: Compile release Python modules
+        run: python -m compileall -q intelligence scripts
