@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "release": "real-estate-architecture-rc1",
+  "renderer": {
+    "id": "autopptx_recovered_local",
+    "status": "configuration_required",
+    "execution_mode": "local_restricted_workspace",
+    "programme_entrypoint_env": "AUTOPPTX_ENTRYPOINT",
+    "programme_workdir_env": "AUTOPPTX_WORKDIR",
+    "template_path_env": "AUTOPPTX_TEMPLATE_PATH",
+    "workbook_path_env": "AUTOPPTX_WORKBOOK_PATH",
+    "output_dir_env": "AUTOPPTX_OUTPUT_DIR",
+    "pdf_converter": {
+      "mode_env": "AUTOPPTX_PDF_CONVERTER",
+      "allowed_modes": ["powerpoint_com", "libreoffice_headless", "none"],
+      "powerpoint_requirement": "Windows with Microsoft PowerPoint and pywin32",
+      "libreoffice_requirement": "Local LibreOffice executable configured explicitly"
+    },
+    "shell_execution": false,
+    "network_access": false,
+    "real_drive_access": false,
+    "credentials_in_repository": false
+  },
+  "required_inputs": [
+    "property_id",
+    "approved_underwriting_case_id",
+    "approved_scenario_ids",
+    "calculation_version",
+    "input_snapshot_digest",
+    "template_version",
+    "source_evidence_ids",
+    "visit_evidence_ids",
+    "licensed_or_owned_media_tokens",
+    "zone_media_tokens",
+    "cadastral_evidence_token",
+    "report_approval_record"
+  ],
+  "required_outputs": [
+    "pptx_path",
+    "pptx_sha256",
+    "pdf_path_or_null",
+    "pdf_sha256_or_null",
+    "generation_log_path",
+    "generation_receipt_path"
+  ],
+  "approval_roles": [
+    "financial_reviewer",
+    "evidence_reviewer",
+    "legal_reviewer",
+    "commercial_reviewer"
+  ],
+  "release_controls": {
+    "all_report_reviewers_distinct": true,
+    "source_media_rights_required": true,
+    "unverified_evidence_blocks_generation": true,
+    "unapproved_underwriting_blocks_generation": true,
+    "generated_report_shareable_by_default": false,
+    "pdf_required_for_external_share": true,
+    "PPTX_required_for_archive": true,
+    "report_outputs_must_be_hashed": true,
+    "report_inputs_must_be_digest_bound": true
+  },
+  "known_repairs_required_before_live_execution": [
+    "Use #Pre-analisis!B3 as the selected-project control unless the workbook version changes.",
+    "Initialise copied_images before photo processing.",
+    "Use natural numeric ordering for media filenames.",
+    "Preserve intended slide order for dynamically generated media slides.",
+    "Rotate and remove all recovered API and OAuth credentials.",
+    "Use a validated monthly PMT/IPMT convention.",
+    "Make transfer-tax rate an explicit reviewed input.",
+    "Fail closed when rent-zone extraction is unavailable instead of defaulting silently."
+  ]
+}
