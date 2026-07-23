@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Shadow Candidate Evidence Pack",
+  "type": "object",
+  "required": ["evidence", "gate", "pack_digest", "signature_mode", "signature"],
+  "properties": {
+    "evidence": {
+      "type": "object",
+      "required": ["candidate_id", "task", "framework", "dataset_id", "dataset_digest", "metrics", "baseline_metrics", "segment_metrics", "quantization_metrics", "safety_results", "limitations", "rollback_artifact", "status"],
+      "properties": {
+        "task": {"enum": ["language_model", "embedding", "vision"]},
+        "dataset_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "status": {"const": "shadow_candidate"},
+        "metrics": {"type": "object"},
+        "baseline_metrics": {"type": "object"},
+        "segment_metrics": {"type": "object", "minProperties": 1},
+        "quantization_metrics": {"type": "object"},
+        "safety_results": {"type": "object"},
+        "limitations": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+        "rollback_artifact": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": true
+    },
+    "gate": {
+      "type": "object",
+      "required": ["eligible_for_human_review", "promotion_permitted", "human_approval_required", "reasons"],
+      "properties": {
+        "eligible_for_human_review": {"type": "boolean"},
+        "promotion_permitted": {"const": false},
+        "human_approval_required": {"const": true},
+        "reasons": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "pack_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "signature_mode": {"enum": ["unsigned_synthetic", "hmac_sha256"]},
+    "signature": {"type": "string"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-07-22",
+  "jurisdiction": [
+    "Spain",
+    "Catalonia"
+  ],
+  "sequence_control_count": 8,
+  "service_boundary_count": 7,
+  "official_filings_verified": 0,
+  "operator_pack_ready": true,
+  "staging_build_permitted": true,
+  "live_publication_permitted": false,
+  "live_intake_permitted": false,
+  "paid_contracting_permitted": false,
+  "invoice_issue_permitted": false,
+  "client_personal_data_permitted": false,
+  "professional_approval_inferred": false,
+  "human_review_required": true,
+  "blockers": [],
+  "warnings": [
+    "No official business registration, tax, Social Security, municipal, privacy or invoicing approval is represented as completed.",
+    "No sector-specific professional licence was identified for the bounded service scope; this remains a non-final classification while professional review is frozen.",
+    "The staged website is a technical inspection artifact and is not permission to trade."
+  ],
+  "evidence_digest": "3538318eaba5519f097147b67c3789b5622eeb9a0b0dab2b73b705807d2ba691"
+}

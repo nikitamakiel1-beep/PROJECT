@@ -1,0 +1,40 @@
+.neural-layout { display: grid; grid-template-columns: .75fr 1.25fr; gap: 42px; align-items: start; }
+.neural-intro { position: sticky; top: calc(var(--header-height) + 28px); }
+.neural-safety { margin-top: 24px; }
+.neural-form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.neural-form > label:first-of-type, .neural-form > button, .neural-form > .form-status { grid-column: 1 / -1; }
+.range-field > span { display: flex; justify-content: space-between; gap: 12px; }
+.range-field output { color: var(--accent-strong); font-variant-numeric: tabular-nums; }
+input[type="range"] { padding: 0; accent-color: var(--accent); }
+.neural-results { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin-top: 30px; }
+.neural-result, .neural-execution-plan { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); }
+.neural-result { padding: 24px; display: flex; flex-direction: column; min-height: 410px; }
+.neural-result-primary { border-color: var(--accent); box-shadow: 0 20px 55px color-mix(in srgb, var(--accent) 20%, transparent); }
+.neural-result h3 { margin-bottom: 8px; }
+.neural-result ul { padding-left: 1.2rem; }
+.neural-result .neural-choose { margin-top: auto; }
+.neural-score { display: flex; align-items: baseline; gap: 8px; margin: 14px 0 4px; }
+.neural-score strong { font-size: 2.4rem; line-height: 1; }
+.neural-score span, .neural-confidence, .neural-meta { color: var(--muted); }
+.neural-execution-plan { grid-column: 1 / -1; padding: 28px; box-shadow: none; }
+.neural-plan-heading { display: grid; grid-template-columns: .75fr 1.25fr; gap: 24px; align-items: end; }
+.neural-plan-heading h3 { font-size: clamp(1.7rem, 4vw, 2.8rem); margin: 0; }
+.neural-plan-heading p { margin: 0; color: var(--muted); }
+.neural-model-state { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+.neural-model-state span { border: 1px solid var(--line); border-radius: 999px; padding: 7px 11px; color: var(--muted); background: var(--surface-2); font-size: .84rem; }
+.neural-step-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.neural-step-list li { display: grid; grid-template-columns: 100px 1fr; gap: 16px; align-items: start; padding: 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--bg); }
+.neural-step-list strong, .neural-step-list small { display: block; }
+.neural-step-list small { color: var(--muted); margin-top: 3px; }
+@media (max-width: 980px) {
+  .neural-layout { grid-template-columns: 1fr; }
+  .neural-intro { position: static; }
+  .neural-results { grid-template-columns: 1fr; }
+  .neural-result { min-height: 0; }
+  .neural-plan-heading { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .neural-form { grid-template-columns: 1fr; }
+  .neural-form > * { grid-column: 1 !important; }
+  .neural-step-list li { grid-template-columns: 1fr; }
+}

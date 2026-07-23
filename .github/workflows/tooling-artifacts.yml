@@ -1,0 +1,107 @@
+name: Tooling artifacts
+
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-safe-artifacts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check public repository safety
+        run: python scripts/check_public_safety.py
+
+      - name: Validate repository
+        run: python scripts/validate_repository.py
+
+      - name: Validate website
+        run: python scripts/test_web.py
+
+      - name: Validate market-entry and staging controls
+        run: python scripts/test_market_entry_licensing.py
+
+      - name: Validate market-entry operator pack
+        run: python scripts/test_market_entry_operator_pack.py
+
+      - name: Validate company-formation readiness
+        run: python scripts/test_company_formation_readiness.py
+
+      - name: Validate corporate identity dossier
+        run: python scripts/test_corporate_identity_dossier.py
+
+      - name: Validate real-estate CRM vertical
+        run: python scripts/test_real_estate_crm_vertical.py
+
+      - name: Validate synthetic intake contract
+        run: python scripts/test_intake_contract.py
+
+      - name: Validate recursive handoff
+        run: python scripts/orchestrator.py validate
+
+      - name: Build demonstration website preview
+        run: python scripts/build_preview.py
+
+      - name: Build synthetic noindex staging website
+        run: >-
+          python scripts/build_web_release.py --profile staging
+          --endpoint https://synthetic-provider.invalid/exec
+          --output dist/web-staging
+
+      - name: Generate market-entry audit receipt
+        run: python scripts/audit_market_entry_licensing.py --output dist/market-entry-audit.json
+
+      - name: Generate market-entry operator receipt
+        run: python scripts/audit_market_entry_operator_pack.py --output dist/market-entry-operator-receipt.json
+
+      - name: Generate company-formation readiness receipt
+        run: python scripts/audit_company_formation_readiness.py --output dist/company-formation-readiness-receipt.json
+
+      - name: Generate corporate identity dossier receipt
+        run: python scripts/audit_corporate_identity_dossier.py --output dist/corporate-identity-dossier-receipt.json
+
+      - name: Generate real-estate CRM vertical receipt
+        run: python scripts/audit_real_estate_crm_vertical.py --output dist/real-estate-crm-vertical-receipt.json
+
+      - name: Build Apps Script provider bundle
+        run: python scripts/package_apps_script.py
+
+      - name: Upload website preview
+        uses: actions/upload-artifact@v4
+        with:
+          name: international-growth-venture-web-preview
+          path: dist/web-preview
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload staged website and market-entry controls
+        uses: actions/upload-artifact@v4
+        with:
+          name: international-growth-venture-web-staging
+          path: |
+            dist/web-staging
+            dist/market-entry-audit.json
+            dist/market-entry-operator-receipt.json
+            dist/company-formation-readiness-receipt.json
+            dist/corporate-identity-dossier-receipt.json
+            dist/real-estate-crm-vertical-receipt.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload Apps Script provider bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: stage-003-apps-script-provider-bundle
+          path: dist/stage-003-apps-script.zip
+          if-no-files-found: error
+          retention-days: 14

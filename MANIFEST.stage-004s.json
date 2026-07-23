@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 004s company-formation readiness and incorporation custody",
+  "files": [
+    "MANIFEST.stage-004s.json",
+    "automations/specs/A21-company-formation-readiness.yaml",
+    "config/company-formation-readiness.json",
+    "docs/compliance/COMPANY_FORMATION_READINESS.md",
+    "evidence/readiness/2026-07-22-company-formation-readiness.json",
+    "scripts/audit_company_formation_readiness.py",
+    "scripts/test_company_formation_readiness.py"
+  ]
+}

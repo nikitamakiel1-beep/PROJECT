@@ -1,0 +1,35 @@
+id: A01
+name: Synthetic website intake to CRM
+stage: 002
+trigger: HTTP POST
+public_activation: disabled
+idempotency_key: submission_id
+correlation_key: deterministic hash of submission_id
+matching:
+  contact: normalised email; existing contact company takes precedence
+  company: normalised website host, else normalised company name
+  lead: deterministic ID from submission_id
+  activity: deterministic ID from submission_id
+steps:
+  - require SYNTHETIC_ONLY=true
+  - parse JSON without retaining raw request content in logs
+  - acquire script lock
+  - validate consent version and active service code
+  - validate exact CRM sheet headers
+  - read company, contact, lead, activity and automation-log snapshot
+  - calculate all writes before mutation
+  - acknowledge successful prior submission as duplicate
+  - create only missing company and contact records
+  - create deterministic lead and activity records
+  - append accepted automation-log record
+  - roll back appended operational rows on any write failure
+  - append minimal rejected or failed log record
+failure:
+  - return stable error code without contact data
+  - no partial operational writes after rollback
+  - no automatic external message
+preservation:
+  - never overwrite existing company or contact fields from website intake
+human_gate:
+  - disposable spreadsheet and Apps Script deployment required for provider-level test
+  - no endpoint enters website configuration before review

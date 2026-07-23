@@ -1,0 +1,19 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 003o operating launch system",
+  "files": [
+    "MANIFEST.stage-003o.json",
+    "automations/specs/A16-operating-launch-system.yaml",
+    "docs/architecture/OPERATING_LAUNCH_SYSTEM.md",
+    "intelligence/venture_brain/management_digest.py",
+    "scripts/generate_weekly_digest.py",
+    "scripts/test_operating_launch_system.py",
+    "templates/commercial/client-input-request.md",
+    "templates/commercial/feedback-request.md",
+    "templates/commercial/handover-message.md",
+    "templates/commercial/qualification-checklist.md",
+    "templates/commercial/time-margin-record.md",
+    "templates/research/customer-discovery-interview.md",
+    "templates/research/interview-evidence-register.md"
+  ]
+}

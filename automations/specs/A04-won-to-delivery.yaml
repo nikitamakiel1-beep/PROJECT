@@ -1,0 +1,14 @@
+id: A04
+name: Won opportunity to delivery workspace
+trigger: opportunity stage changes to Won
+preconditions:
+  - commercial terms approved
+  - payment condition satisfied
+steps:
+  - duplicate Drive client template
+  - rename with client ID and company
+  - create Linear delivery issue
+  - write URLs to opportunity record
+  - append automation log
+human_gate:
+  - confirm no restricted data is copied unnecessarily

@@ -1,0 +1,316 @@
+{
+  "schema_version": 1,
+  "programme": "International Growth Venture — real-estate CRM vertical",
+  "stage": "006r",
+  "as_of": "2026-07-23",
+  "jurisdiction_context": ["Spain", "Catalonia"],
+  "integration_decision": {
+    "mode": "additive_vertical_extension",
+    "generic_CRM_preserved": true,
+    "generic_intake_modified": false,
+    "generic_sheets_contract_modified": false,
+    "real_estate_module_status": "schema_ready_no_real_data_imported",
+    "legal_business_merge_performed": false,
+    "meaning": "Merge the information architecture and operating workflow, not the legal entities, licences, client mandates or ownership of source data."
+  },
+  "source_profiles": [
+    {
+      "alias": "MAUMER_OPPORTUNITIES",
+      "restricted_pointer": "restricted://real-estate-source/maumer-opportunities-v1",
+      "source_type": "multi_sheet_workbook",
+      "profile_status": "structure_profiled_records_not_copied",
+      "observed_domains": [
+        "property opportunity sourcing",
+        "purchase and investment amounts",
+        "valuation and offer outcomes",
+        "project cost and duration",
+        "rental income and operating expenses",
+        "financing scenarios",
+        "investor allocations",
+        "agency and provider relationships",
+        "project-management and agency fees",
+        "due-diligence and presentation evidence",
+        "gross return net return profit and IRR calculations"
+      ],
+      "source_records_in_GitHub": false,
+      "source_records_imported": 0
+    },
+    {
+      "alias": "AGENCY_DIRECTORY",
+      "restricted_pointer": "restricted://real-estate-source/agency-directory-v1",
+      "source_type": "agency_contact_and_province_rollup_workbook",
+      "profile_status": "structure_profiled_records_not_copied",
+      "observed_domains": [
+        "province and town",
+        "agency offices and agents",
+        "named contacts roles emails phones and websites",
+        "social channels",
+        "contacted newsletter visited and survey states",
+        "registration and survey dates",
+        "province-level aggregate formulas"
+      ],
+      "source_records_in_GitHub": false,
+      "source_records_imported": 0
+    }
+  ],
+  "generic_CRM_bridge": {
+    "source_contract": "schemas/crm/sheets-contract.json",
+    "source_schema_version": 3,
+    "preserved_tables": ["Companies", "Contacts", "Leads", "Opportunities", "Activities", "Services", "Automation Log"],
+    "preserved_intake": "automations/google-apps-script/IntakeCore.gs",
+    "bridge_keys": {
+      "counterparty_to_company": "Company ID",
+      "counterparty_or_investor_to_contact": "Contact ID",
+      "real_estate_deal_to_generic_opportunity": "Opportunity ID",
+      "activity_to_real_estate_deal": "Opportunity ID plus Deal ID in restricted source pointer"
+    },
+    "rules": [
+      "The website intake never creates property, deal, investor, financing or underwriting records.",
+      "Existing generic company and contact deduplication retains precedence.",
+      "The vertical never overwrites manually curated generic CRM fields.",
+      "A real-estate deal must reference an existing or separately human-created generic opportunity.",
+      "Removal of the vertical must not alter the generic CRM."
+    ]
+  },
+  "entity_model": [
+    {"entity": "property", "schema": "schemas/crm/real-estate/property.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "deal", "schema": "schemas/crm/real-estate/opportunity.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "counterparty", "schema": "schemas/crm/real-estate/counterparty.schema.json", "system_of_record": "generic_CRM_plus_restricted_role_extension"},
+    {"entity": "investor_relationship", "schema": "schemas/crm/real-estate/investor.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "financing_scenario", "schema": "schemas/crm/real-estate/financing.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "underwriting_scenario", "schema": "schemas/crm/real-estate/underwriting.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "due_diligence_item", "schema": "schemas/crm/real-estate/due-diligence.schema.json", "system_of_record": "restricted_real_estate_CRM"},
+    {"entity": "fee_record", "schema": "schemas/crm/real-estate/fee.schema.json", "system_of_record": "restricted_real_estate_CRM"}
+  ],
+  "extension_sheets": [
+    "Properties",
+    "Real Estate Deals",
+    "Counterparties",
+    "Investors",
+    "Financing",
+    "Underwriting",
+    "Due Diligence",
+    "Fees",
+    "Source Evidence",
+    "Import Quarantine"
+  ],
+  "pipelines": {
+    "property_sourcing": [
+      "identified",
+      "qualified",
+      "contact_permission_needed",
+      "information_requested",
+      "information_received",
+      "underwriting",
+      "human_review",
+      "inactive"
+    ],
+    "agency_relationship": [
+      "sourced",
+      "unverified",
+      "registration_check_pending",
+      "contact_permission_needed",
+      "contacted_by_human",
+      "terms_pending",
+      "active_client_owned_relationship",
+      "inactive",
+      "blocked"
+    ],
+    "investor_relationship": [
+      "prospect",
+      "permission_pending",
+      "known_contact",
+      "mandate_pending",
+      "mandate_recorded",
+      "opportunity_presented_by_human",
+      "commitment_pending",
+      "funded",
+      "monitoring",
+      "exited",
+      "inactive"
+    ],
+    "deal_execution": [
+      "identified",
+      "qualified",
+      "information_requested",
+      "underwriting",
+      "human_review",
+      "offer_planned",
+      "offer_submitted_by_client",
+      "accepted",
+      "rejected",
+      "due_diligence",
+      "financing",
+      "closing_by_client",
+      "project_execution",
+      "operating",
+      "exited",
+      "on_hold",
+      "cancelled"
+    ]
+  },
+  "workbook_mapping": {
+    "contract": "schemas/crm/real-estate/import-contract.json",
+    "mapping_status": "column_level_only_no_rows",
+    "opportunity_examples": [
+      {"source": "Oportunidad", "target": "Real Estate Deals.Source Record Ref", "classification": "restricted_reference"},
+      {"source": "Fecha", "target": "Real Estate Deals.Created Date", "classification": "business_data"},
+      {"source": "Resultado Oferta", "target": "Real Estate Deals.Stage", "classification": "controlled_mapping_human_review"},
+      {"source": "Cliente", "target": "Counterparties/Investors restricted identity pointer", "classification": "personal_or_client_data_restricted"},
+      {"source": "Inversor", "target": "Investors restricted identity pointer", "classification": "personal_and_financial_data_restricted"},
+      {"source": "Precio de compra", "target": "Underwriting.Purchase Price €", "classification": "financial_input"},
+      {"source": "Inversión Total", "target": "Underwriting.Total Investment €", "classification": "financial_input"},
+      {"source": "Valor de tasación", "target": "Properties.Valuation € plus valuation status", "classification": "source_claim_requires_provenance"},
+      {"source": "Rentabilidad Bruta", "target": "Underwriting.Gross Return %", "classification": "calculated_metric_formula_version_required"},
+      {"source": "Rentabilidad Neta", "target": "Underwriting.Net Return %", "classification": "calculated_metric_formula_version_required"},
+      {"source": "TIR", "target": "Underwriting.IRR %", "classification": "calculated_metric_formula_version_required"}
+    ],
+    "agency_examples": [
+      {"source": "Agency", "target": "Companies.Company Name plus Counterparty role agency", "classification": "restricted_import_human_match"},
+      {"source": "Contact", "target": "Contacts.Full Name", "classification": "personal_data_restricted"},
+      {"source": "Contact Email", "target": "Contacts.Email", "classification": "personal_data_restricted"},
+      {"source": "Agency Email", "target": "Contacts or Companies communication field", "classification": "personal_or_business_contact_restricted"},
+      {"source": "Phone/Mobile", "target": "Contacts.Phone", "classification": "personal_data_restricted"},
+      {"source": "Web", "target": "Companies.Website", "classification": "deduplication_candidate"},
+      {"source": "Contacted/Newsletter/Visited/Sent Survey/Filled Survey", "target": "Activities and relationship pipeline", "classification": "historical_state_requires_basis_and_date_review"},
+      {"source": "Province/Town", "target": "Companies.Region and sourcing geography", "classification": "business_geography"}
+    ]
+  },
+  "formula_and_metric_controls": {
+    "source_formulas_are_authoritative": false,
+    "cached_source_values_may_be_profiled": true,
+    "formula_version_required": true,
+    "input_provenance_required": true,
+    "human_review_required": true,
+    "permitted_outputs": [
+      "scenario totals",
+      "cashflow scenario",
+      "gross return",
+      "net return",
+      "IRR",
+      "project duration",
+      "rental operating scenario",
+      "financing scenario"
+    ],
+    "prohibited_representations": [
+      "certified property valuation",
+      "guaranteed return",
+      "investment recommendation",
+      "mortgage advice",
+      "legal or tax conclusion",
+      "due-diligence clearance by the platform"
+    ]
+  },
+  "deduplication_and_quarantine": {
+    "agency_match_priority": ["existing Company ID", "website domain hash", "business email hash", "phone hash", "normalized name plus municipality"],
+    "contact_match_priority": ["existing Contact ID", "email hash", "phone hash plus company", "human decision"],
+    "property_match_priority": ["source system plus source record reference", "restricted cadastral hash", "location hash plus property characteristics", "human decision"],
+    "deal_match_priority": ["source system plus source record reference", "property ID plus strategy plus period", "human decision"],
+    "weak_single_key_overwrite_permitted": false,
+    "ambiguous_match_action": "quarantine",
+    "missing_authority_action": "quarantine",
+    "formula_without_cached_value_action": "quarantine",
+    "manual_curated_record_overwrite_permitted": false
+  },
+  "data_custody": {
+    "raw_workbook_storage": "restricted_Drive_only",
+    "GitHub_permitted": [
+      "schemas",
+      "source column names",
+      "mapping rules",
+      "hashing and deduplication rules",
+      "synthetic fixtures",
+      "restricted pointers",
+      "public-safe audit receipts"
+    ],
+    "GitHub_forbidden": [
+      "real names",
+      "emails",
+      "phone numbers",
+      "full property addresses",
+      "cadastral references",
+      "investor identities",
+      "investment amounts linked to persons",
+      "bank or mortgage documents",
+      "agency contracts",
+      "offers and reservation documents",
+      "tax IDs",
+      "signatures",
+      "due-diligence documents",
+      "investment presentations containing identifiable transactions"
+    ],
+    "client_data_controller": "real_estate_business_or_other_confirmed_client_controller",
+    "Creixement_role": "processor_or_implementation_provider_only_after_Article_28_and_professional_review"
+  },
+  "authority_boundaries": {
+    "Creixement_permitted_scope": [
+      "CRM schema and workflow implementation",
+      "data normalization and controlled migration design",
+      "dashboard and analytical scenario implementation",
+      "human-reviewed document and presentation preparation",
+      "restricted evidence linking",
+      "automation design that stops before external action"
+    ],
+    "Creixement_prohibited_scope": [
+      "habitual paid property mediation",
+      "transaction negotiation",
+      "property or legal advice",
+      "certified valuation",
+      "investment or financial advice",
+      "investor solicitation or suitability decision",
+      "mortgage brokerage",
+      "offer submission",
+      "reservation or closing action",
+      "client fund custody"
+    ],
+    "real_estate_action_owner": "authorized_client_business_registered_agent_or_named_professional",
+    "agent_registration_status": "not_verified_for_any_source_record",
+    "Catalonia_boundary": "Persons or entities habitually and for remuneration providing mediation, advice or management in real-estate transactions must be handled within the applicable registered-agent regime; this module does not confer that status."
+  },
+  "AI_controls": {
+    "mode": "shadow_only",
+    "permitted": [
+      "duplicate suggestions",
+      "column mapping suggestions",
+      "missing-field detection",
+      "scenario explanation drafts",
+      "human-review prioritization",
+      "redacted presentation draft preparation"
+    ],
+    "prohibited": [
+      "autonomous contact",
+      "investor selection or ranking for solicitation",
+      "transaction recommendation",
+      "property valuation approval",
+      "offer price approval",
+      "financing approval",
+      "due-diligence clearance",
+      "contract generation for execution",
+      "external submission"
+    ],
+    "named_human_required": true,
+    "rollback_required": true
+  },
+  "current_decision": {
+    "vertical_schema_ready": true,
+    "generic_CRM_preserved": true,
+    "source_workbooks_profiled": true,
+    "source_rows_imported": 0,
+    "personal_data_imported": false,
+    "real_property_data_imported": false,
+    "real_investor_data_imported": false,
+    "dry_run_import_permitted": false,
+    "real_import_permitted": false,
+    "autonomous_outreach_permitted": false,
+    "autonomous_investor_matching_permitted": false,
+    "property_valuation_approval_permitted": false,
+    "offer_or_financing_action_permitted": false,
+    "transaction_mediation_permitted": false,
+    "live_publication_permitted": false,
+    "client_personal_data_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  }
+}

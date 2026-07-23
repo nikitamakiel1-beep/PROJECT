@@ -1,0 +1,16 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 003q pre-client readiness and website construction",
+  "files": [
+    "MANIFEST.stage-003q.json",
+    "automations/specs/A18-pre-client-readiness.yaml",
+    "config/pre-client-readiness.json",
+    "config/web-route-content.json",
+    "docs/architecture/PRE_CLIENT_READINESS.md",
+    "evidence/readiness/2026-07-22-pre-client-source-ready.json",
+    "intelligence/venture_brain/pre_client_readiness.py",
+    "scripts/audit_pre_client_readiness.py",
+    "scripts/build_web_release.py",
+    "scripts/test_pre_client_readiness.py"
+  ]
+}

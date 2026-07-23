@@ -1,0 +1,24 @@
+name: Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: show or validate the current stage
+        required: true
+        default: show
+        type: choice
+        options: [show, validate]
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/orchestrator.py "${{ inputs.action }}"

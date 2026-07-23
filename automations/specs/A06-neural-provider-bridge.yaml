@@ -1,0 +1,103 @@
+id: A06
+name: PII-free CRM to neural shadow bridge
+status: synthetic_shadow
+trigger:
+  - controlled Apps Script execution
+  - manual or CI neural inference
+reads:
+  - Leads
+  - Companies
+  - Contacts
+  - Services
+  - Activities
+  - Opportunities
+writes:
+  - Neural Shadow Queue
+  - Automation Log
+  - optional bounded internal Opportunity
+  - optional Lead Opportunity ID link
+trust_zones:
+  crm:
+    contains_raw_identifiers: true
+    export_raw_identifiers: false
+  inference:
+    accepts_pseudonymous_packages_only: true
+    rejects:
+      - personal-data field names
+      - email markers
+      - URLs
+      - digest mismatch
+  decision_custody:
+    imports_shadow_decisions_only: true
+    external_communication: false
+pseudonymisation:
+  method: HMAC-SHA-256
+  salt_location: Apps Script Properties
+  salt_in_source_control: false
+package:
+  version: neural-provider-package-v1
+  dimensions:
+    tabular: 12
+    text_vector: 8
+    activity_sequence: up_to_20_x_6
+    graph_nodes: 4_x_6
+    adjacency: 4_x_4
+  includes:
+    - pseudonymous lead, company and contact references
+    - canonical service code
+    - canonical service price
+    - bounded neural features
+    - transparent priors
+    - SHA-256 feature digest
+  excludes:
+    - names
+    - emails
+    - phones
+    - URLs
+    - raw notes
+    - raw activity text
+inference:
+  command: python scripts/run_neural_shadow.py package.json --output decision.json
+  model: neural-crm-shadow-v0.1
+  architecture:
+    - 1D CNN activity encoder
+    - graph neural relationship encoder
+    - dense neural fusion ensemble
+    - confidence and uncertainty
+    - next-best-action distribution
+decision:
+  version: neural-provider-decision-v1
+  default_policy:
+    mode: shadow
+    mutation_permitted: false
+    external_communication_permitted: false
+    model_promotion_permitted: false
+bounded_internal_write:
+  function: applyBoundedNeuralOpportunities
+  default_enabled: false
+  requires:
+    - SYNTHETIC_ONLY=true
+    - disposable TEST spreadsheet
+    - A03_AUTONOMY_MODE=bounded_auto
+    - A03_BOUNDED_WRITE_ENABLED=true
+    - confidence >= 0.72
+    - uncertainty <= 0.28
+    - no existing Opportunity
+    - no existing Lead Opportunity link
+  rollback:
+    - delete appended Opportunity row
+    - restore previous Lead Opportunity ID
+  prohibited:
+    - external communication
+    - proposal sending
+    - price or discount change
+    - invoice, contract or payment
+    - model promotion
+provider_gate:
+  production_activation: false
+  requires_future_review:
+    - disposable runtime evidence
+    - privacy and data-processing approval
+    - real-data feature boundary approval
+    - production rollback test
+    - explicit activation decision

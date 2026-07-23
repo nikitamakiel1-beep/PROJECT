@@ -1,0 +1,61 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Neural Provider Shadow Decision",
+  "type": "object",
+  "required": [
+    "decision_version",
+    "package_id",
+    "feature_digest",
+    "lead_ref",
+    "company_ref",
+    "contact_ref",
+    "service_code",
+    "model_version",
+    "prediction",
+    "proposed_internal_action",
+    "execution_policy",
+    "decision_digest"
+  ],
+  "properties": {
+    "decision_version": {"const": "neural-provider-decision-v1"},
+    "package_id": {"type": "string", "pattern": "^NPKG-[A-F0-9]{12}$"},
+    "feature_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "lead_ref": {"type": "string"},
+    "company_ref": {"type": "string"},
+    "contact_ref": {"type": "string"},
+    "service_code": {"type": "string"},
+    "model_version": {"const": "neural-crm-shadow-v0.1"},
+    "prediction": {
+      "type": "object",
+      "required": ["conversion_probability", "relationship_strength", "urgency_probability", "churn_risk", "action_probabilities", "confidence", "uncertainty", "ensemble_size", "ranked_actions"]
+    },
+    "proposed_internal_action": {
+      "type": "object",
+      "required": ["type", "opportunity_ref", "stage", "value_eur", "probability_pct", "weighted_value_eur", "next_step"],
+      "properties": {
+        "type": {"const": "create_or_review_opportunity"},
+        "opportunity_ref": {"type": "string", "pattern": "^OPP-[A-F0-9]{12}$"},
+        "stage": {"const": "Qualified"},
+        "value_eur": {"type": "number", "exclusiveMinimum": 0},
+        "probability_pct": {"type": "number", "minimum": 0, "maximum": 100},
+        "weighted_value_eur": {"type": "number", "minimum": 0},
+        "next_step": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "execution_policy": {
+      "type": "object",
+      "required": ["mode", "mutation_permitted", "bounded_auto_eligible", "external_communication_permitted", "model_promotion_permitted"],
+      "properties": {
+        "mode": {"const": "shadow"},
+        "mutation_permitted": {"const": false},
+        "bounded_auto_eligible": {"type": "boolean"},
+        "external_communication_permitted": {"const": false},
+        "model_promotion_permitted": {"const": false}
+      },
+      "additionalProperties": false
+    },
+    "decision_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,29 @@
+name: Handoff validation
+
+on:
+  pull_request:
+    paths:
+      - 'orchestration/**'
+
+permissions:
+  contents: read
+
+jobs:
+  handoff-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/orchestrator.py validate
+      - name: Confirm report and next instruction are present when state advances
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          state=json.loads(Path('orchestration/state.json').read_text())
+          assert Path(state['current_instruction']).exists()
+          assert Path(state['previous_report']).exists()
+          print('handoff files present')
+          PY

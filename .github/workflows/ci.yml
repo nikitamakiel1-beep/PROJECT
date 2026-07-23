@@ -1,0 +1,55 @@
+name: Repository validation
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  repository-validation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python scripts/validate_repository.py
+      - run: python scripts/test_web.py
+      - run: python scripts/test_pre_client_readiness.py
+      - run: python scripts/test_market_entry_licensing.py
+      - run: python scripts/test_market_entry_operator_pack.py
+      - run: python scripts/test_company_formation_readiness.py
+      - run: python scripts/test_corporate_identity_dossier.py
+      - run: python scripts/test_real_estate_crm_vertical.py
+      - run: python scripts/test_real_estate_runtime.py
+      - run: node scripts/test_web_neural_recommender.mjs
+      - run: node scripts/test_deep_card_fabric.mjs
+      - run: node scripts/test_model_evidence_board.mjs
+      - run: python scripts/test_multidimensional_neural_fabric.py
+      - run: python scripts/test_connected_execution_planner.py
+      - run: python scripts/test_colonial_deep_platform.py
+      - run: python scripts/test_governed_candidate_lab.py
+      - run: python scripts/test_candidate_evidence_board.py
+      - run: python scripts/test_heavy_runtime_federation.py
+      - run: python scripts/test_heavy_candidate_rework.py
+      - run: python scripts/test_launch_control_pack.py
+      - run: python scripts/test_operating_launch_system.py
+      - run: python scripts/test_operating_evidence_execution.py
+      - run: python scripts/test_intake_contract.py
+      - run: python scripts/test_follow_up_digest.py
+      - run: python scripts/test_neural_crm.py
+      - run: python scripts/test_neural_memory_planner.py
+      - run: python scripts/test_neural_provider_bridge.py
+      - run: python -m compileall -q intelligence ml_runtime
+      - run: node --check apps/web/assets/app.js
+      - run: node --check apps/web/assets/neural-recommender.mjs
+      - run: node --check apps/web/assets/recommender-ui.mjs
+      - run: node --check apps/web/assets/deep-card-fabric.mjs
+      - run: node --check apps/web/assets/model-evidence-board.mjs
+      - run: python scripts/orchestrator.py validate

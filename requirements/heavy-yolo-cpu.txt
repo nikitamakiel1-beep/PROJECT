@@ -1,0 +1,6 @@
+# Isolated CPU-only Ultralytics candidate runtime.
+# Training uses generated geometric scenes and pretrained weights remain disabled.
+torch==2.13.0
+ultralytics==8.4.102
+numpy==2.5.1
+pillow==12.3.0

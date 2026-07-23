@@ -1,0 +1,13 @@
+{
+  "schema_version": 2,
+  "generated_from": "PROJECT Stage 005s corporate identity and formation handoff dossier",
+  "files": [
+    "MANIFEST.stage-005s.json",
+    "automations/specs/A22-corporate-identity-dossier.yaml",
+    "config/corporate-identity-dossier.json",
+    "docs/compliance/CORPORATE_IDENTITY_DOSSIER.md",
+    "evidence/readiness/2026-07-22-corporate-identity-dossier.json",
+    "scripts/audit_corporate_identity_dossier.py",
+    "scripts/test_corporate_identity_dossier.py"
+  ]
+}

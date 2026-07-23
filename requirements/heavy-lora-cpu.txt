@@ -1,0 +1,6 @@
+# Isolated CPU-only PEFT/LoRA candidate runtime.
+# Models are created from local configuration and random weights; downloads stay disabled.
+torch==2.13.0
+transformers==5.14.1
+peft==0.19.1
+accelerate==1.14.0

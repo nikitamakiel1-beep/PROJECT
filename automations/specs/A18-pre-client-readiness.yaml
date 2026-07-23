@@ -1,0 +1,83 @@
+automation_id: A18
+name: pre-client-readiness-and-web-construction
+status: source_complete_activation_gates_pending
+purpose: >-
+  Complete and verify the website, CRM architecture, service catalogue,
+  onboarding controls and release-construction pipeline required before the
+  first client exists, while keeping live intake and paid work fail-closed.
+
+inputs:
+  - repository_source_tree
+  - canonical_service_catalogue
+  - crm_sheet_contract
+  - optional_header_only_crm_snapshot
+  - optional_provider_legal_and_release_evidence
+
+outputs:
+  - ten_route_bilingual_website
+  - reproducible_preview_staging_and_live_build_profiles
+  - sha256_release_manifest
+  - crm_architecture_readiness_report
+  - pre_client_readiness_receipt
+  - explicit_external_activation_blockers
+
+source_ready_requirements:
+  - ten_required_website_routes_exist
+  - english_and_spanish_route_content_has_parity
+  - light_dark_and_mobile_desktop_controls_remain_available
+  - local_neural_recommender_and_floating_cards_remain_available
+  - canonical_services_and_crm_codes_match
+  - legacy_OSP_is_normalised_to_IOP
+  - header_only_crm_is_a_valid_zero_client_state
+  - duplicate_follow_up_and_neural_provider_sources_are_present
+  - sell_to_close_and_service_delivery_templates_are_present
+  - preview_and_staging_builds_are_reproducible
+  - source_config_has_no_live_endpoint
+
+live_intake_gates:
+  - provider_a01_9_of_9
+  - provider_a02_idempotency
+  - provider_neural_bridge
+  - provider_cleanup_verified
+  - privacy_professional_approval
+  - legal_and_invoicing_professional_approval
+  - website_publication_qa
+  - human_live_release_approval
+
+forbidden_actions:
+  - create_synthetic_clients_to_make_the_crm_look_populated
+  - infer_pipeline_revenue_or_cash_from_source_completion
+  - insert_a_live_endpoint_into_repository_source
+  - make_source_pages_indexable
+  - activate_public_intake_without_all_live_gates
+  - issue_proposal_invoice_or_paid_delivery
+  - send_outreach
+  - advance_the_stage_pointer
+
+validation:
+  command: python scripts/test_pre_client_readiness.py
+  expected_cases: 10
+  fail_closed: true
+
+build_commands:
+  preview: python scripts/build_web_release.py --profile preview --output dist/web-preview
+  staging: >-
+    python scripts/build_web_release.py --profile staging
+    --endpoint https://synthetic-provider.example/exec --output dist/web-staging
+  live: >-
+    python scripts/build_web_release.py --profile live
+    --endpoint https://approved-provider.example/exec
+    --activation-evidence activation-evidence.json --output dist/web-live
+
+human_approvals:
+  - provider_activation_and_cleanup_evidence
+  - privacy_and_legal_professional_review
+  - website_publication_qa
+  - final_live_release
+  - proposal_invoice_and_payment_terms
+
+rollback:
+  source: revert_the_A18_stacked_PR
+  release_artifact: delete_the_unapproved_dist_artifact
+  live_config: rebuild_from_source_in_preview_profile
+  crm: restore_header_contract_and_preserve_all_existing_rows

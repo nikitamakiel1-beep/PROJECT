@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "control_id": "NIK-134",
+  "programme": "International Growth Venture — company-formation readiness",
+  "as_of": "2026-07-22",
+  "source_branch": "venture/stage-004s-company-formation-readiness",
+  "base_branch": "venture/stage-003-provider-runtime",
+  "owner_decision": {
+    "operating_form": "COMPANY",
+    "planned_company_form": "SOCIEDAD_LIMITADA_UNIPERSONAL",
+    "decision_recorded": true,
+    "legal_entity_exists": false
+  },
+  "source_readiness": {
+    "company_readiness_config_present": true,
+    "formation_sequence_controls": 16,
+    "adversarial_test_cases": 16,
+    "public_safe_receipt_supported": true,
+    "restricted_custody_contract_present": true
+  },
+  "official_state": {
+    "corporate_name_certificate": "not_started",
+    "registered_office": "not_confirmed",
+    "municipal_classification": "frozen_address_not_supplied",
+    "corporate_purpose": "bounded_draft_not_approved",
+    "CNAE_IAE": "frozen_professional_confirmation",
+    "capital_contribution": "not_contributed",
+    "formation_deed": "not_executed",
+    "provisional_NIF": "not_requested",
+    "Mercantile_Registry": "not_filed",
+    "definitive_NIF": "not_requested",
+    "Social_Security": "frozen_external_classification",
+    "invoice_system": "frozen_professional_review"
+  },
+  "decisions": {
+    "formation_readiness_build_permitted": true,
+    "incorporation_execution_permitted": false,
+    "official_filings_permitted": false,
+    "live_publication_permitted": false,
+    "live_intake_permitted": false,
+    "client_personal_data_permitted": false,
+    "paid_contracting_permitted": false,
+    "invoice_issue_permitted": false,
+    "payment_collection_permitted": false,
+    "paid_delivery_permitted": false
+  },
+  "sensitive_data_present": false,
+  "professional_approval_inferred": false,
+  "human_review_required": true
+}

@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "jurisdiction": ["Spain", "Catalonia"],
+  "as_of": "2026-07-22",
+  "business_scope": {
+    "services": ["IVA", "CRM", "IOP", "WAB", "ISS"],
+    "activities": [
+      "international visibility audits",
+      "CRM and lead-tracker configuration",
+      "international sales one-pagers",
+      "WhatsApp Business configuration",
+      "bounded AI-assisted internal recommendations and workflow preparation"
+    ],
+    "excluded_regulated_advice": [
+      "legal advice",
+      "tax advice",
+      "regulated financial advice",
+      "medical advice",
+      "employment or credit eligibility decisions",
+      "autonomous external communications"
+    ]
+  },
+  "sector_specific_authorisation": {
+    "classification": "no_specific_professional_licence_identified_for_current_scope",
+    "final_legal_opinion": false,
+    "professional_confirmation_state": "frozen_by_owner",
+    "boundary": "This classification remains valid only while the services stay within commercial, digital, website and CRM implementation scope and do not enter a regulated profession."
+  },
+  "requirements": [
+    {
+      "id": "AEAT_036",
+      "name": "Census registration using Modelo 036",
+      "status": "required_before_trading",
+      "licence_type": "business_registration",
+      "trigger": "Before starting economic activity, performing operations or becoming subject to withholding obligations.",
+      "owner_action": "Choose operating form and submit the correct Modelo 036 registration.",
+      "professional_review": "frozen",
+      "official_source": "Agencia Tributaria — Modelo 036"
+    },
+    {
+      "id": "IAE_CLASSIFICATION",
+      "name": "Economic activity and IAE classification",
+      "status": "required_before_trading",
+      "licence_type": "tax_activity_classification",
+      "trigger": "The activity must be classified even when the operator is exempt from paying IAE.",
+      "owner_action": "Confirm the exact activity heading or headings for digital consultancy, CRM implementation, web services and content production.",
+      "payment_note": "Natural persons are exempt from IAE payment; qualifying entities below EUR 1,000,000 turnover are also generally exempt.",
+      "professional_review": "frozen",
+      "official_source": "Agencia Tributaria — Impuesto sobre Actividades Económicas"
+    },
+    {
+      "id": "RETA",
+      "name": "Social Security self-employed registration",
+      "status": "required_if_operating_as_autonomo",
+      "licence_type": "social_security_registration",
+      "trigger": "Before beginning habitual self-employed activity.",
+      "owner_action": "Complete RETA registration through Importass if the chosen operating form is self-employed activity.",
+      "professional_review": "frozen",
+      "official_source": "Tesorería General de la Seguridad Social — alta de autónomo"
+    },
+    {
+      "id": "MUNICIPAL_ACTIVITY",
+      "name": "Municipal activity, premises or home-office procedure",
+      "status": "conditional_municipal_check_required",
+      "licence_type": "municipal_activity_control",
+      "trigger": "Depends on municipality, premises, public access, signage, works, employees and whether the activity is carried out from a home or office.",
+      "owner_action": "Run the Catalonia FUE guided procedure for the actual municipality and operating address before opening premises or receiving clients there.",
+      "professional_review": "frozen",
+      "official_source": "Generalitat de Catalunya — FUE and Canal Empresa"
+    },
+    {
+      "id": "LSSI_PROVIDER_INFORMATION",
+      "name": "Online service-provider identification and e-commerce disclosures",
+      "status": "required_before_live_publication",
+      "licence_type": "online_service_compliance",
+      "trigger": "A commercial website or electronic contracting flow is made public.",
+      "owner_action": "Publish the operator identity, address, direct contact details, registration information where applicable, prices and contracting information required by the LSSI.",
+      "professional_review": "frozen",
+      "official_source": "BOE — Ley 34/2002, article 10 and electronic contracting provisions"
+    },
+    {
+      "id": "GDPR_CONTROLLER",
+      "name": "Prospect and client data controller controls",
+      "status": "required_before_live_intake",
+      "licence_type": "data_protection_compliance_not_prior_licence",
+      "trigger": "The venture collects names, emails, telephone numbers, professional details or other personal data for its own purposes.",
+      "owner_action": "Complete lawful basis, layered information, RAT, retention, rights, security and breach procedures.",
+      "professional_review": "frozen",
+      "official_source": "AEPD — obligations for controllers"
+    },
+    {
+      "id": "GDPR_PROCESSOR",
+      "name": "Client CRM processor agreement",
+      "status": "required_before_accessing_client_personal_data",
+      "licence_type": "data_processing_contract_not_prior_licence",
+      "trigger": "The service accesses or configures a client's CRM containing personal data under the client's instructions.",
+      "owner_action": "Execute an Article 28 processor agreement, define subprocessors, instructions, security, deletion or return and assistance duties.",
+      "professional_review": "frozen",
+      "official_source": "AEPD — responsable y encargado del tratamiento"
+    },
+    {
+      "id": "B2C_CONSUMER",
+      "name": "Consumer contracting controls",
+      "status": "conditional_if_selling_to_consumers",
+      "licence_type": "consumer_compliance",
+      "trigger": "A natural person contracts outside their trade or profession.",
+      "owner_action": "Provide pre-contract information, written budget where required, price and payment information, withdrawal information and complaint handling.",
+      "professional_review": "frozen",
+      "official_source": "Agència Catalana del Consum and Spanish consumer rules"
+    },
+    {
+      "id": "CATALONIA_COMPLAINT_FORMS",
+      "name": "Catalonia official complaint forms and notice",
+      "status": "conditional_if_serving_consumers_in_catalonia",
+      "licence_type": "consumer_operating_requirement",
+      "trigger": "Goods or services are supplied directly or through intermediaries to consumers in Catalonia.",
+      "owner_action": "Obtain official complaint forms, provide the required channel and display the applicable notice.",
+      "professional_review": "frozen",
+      "official_source": "Agència Catalana del Consum — fulls oficials de queixa, reclamació i denúncia"
+    },
+    {
+      "id": "AI_ACT",
+      "name": "EU AI Act role and transparency classification",
+      "status": "required_role_assessment_before_live_ai_features",
+      "licence_type": "ai_compliance_not_prior_licence",
+      "trigger": "AI systems are used professionally, offered under the venture name or interact directly with natural persons.",
+      "owner_action": "Maintain AI literacy, classify provider versus deployer roles, retain human oversight and provide any required interaction or generated-content disclosure from 2 August 2026.",
+      "professional_review": "frozen",
+      "official_source": "European Commission — AI Act and Article 50 transparency guidance"
+    },
+    {
+      "id": "ROI_VIES",
+      "name": "EU cross-border operator registration",
+      "status": "conditional_before_relevant_intra_eu_operations",
+      "licence_type": "tax_registration",
+      "trigger": "The venture supplies or receives qualifying services across EU borders where ROI or VIES treatment applies.",
+      "owner_action": "Confirm VAT place-of-supply treatment and request ROI registration through Modelo 036 when required.",
+      "professional_review": "frozen",
+      "official_source": "Agencia Tributaria — ROI and VIES"
+    },
+    {
+      "id": "PROFESSIONAL_INDEMNITY",
+      "name": "Professional indemnity and cyber insurance",
+      "status": "recommended_not_identified_as_mandatory_for_current_scope",
+      "licence_type": "risk_transfer",
+      "trigger": "Before handling material client data, integrations or commercial reliance.",
+      "owner_action": "Obtain quotes and define coverage after the operating form and service limits are confirmed.",
+      "professional_review": "frozen",
+      "official_source": "Internal risk-control recommendation"
+    }
+  ],
+  "frozen_reviews": {
+    "professional_privacy_review": "frozen_by_owner",
+    "professional_legal_review": "frozen_by_owner",
+    "professional_invoicing_review": "frozen_by_owner",
+    "exact_iae_heading_confirmation": "frozen_by_owner",
+    "municipal_address_specific_confirmation": "frozen_by_owner"
+  },
+  "current_decision": {
+    "staging_build_permitted": true,
+    "live_publication_permitted": false,
+    "live_intake_permitted": false,
+    "paid_contracting_permitted": false,
+    "client_personal_data_permitted": false,
+    "reason": "The site may be staged synthetically, but business registrations and frozen professional reviews are not completed."
+  }
+}

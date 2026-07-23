@@ -1,0 +1,10 @@
+{
+  "principle": "milestone intents guide the chain; each stage writes the next exact instruction from evidence",
+  "milestone_intents": [
+    {"id": "M1", "intent": "repository, website foundation, schemas and controls reproducible"},
+    {"id": "M2", "intent": "website alpha, test intake, service templates and demonstrations"},
+    {"id": "M3", "intent": "compliant CRM flow, interviews and beta pipeline"},
+    {"id": "M4", "intent": "first paid beta delivered with measured economics"},
+    {"id": "M5", "intent": "90-day evidence review and next-quarter decision"}
+  ]
+}

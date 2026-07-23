@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Property Asset",
+  "type": "object",
+  "required": ["property_id", "source_system", "source_record_ref", "location_ref_hash", "asset_type", "status", "custody_class"],
+  "properties": {
+    "property_id": {"type": "string", "pattern": "^PROP-[A-Z0-9]{8,}$"},
+    "source_system": {"type": "string", "minLength": 2},
+    "source_record_ref": {"type": "string", "minLength": 4},
+    "location_ref_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "restricted_address_pointer": {"type": "string", "pattern": "^restricted://"},
+    "municipality": {"type": "string", "maxLength": 200},
+    "province": {"type": "string", "maxLength": 200},
+    "asset_type": {"enum": ["residential", "commercial", "land", "mixed_use", "other"]},
+    "status": {"enum": ["identified", "qualified", "under_review", "inactive", "acquired", "disposed"]},
+    "asking_price_eur": {"type": "number", "minimum": 0},
+    "valuation_eur": {"type": "number", "minimum": 0},
+    "valuation_status": {"enum": ["source_claim", "third_party_report", "internal_scenario", "not_available"]},
+    "source_urls": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
+    "evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "custody_class": {"const": "restricted_real_estate"},
+    "human_owner": {"type": "string", "maxLength": 200}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "DeliveryJob",
+  "type": "object",
+  "required": ["job_id", "opportunity_id", "service_code", "client_folder_url", "status"],
+  "properties": {
+    "job_id": {"type": "string"},
+    "opportunity_id": {"type": "string"},
+    "service_code": {"type": "string"},
+    "client_folder_url": {"type": "string"},
+    "linear_issue_url": {"type": "string"},
+    "status": {"enum": ["Onboarding", "Inputs Pending", "In Production", "QA", "Delivered", "Closed"]},
+    "planned_hours": {"type": "number"},
+    "actual_hours": {"type": "number"}
+  },
+  "additionalProperties": false
+}

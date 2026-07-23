@@ -1,0 +1,89 @@
+[
+  {
+    "code": "DEMO-IVA",
+    "demo_id": "DEMO-IVA-001",
+    "service_code": "IVA",
+    "business": {
+      "en": "Northline Process Instruments",
+      "es": "Northline Process Instruments"
+    },
+    "title": {
+      "en": "International visibility audit demonstration",
+      "es": "Demostración de auditoría de visibilidad internacional"
+    },
+    "description": {
+      "en": "A fictional industrial-instrumentation website scores 57/100. The example shows evidence-linked scoring, six diagnostic areas and a sequenced 30-day distributor-readiness plan.",
+      "es": "Una web ficticia de instrumentación industrial obtiene 57/100. El ejemplo muestra puntuación vinculada a evidencias, seis áreas de diagnóstico y un plan secuenciado de 30 días para distribuidores."
+    },
+    "metric": {
+      "en": "57/100 synthetic score",
+      "es": "57/100, puntuación sintética"
+    },
+    "includes": {
+      "en": ["100-point scorecard with evidence IDs", "Five actions ordered by impact and dependency", "Management summary and explicit limitations"],
+      "es": ["Puntuación de 100 puntos con IDs de evidencia", "Cinco acciones ordenadas por impacto y dependencia", "Resumen ejecutivo y limitaciones explícitas"]
+    },
+    "disclaimer": {
+      "en": "Fictional demonstration using synthetic evidence. No real company or measured outcome.",
+      "es": "Demostración ficticia con evidencias sintéticas. No representa una empresa real ni un resultado medido."
+    }
+  },
+  {
+    "code": "DEMO-CRM",
+    "demo_id": "DEMO-CRM-001",
+    "service_code": "CRM",
+    "business": {
+      "en": "Archipelago Design Studio",
+      "es": "Archipelago Design Studio"
+    },
+    "title": {
+      "en": "CRM and lead-tracker demonstration",
+      "es": "Demostración de CRM y seguimiento de leads"
+    },
+    "description": {
+      "en": "A fictional five-person studio receives a controlled pipeline, duplicate rules, reconciled open and weighted pipeline, operating routines and backup/rollback instructions.",
+      "es": "Un estudio ficticio de cinco personas recibe un pipeline controlado, reglas de duplicados, pipeline abierto y ponderado conciliado, rutinas operativas e instrucciones de copia y reversión."
+    },
+    "metric": {
+      "en": "€398 open / €176.55 weighted",
+      "es": "398 € abierto / 176,55 € ponderado"
+    },
+    "includes": {
+      "en": ["Stage entry and exit conditions", "Synthetic lead and opportunity reconciliation", "Duplicate, backup and handover exercise"],
+      "es": ["Condiciones de entrada y salida por etapa", "Conciliación sintética de leads y oportunidades", "Ejercicio de duplicados, copia y traspaso"]
+    },
+    "disclaimer": {
+      "en": "Fictional demonstration using synthetic records. No real contacts, revenue or implementation outcome.",
+      "es": "Demostración ficticia con registros sintéticos. No contiene contactos, ingresos ni resultados reales de implantación."
+    }
+  },
+  {
+    "code": "DEMO-IOP",
+    "demo_id": "DEMO-IOP-001",
+    "service_code": "IOP",
+    "business": {
+      "en": "Verde Forma Ceramics",
+      "es": "Verde Forma Ceramics"
+    },
+    "title": {
+      "en": "International sales one-pager demonstration",
+      "es": "Demostración de one-pager de ventas internacionales"
+    },
+    "description": {
+      "en": "A fictional Spanish ceramics workshop receives an English procurement one-pager. Unsupported sustainability and hotel-use claims are removed through a controlled claims register.",
+      "es": "Un taller ficticio de cerámica española recibe un one-pager de compras en inglés. Las afirmaciones no justificadas sobre sostenibilidad y uso hotelero se eliminan mediante un registro controlado."
+    },
+    "metric": {
+      "en": "6 claims reviewed; 2 removed",
+      "es": "6 afirmaciones revisadas; 2 eliminadas"
+    },
+    "includes": {
+      "en": ["Audience-led commercial narrative", "Evidence and claims register", "Localisation, layout and release QA"],
+      "es": ["Narrativa comercial centrada en la audiencia", "Registro de evidencias y afirmaciones", "Localización, diseño y control de publicación"]
+    },
+    "disclaimer": {
+      "en": "Fictional copy demonstration. No real workshop, catalogue, certification or commercial performance.",
+      "es": "Demostración ficticia de contenido. No representa un taller, catálogo, certificación ni rendimiento comercial real."
+    }
+  }
+]

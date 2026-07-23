@@ -1,0 +1,44 @@
+id: A14
+name: Heavy candidate quality rework and quantised evidence
+status: synthetic_shadow
+trigger: pull_request
+inputs:
+  - governed synthetic dataset bundle
+  - first heavy-runtime evidence from A13
+candidates:
+  embedding:
+    changes:
+      - deterministic token hashing
+      - supervised contrastive objective
+      - self-similarity excluded
+      - validation-fitted temperature calibration
+      - service-level holdout MRR
+      - ONNX dynamic-int8 benchmark
+  lora:
+    changes:
+      - extended bounded training with early stopping
+      - validation-fitted token-confidence calibration
+      - IVA, CRM and IOP top-1 segment evidence
+      - adapter-size evidence
+      - task-normalised shadow uplift
+  yolo:
+    changes:
+      - class-distinct generated scenes
+      - four deterministic training variants per record
+      - eighteen-epoch bounded schedule with early stopping
+      - per-class AP evidence
+      - confidence calibration
+      - pretrained weights disabled
+release_gate:
+  threshold_reduction_allowed: false
+  promotion_permitted: false
+  production_deployment: false
+  crm_decision_use: false
+  external_communication: false
+  human_review_required: true
+outputs:
+  - v2 candidate evidence packs
+  - ONNX and int8 artifacts where supported
+  - calibrated review board
+  - rollback artifacts
+  - federation digest

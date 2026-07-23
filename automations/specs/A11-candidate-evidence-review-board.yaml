@@ -1,0 +1,82 @@
+id: A11
+name: Candidate evidence adjudication, route debt and shadow rollout board
+status: synthetic_shadow
+trigger:
+  - candidate evidence pack created
+  - manual evidence review request
+reads:
+  - signed or unsigned synthetic candidate evidence packs
+  - baseline metrics
+  - segment metrics
+  - quantisation benchmarks
+  - red-team results
+  - rollback artifact references
+writes:
+  - candidate review board JSON
+  - candidate review cards
+  - expert route-debt queue
+  - deterministic shadow-rollout report
+  - rollback-drill result
+review_axes:
+  performance:
+    weight: 0.20
+    owner_route: Daedalus→Pallas
+  generalisation:
+    weight: 0.13
+    owner_route: Daedalus→Pallas
+  calibration:
+    weight: 0.10
+    owner_route: Hermes→Pallas
+  privacy:
+    weight: 0.15
+    owner_route: Hestia→Pallas
+  robustness:
+    weight: 0.14
+    owner_route: Janus→Pallas
+  efficiency:
+    weight: 0.08
+    owner_route: Daedalus→Atlas
+  rollback:
+    weight: 0.10
+    owner_route: Pallas→Atlas
+  reproducibility:
+    weight: 0.10
+    owner_route: Daedalus→Pallas
+shadow_rollout:
+  data_class: deterministic_synthetic_cohorts
+  default_cohorts: 6
+  decisions_per_cohort: 40
+  measures:
+    - disagreement rate
+    - abstention rate
+    - incident rate
+    - rollback recovery rate
+  stable_when:
+    - candidate beats transparent baseline
+    - disagreement rate <= 0.28
+    - incident rate <= 0.05
+    - rollback recovery rate >= 0.95
+decisions:
+  - reject_or_rework
+  - human_review_required
+  - eligible_for_extended_shadow
+hard_boundary:
+  promotion_permitted: false
+  human_review_required: true
+  production_deployment: false
+  production_crm_decisions: false
+  external_communication: false
+  automatic_linear_write: false
+route_debt:
+  release_blocking: true
+  resolution_requires:
+    - responsible expert evidence
+    - updated candidate pack
+    - repeated shadow rollout
+    - reviewed rollback drill
+client_interface:
+  synthetic_cards_only: true
+  model_weights_exposed: false
+  training_data_exposed: false
+  production_metrics_claimed: false
+  actions_enabled: false

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Investor Relationship",
+  "type": "object",
+  "required": ["investor_id", "relationship_stage", "mandate_state", "recommendation_state", "custody_class"],
+  "properties": {
+    "investor_id": {"type": "string", "pattern": "^INV-[A-Z0-9]{8,}$"},
+    "generic_company_id": {"type": "string"},
+    "generic_contact_id": {"type": "string"},
+    "relationship_stage": {"enum": ["prospect", "permission_pending", "known_contact", "mandate_pending", "mandate_recorded", "opportunity_presented", "commitment_pending", "funded", "monitoring", "exited", "inactive"]},
+    "mandate_state": {"enum": ["none", "client_asserted", "restricted_evidence_verified"]},
+    "recommendation_state": {"const": "no_automated_investment_recommendation"},
+    "restricted_profile_pointer": {"type": "string", "pattern": "^restricted://"},
+    "restricted_commitment_pointer": {"type": "string", "pattern": "^restricted://"},
+    "deal_ids": {"type": "array", "items": {"type": "string", "pattern": "^REDEAL-"}, "uniqueItems": true},
+    "human_relationship_owner": {"type": "string"},
+    "custody_class": {"const": "restricted_investor"}
+  },
+  "additionalProperties": false
+}

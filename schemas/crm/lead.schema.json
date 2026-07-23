@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Lead",
+  "type": "object",
+  "required": ["submission_id", "company_name", "contact_name", "email", "service_code", "consent_version"],
+  "properties": {
+    "submission_id": {"type": "string", "minLength": 8},
+    "company_name": {"type": "string", "minLength": 2},
+    "contact_name": {"type": "string", "minLength": 2},
+    "email": {"type": "string", "format": "email"},
+    "website": {"type": "string"},
+    "country": {"type": "string"},
+    "preferred_language": {"enum": ["en", "es", "ca", "other"]},
+    "service_code": {"enum": ["IVA", "CRM", "IOP", "WAB"]},
+    "problem": {"type": "string", "maxLength": 3000},
+    "consent_version": {"type": "string"},
+    "source": {"type": "string"},
+    "submitted_at": {"type": "string", "format": "date-time"},
+    "phone": {"type": "string", "maxLength": 50},
+    "role": {"type": "string", "maxLength": 200}
+  },
+  "additionalProperties": false
+}

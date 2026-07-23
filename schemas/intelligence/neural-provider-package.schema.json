@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PII-free Neural Provider Package",
+  "type": "object",
+  "required": [
+    "package_version",
+    "synthetic_only",
+    "package_id",
+    "lead_ref",
+    "company_ref",
+    "contact_ref",
+    "service_code",
+    "service_price_eur",
+    "features",
+    "priors",
+    "feature_digest"
+  ],
+  "properties": {
+    "package_version": {"const": "neural-provider-package-v1"},
+    "synthetic_only": {"const": true},
+    "package_id": {"type": "string", "pattern": "^NPKG-[A-F0-9]{12}$"},
+    "lead_ref": {"type": "string", "pattern": "^LEAD-[A-F0-9]{16}$"},
+    "company_ref": {"type": "string", "pattern": "^COMPANY-[A-F0-9]{16}$"},
+    "contact_ref": {"type": "string", "pattern": "^CONTACT-[A-F0-9]{16}$"},
+    "service_code": {"type": "string", "minLength": 2, "maxLength": 16},
+    "service_price_eur": {"type": "number", "exclusiveMinimum": 0, "maximum": 1000000},
+    "features": {
+      "type": "object",
+      "required": ["tabular", "text_vector", "activity_sequence", "graph_nodes", "adjacency", "focus_index"],
+      "properties": {
+        "tabular": {"type": "array", "minItems": 12, "maxItems": 12, "items": {"type": "number", "minimum": 0, "maximum": 1}},
+        "text_vector": {"type": "array", "minItems": 8, "maxItems": 8, "items": {"type": "number"}},
+        "activity_sequence": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "number", "minimum": 0, "maximum": 1}}
+        },
+        "graph_nodes": {
+          "type": "array",
+          "minItems": 4,
+          "items": {"type": "array", "minItems": 6, "maxItems": 6, "items": {"type": "number"}}
+        },
+        "adjacency": {"type": "array", "minItems": 4, "items": {"type": "array", "items": {"type": "number", "minimum": 0}}},
+        "focus_index": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "priors": {
+      "type": "object",
+      "required": ["conversion", "relationship", "urgency", "churn", "actions"],
+      "properties": {
+        "conversion": {"type": "number", "minimum": 0, "maximum": 1},
+        "relationship": {"type": "number", "minimum": 0, "maximum": 1},
+        "urgency": {"type": "number", "minimum": 0, "maximum": 1},
+        "churn": {"type": "number", "minimum": 0, "maximum": 1},
+        "actions": {"type": "array", "minItems": 5, "maxItems": 5, "items": {"type": "number", "minimum": 0, "maximum": 1}}
+      },
+      "additionalProperties": false
+    },
+    "feature_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

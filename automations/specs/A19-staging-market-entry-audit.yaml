@@ -1,0 +1,68 @@
+automation_id: A19
+name: staging-website-and-market-entry-audit
+status: source_complete_professional_reviews_frozen
+purpose: >-
+  Build a complete synthetic noindex staging artifact and maintain a fail-closed
+  audit of the registrations, authorisations and conditional duties required to
+  sell the current services in Spain and Catalonia.
+
+inputs:
+  - pre_client_ready_source
+  - canonical_service_catalogue
+  - staging_release_configuration
+  - Spain_and_Catalonia_official_requirements
+  - owner_review_hold_instruction
+
+outputs:
+  - ten_route_staging_artifact
+  - staging_release_metadata_and_checksums
+  - market_entry_licensing_register
+  - deterministic_audit_receipt
+  - explicit_frozen_review_state
+
+required_controls:
+  - staging_uses_https_reserved_invalid_endpoint
+  - staging_is_synthetic_only
+  - staging_is_noindex
+  - staging_disallows_real_client_data
+  - no_sector_specific_licence_is_claimed_as_a_final_legal_opinion
+  - AEAT_036_and_IAE_are_tracked
+  - RETA_is_tracked_if_operating_as_autonomo
+  - municipality_specific_activity_check_is_tracked
+  - LSSI_and_data_protection_are_tracked_before_live_intake
+  - B2C_and_Catalonia_complaint_controls_are_conditional
+  - EU_cross_border_ROI_VIES_is_conditional
+  - AI_Act_role_and_transparency_are_tracked
+  - professional_privacy_legal_and_invoicing_reviews_remain_frozen
+
+forbidden_actions:
+  - publish_indexable_live_site
+  - collect_real_personal_data
+  - use_a_real_staging_provider_endpoint
+  - issue_proposal_invoice_or_contract
+  - accept_payment
+  - treat_the_audit_as_professional_legal_advice
+  - enter_a_regulated_profession
+  - unfreeze_professional_reviews_without_owner_instruction
+  - advance_Stage_003
+
+validation:
+  command: python scripts/test_market_entry_licensing.py
+  expected_cases: 10
+  fail_closed: true
+
+build_command: >-
+  python scripts/build_web_release.py --profile staging
+  --endpoint https://synthetic-provider.invalid/exec
+  --output dist/web-staging
+
+maximum_result:
+  staging_build_permitted: true
+  live_publication_permitted: false
+  paid_contracting_permitted: false
+  legal_approval_inferred: false
+
+rollback:
+  - delete_the_staging_artifact
+  - rebuild_preview_from_source
+  - retain_all_professional_review_gates_as_frozen

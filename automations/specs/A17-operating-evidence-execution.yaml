@@ -1,0 +1,68 @@
+automation_id: A17
+name: operating-evidence-execution
+status: source_complete_human_review_pending
+purpose: >-
+  Reconcile pseudonymous CRM, Linear and customer-discovery snapshots into an
+  evidence-bearing weekly management receipt and a deterministic ten-slot
+  interview execution queue without sending outreach or mutating operating
+  systems.
+
+inputs:
+  - public_safe_crm_snapshot
+  - project_scoped_linear_issue_snapshot
+  - pseudonymous_interview_evidence
+  - source_count_assertions
+  - human_owned_programme_gates
+
+outputs:
+  - source_count_reconciliation
+  - aggregate_management_digest
+  - data_quality_warnings
+  - ten_slot_interview_queue
+  - human_only_programme_action_queue
+  - sha256_evidence_receipt
+
+hard_gates:
+  - all_snapshots_must_exclude_names_emails_phones_urls_transcripts_and_credentials
+  - asserted_source_counts_must_equal_observed_rows
+  - won_revenue_must_not_be_treated_as_collected_cash
+  - due_today_is_not_overdue
+  - all_actions_require_a_human_decision
+  - interview_targets_must_remain_unassigned_until_a_human_selects_a_contact_basis
+  - repository_receipts_must_not_contain_live_spreadsheet_ids_or_private_links
+  - provider_activation_remains_out_of_scope
+
+interview_target_mix:
+  local_sme: 5
+  referral_professional: 2
+  business_support: 1
+  specialist_b2b_leader: 2
+
+forbidden_actions:
+  - search_for_or_select_real_contacts
+  - send_interview_invitations
+  - create_or_update_crm_records
+  - change_linear_issue_state
+  - approve_legal_or_commercial_terms
+  - issue_proposal_or_invoice
+  - infer_cash_from_pipeline_or_won_state
+  - activate_provider_or_public_intake
+  - advance_stage_pointer
+
+validation:
+  command: python scripts/test_operating_evidence_execution.py
+  expected_cases: 8
+  fail_closed: true
+
+human_approvals:
+  - weekly_digest_review_decision
+  - interview_target_selection
+  - contact_basis_review
+  - outreach_message_and_channel
+  - crm_seeding_after_interview
+  - programme_gate_disposition
+
+rollback:
+  source: revert_the_A17_commit_or_stacked_PR
+  drive: remove_or_supersede_the_unapproved_digest_row_and_action_queue_entries
+  interview_queue: clear_assignments_and_preserve_the_pseudonymous_audit_record
