@@ -15,16 +15,18 @@
     "docs/status/REAL_ESTATE_RELEASE_STATUS_RC3.md",
     "evidence/readiness/2026-07-23-real-estate-architecture-rc3.json",
     "evidence/readiness/2026-07-23-real-estate-release-evidence-rc3.json",
-    "intelligence/real_estate/autopptx_release_plan.py",
-    "intelligence/real_estate/autopptx_workspace.py",
-    "intelligence/real_estate/media_rights.py",
     "intelligence/real_estate/operator_control.py",
     "intelligence/real_estate/release_readiness.py",
     "scripts/audit_real_estate_operator_control_rc3.py",
     "scripts/real_estate_operator_control.py",
+    "scripts/test_real_estate_operator_control_rc3.py"
+  ],
+  "modified_inherited_files": [
+    "intelligence/real_estate/autopptx_release_plan.py",
+    "intelligence/real_estate/autopptx_workspace.py",
+    "intelligence/real_estate/media_rights.py",
     "scripts/real_estate_rc2_cli.py",
     "scripts/test_real_estate_architecture_rc2.py",
-    "scripts/test_real_estate_operator_control_rc3.py",
     "scripts/windows_usando_excel_adapter.py"
   ],
   "release_percentages": {
