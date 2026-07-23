@@ -1,0 +1,48 @@
+id: A27
+name: Synthetic real-estate reconciliation and rollback
+stage: 010r
+status: local_synthetic_runtime_only
+depends_on:
+  - A25-synthetic-real-estate-synergy-orchestrator
+  - A26-synthetic-real-estate-batch-adapter
+runtime:
+  public_module: intelligence.real_estate.reconciliation_api
+  internal_module: intelligence.real_estate.reconciliation
+  input_scope: local_synthetic_snapshots_and_bundles_only
+  output_scope: local_diff_mutation_and_rollback_evidence
+  network_clients: none
+  Drive_clients: none
+controls:
+  stable_row_identity_required: true
+  duplicate_stable_ids_rejected: true
+  source_snapshot_digest_required: true
+  field_level_diff_required: true
+  operation_digest_required: true
+  row_precondition_required: true
+  target_snapshot_digest_required: true
+  inverse_plan_required: true
+  rollback_digest_verification_required: true
+  tampered_bundle_rejected: true
+  real_source_file_access_allowed: false
+  real_CRM_writes_allowed: false
+  automatic_upload_allowed: false
+  external_communication_allowed: false
+outputs:
+  permitted:
+    - canonical synthetic snapshot
+    - machine-readable diff
+    - Markdown diff
+    - forward mutation plan
+    - rollback plan
+    - rollback verification receipt
+    - deterministic reconciliation ZIP
+  forbidden:
+    - real workbook access
+    - Google Drive read or write
+    - Google Sheets mutation
+    - client or investor contact
+    - proposal or invoice
+    - payment request
+    - offer or reservation
+    - financing request
+    - contract or closing action
