@@ -3,6 +3,7 @@
   "release": "real-estate-architecture-rc3-operator-control",
   "as_of": "2026-07-23",
   "branch": "release/real-estate-architecture-rc3-operator-control",
+  "validated_source_head": "d6361fdd8ef925040617d4beebb4856f64f5a68c",
   "scores": {
     "architecture_package": 98.8,
     "controlled_operator_use": 81.5,
@@ -35,7 +36,13 @@
     "python scripts/audit_real_estate_architecture_rc2.py",
     "python scripts/audit_real_estate_operator_control_rc3.py",
     "python scripts/validate_repository.py",
+    "python scripts/real_estate_operator_control.py release-status",
     "python -m compileall -q intelligence scripts"
   ],
-  "validation_status": "candidate_pending_ci"
+  "workflow_evidence": {
+    "rc3_validation_run": 30024178387,
+    "repository_validation_run": 30024178099,
+    "public_safety_artifact_run": 30024178123
+  },
+  "validation_status": "validated_green_ci"
 }
