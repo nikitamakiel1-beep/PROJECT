@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Real Estate Deal Opportunity",
+  "type": "object",
+  "required": ["deal_id", "generic_opportunity_id", "property_id", "strategy", "stage", "authority_owner", "external_action_state"],
+  "properties": {
+    "deal_id": {"type": "string", "pattern": "^REDEAL-[A-Z0-9]{8,}$"},
+    "generic_opportunity_id": {"type": "string", "minLength": 4},
+    "property_id": {"type": "string", "pattern": "^PROP-[A-Z0-9]{8,}$"},
+    "sourcing_company_id": {"type": "string"},
+    "sourcing_contact_id": {"type": "string"},
+    "agency_counterparty_id": {"type": "string"},
+    "strategy": {"enum": ["acquire_and_hold", "renovate_and_sell", "rental", "assignment", "other"]},
+    "stage": {"enum": ["identified", "qualified", "information_requested", "underwriting", "human_review", "offer_planned", "offer_submitted", "accepted", "rejected", "due_diligence", "financing", "closing", "project_execution", "operating", "exited", "on_hold", "cancelled"]},
+    "asking_price_eur": {"type": "number", "minimum": 0},
+    "planned_purchase_price_eur": {"type": "number", "minimum": 0},
+    "total_investment_eur": {"type": "number", "minimum": 0},
+    "expected_close_date": {"type": "string", "format": "date"},
+    "authority_owner": {"type": "string", "minLength": 2},
+    "registered_agent_or_client_owner": {"type": "string"},
+    "external_action_state": {"enum": ["blocked", "human_approved", "executed_by_client"]},
+    "offer_evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "transaction_evidence_pointer": {"type": "string", "pattern": "^restricted://"},
+    "notes_pointer": {"type": "string", "pattern": "^restricted://"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"external_action_state": {"const": "executed_by_client"}}},
+      "then": {"required": ["registered_agent_or_client_owner", "transaction_evidence_pointer"]}
+    }
+  ],
+  "additionalProperties": false
+}
