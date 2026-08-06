@@ -1,6 +1,6 @@
 # Conway Replicatio — Browser-Only Oracle Always Free Deployment
 
-[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/refs/heads/conway-oci-deploy-v1.zip)
+[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/8f907cbbbed5e8821e25be9029d2927be20e856a.zip)
 
 This Terraform stack creates a browser-managed, HTTPS-protected Conway Replicatio worker on an Oracle Cloud Always Free Ampere A1 instance. It requires no local terminal, SSH client, PowerShell, Docker installation, or Conway website account.
 
@@ -75,6 +75,7 @@ Destroying the Resource Manager stack can destroy the VM and its wallet/state. C
 
 ## Source branches
 
-- Public OCI deployment package: `nikitamakiel1-beep/PROJECT@conway-oci-deploy-v1`
+- Immutable OCI deployment archive: `nikitamakiel1-beep/PROJECT@8f907cbbbed5e8821e25be9029d2927be20e856a`
+- Immutable OCI bootstrap payload: `nikitamakiel1-beep/PROJECT@5f095c37d7f01818dc9c99a28a735ea4e1940b29`
 - Private worker source: `nikitamakiel1-beep/Conway-Replicatio@feature/conway-colonial-integration`
 - Lovable UI: `nikitamakiel1-beep/colony-canvas@Conway-Lovable`
