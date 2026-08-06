@@ -3,7 +3,7 @@ locals {
   ad_count          = length(data.oci_identity_availability_domains.ads.availability_domains)
   selected_ad_index = min(var.availability_domain_index, max(local.ad_count - 1, 0))
   selected_ad       = data.oci_identity_availability_domains.ads.availability_domains[local.selected_ad_index].name
-  raw_base_url      = "https://raw.githubusercontent.com/nikitamakiel1-beep/PROJECT/conway-oci-deploy-v1"
+  raw_base_url      = "https://raw.githubusercontent.com/nikitamakiel1-beep/PROJECT/5f095c37d7f01818dc9c99a28a735ea4e1940b29"
   bronze_policy_ids = [for policy in data.oci_core_volume_backup_policies.oracle.volume_backup_policies : policy.id if lower(policy.display_name) == "bronze"]
   common_tags = {
     application = "Conway-Replicatio"
