@@ -1,0 +1,16 @@
+#cloud-config
+package_update: true
+package_upgrade: false
+
+write_files:
+  - path: /etc/conway-bootstrap.seed
+    permissions: "0600"
+    owner: root:root
+    content: |
+      BOOTSTRAP_TOKEN=${bootstrap_token}
+      STACK_RAW_BASE=${raw_base_url}
+
+runcmd:
+  - [ bash, -lc, "set -euo pipefail; for i in $(seq 1 30); do curl -fsSL '${raw_base_url}/bootstrap/install-host.sh' -o /tmp/conway-install-host.sh && break; sleep 10; done; test -s /tmp/conway-install-host.sh; chmod 700 /tmp/conway-install-host.sh; /tmp/conway-install-host.sh; rm -f /tmp/conway-install-host.sh" ]
+
+final_message: "Conway Replicatio browser bootstrap host installation finished after $UPTIME seconds."

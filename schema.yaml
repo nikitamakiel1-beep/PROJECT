@@ -1,0 +1,99 @@
+title: "Conway Replicatio — Free Browser-Only Worker"
+description: "Creates one Oracle Always Free Ampere A1 VM with persistent storage, HTTPS, a protected web installer, local Ollama inference, and no SSH requirement."
+schemaVersion: 1.1.0
+version: "1.0.0"
+locale: "en"
+
+variableGroups:
+  - title: "Location"
+    variables:
+      - compartment_ocid
+      - region
+      - availability_domain_index
+  - title: "Worker"
+    variables:
+      - instance_name
+      - ocpus
+      - memory_in_gbs
+      - boot_volume_size_in_gbs
+  - title: "Hidden tenancy context"
+    visible: false
+    variables:
+      - tenancy_ocid
+
+variables:
+  tenancy_ocid:
+    type: string
+    required: true
+    visible: false
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    required: true
+    title: "Compartment"
+    description: "Choose a compartment where you are allowed to create compute and networking resources."
+
+  region:
+    type: oci:identity:region:name
+    required: true
+    title: "Home region"
+    description: "Use the tenancy home region for Always Free resources."
+
+  availability_domain_index:
+    type: number
+    required: true
+    title: "Availability domain index"
+    description: "Keep 0. If Oracle reports no A1 host capacity, destroy the failed stack and retry with 1 or 2."
+    minimum: 0
+    maximum: 2
+    default: 0
+
+  instance_name:
+    type: string
+    required: true
+    title: "Instance name"
+    default: "conway-replicatio-worker"
+    pattern: "^[A-Za-z][A-Za-z0-9-]{2,49}$"
+
+  ocpus:
+    type: number
+    required: true
+    title: "A1 OCPUs"
+    default: 2
+    minimum: 2
+    maximum: 2
+
+  memory_in_gbs:
+    type: number
+    required: true
+    title: "Memory (GB)"
+    default: 12
+    minimum: 12
+    maximum: 12
+
+  boot_volume_size_in_gbs:
+    type: number
+    required: true
+    title: "Persistent disk (GB)"
+    description: "100 GB is recommended and leaves room within the Always Free aggregate storage allocation."
+    default: 100
+    minimum: 50
+    maximum: 150
+
+outputs:
+  bootstrap_url:
+    title: "Protected browser bootstrap URL"
+    type: copyableString
+    visible: true
+  worker_url:
+    title: "Final worker URL"
+    type: copyableString
+    visible: true
+  public_ip:
+    title: "Worker public IP"
+    type: copyableString
+    visible: true
+  next_step:
+    title: "Next step"
+    type: string
+    visible: true
