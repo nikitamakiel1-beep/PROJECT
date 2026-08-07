@@ -1,0 +1,27 @@
+#cloud-config
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - git
+  - jq
+  - openssl
+  - python3
+
+write_files:
+  - path: /etc/conway-replicatio-bootstrap.env
+    owner: root:root
+    permissions: '0600'
+    content: |
+      SETUP_CODE=${setup_code}
+      BOOTSTRAP_REF=${bootstrap_ref}
+
+runcmd:
+  - [ bash, -lc, "install -d -m 0700 /opt/conway-bootstrap" ]
+  - [ bash, -lc, "curl -fsSL https://raw.githubusercontent.com/nikitamakiel1-beep/PROJECT/${bootstrap_ref}/oci/bootstrap-host.sh -o /opt/conway-bootstrap/bootstrap-host.sh" ]
+  - [ bash, -lc, "chmod 0700 /opt/conway-bootstrap/bootstrap-host.sh" ]
+  - [ bash, -lc, "set -a; source /etc/conway-replicatio-bootstrap.env; set +a; /opt/conway-bootstrap/bootstrap-host.sh" ]
+
+final_message: "Conway Replicatio browser bootstrap finished. Open the browser_setup_url output from Resource Manager."
