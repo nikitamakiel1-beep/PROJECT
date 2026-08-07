@@ -38,5 +38,5 @@ variable "instance_display_name" {
 variable "bootstrap_ref" {
   type        = string
   description = "Pinned public bootstrap source ref. Do not change unless intentionally upgrading the installer."
-  default     = "conway-oci-stack"
+  default     = "3af13e080e05f1e4bf84b29fe6a1aa1ca12959d6"
 }
