@@ -2,9 +2,9 @@
 
 This branch contains the public deployment documentation and bootstrap source only. The private Conway-Replicatio worker source remains in `nikitamakiel1-beep/Conway-Replicatio` and is cloned once after the owner enters a fine-grained GitHub read token into the HTTPS setup portal.
 
-The production deploy button is deliberately pinned to immutable OCI stack snapshot `d321f65cf0b577a9eae7186c154253722b7ac8f7` rather than the moving branch:
+The production deploy button is deliberately pinned to immutable OCI stack snapshot `8df7ee40153c5abe6eb7dee12fdcf91917ed00db` rather than the moving branch. That snapshot also pins the Terraform OCI provider to `8.23.0` and the Random provider to `3.9.0`:
 
-[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/d321f65cf0b577a9eae7186c154253722b7ac8f7.zip)
+[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/8df7ee40153c5abe6eb7dee12fdcf91917ed00db.zip)
 
 ## Browser-only flow
 
