@@ -10,6 +10,7 @@ echo "[bootstrap] starting Conway Replicatio browser-only host setup"
 BOOTSTRAP_REF="${BOOTSTRAP_REF:-conway-oci-stack}"
 BOOTSTRAP_ROOT=/opt/conway-bootstrap
 PUBLIC_SOURCE="https://raw.githubusercontent.com/nikitamakiel1-beep/PROJECT/${BOOTSTRAP_REF}/oci"
+WORKER_COMMIT="2689083b93296523b81614b6768f6c5b5d95fa27"
 CADDY_IMAGE="caddy:2.11.4-alpine"
 OLLAMA_IMAGE="ollama/ollama:0.32.5"
 
@@ -95,16 +96,76 @@ WORKER_URL="https://${WORKER_HOST}"
 install -d -m 0700 "$BOOTSTRAP_ROOT" /opt/conway-replicatio /var/lib/conway-caddy /var/lib/conway-caddy-config
 
 curl -fsSL "${PUBLIC_SOURCE}/portal.py" -o "${BOOTSTRAP_ROOT}/portal.py"
-# Normalize the generic portal with the exact deployment contract owned by this
-# immutable bootstrap: pinned Ollama, long-running polling support, zero-cost
-# survival mode, retry-safe rebootstrap, and no direct worker exposure.
-sed -i "s#image: ollama/ollama:latest#image: ${OLLAMA_IMAGE}#g" "${BOOTSTRAP_ROOT}/portal.py"
-sed -i 's/if len(bucket) >= 12:/if len(bucket) >= 1000:/g' "${BOOTSTRAP_ROOT}/portal.py"
-sed -i 's/setInterval(refresh,5000)/setInterval(refresh,15000)/g' "${BOOTSTRAP_ROOT}/portal.py"
-sed -i '/"REPLICATIO_LOCAL_MODEL=" + LOCAL_MODEL,/a\                "REPLICATIO_ZERO_COST_LOCAL=true",' "${BOOTSTRAP_ROOT}/portal.py"
-sed -i '/REPLICATIO_LOCAL_MODEL: "qwen3:4b"/a\      REPLICATIO_ZERO_COST_LOCAL: "true"' "${BOOTSTRAP_ROOT}/portal.py"
-sed -i '/"autoProvision": False,/a\                "allowExisting": True,' "${BOOTSTRAP_ROOT}/portal.py"
-sed -i '/api("\/api\/v1\/bootstrap", control_token, method="POST", payload=bootstrap, timeout=180)/i\            try:\n                api("/api/v1/stop", control_token, method="POST", payload={}, timeout=60)\n            except Exception:\n                pass' "${BOOTSTRAP_ROOT}/portal.py"
+
+# Normalize the generic portal with the exact immutable deployment contract.
+# In particular, the private worker is not allowed to float with its branch:
+# the installer clones the branch for access validation, then fetches/checks out
+# the exact audited worker commit and refuses to continue if HEAD differs.
+python3 - "${BOOTSTRAP_ROOT}/portal.py" "${WORKER_COMMIT}" <<'PY'
+from pathlib import Path
+import sys
+
+path = Path(sys.argv[1])
+worker_commit = sys.argv[2]
+text = path.read_text(encoding="utf-8")
+
+def replace_once(old, new, label):
+    global text
+    count = text.count(old)
+    if count != 1:
+        raise SystemExit(f"portal normalization anchor {label} expected once, found {count}")
+    text = text.replace(old, new, 1)
+
+replace_once(
+    'BRANCH = "feature/conway-colonial-integration"',
+    f'BRANCH = "feature/conway-colonial-integration"\nWORKER_COMMIT = "{worker_commit}"',
+    "worker commit constant",
+)
+replace_once(
+    '                ], env=clone_env, timeout=300)\n            finally:',
+    '''                ], env=clone_env, timeout=300)
+                run(["git", "fetch", "origin", WORKER_COMMIT, "--depth=1"], cwd=INSTALL_ROOT / "app", env=clone_env, timeout=300)
+                run(["git", "checkout", "--detach", WORKER_COMMIT], cwd=INSTALL_ROOT / "app", env=clone_env, timeout=120)
+                resolved_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=INSTALL_ROOT / "app", text=True).strip()
+                if resolved_commit != WORKER_COMMIT:
+                    raise RuntimeError(f"Worker source verification failed: expected {WORKER_COMMIT}, got {resolved_commit}")
+            finally:''',
+    "worker checkout verification",
+)
+replace_once(
+    '                "REPLICATIO_LOCAL_MODEL=" + LOCAL_MODEL,',
+    '                "REPLICATIO_LOCAL_MODEL=" + LOCAL_MODEL,\n                "REPLICATIO_SOURCE_COMMIT=" + WORKER_COMMIT,\n                "REPLICATIO_ZERO_COST_LOCAL=true",',
+    "worker environment audit metadata",
+)
+replace_once(
+    '      REPLICATIO_LOCAL_MODEL: "qwen3:4b"',
+    '      REPLICATIO_LOCAL_MODEL: "qwen3:4b"\n      REPLICATIO_ZERO_COST_LOCAL: "true"',
+    "compose zero-cost mode",
+)
+replace_once(
+    '                "autoProvision": False,',
+    '                "autoProvision": False,\n                "allowExisting": True,',
+    "retry-safe rebootstrap",
+)
+replace_once(
+    '            api("/api/v1/bootstrap", control_token, method="POST", payload=bootstrap, timeout=180)',
+    '''            try:
+                api("/api/v1/stop", control_token, method="POST", payload={}, timeout=60)
+            except Exception:
+                pass
+            api("/api/v1/bootstrap", control_token, method="POST", payload=bootstrap, timeout=180)''',
+    "stop before rebootstrap",
+)
+replace_once(
+    '                workerUrl=WORKER_URL,\n                tokenAcknowledged=False,',
+    '                workerUrl=WORKER_URL,\n                workerCommit=WORKER_COMMIT,\n                tokenAcknowledged=False,',
+    "deployment receipt source commit",
+)
+replace_once('if len(bucket) >= 12:', 'if len(bucket) >= 1000:', "long-running polling bucket")
+replace_once('setInterval(refresh,5000)', 'setInterval(refresh,15000)', "long-running polling interval")
+replace_once('image: ollama/ollama:latest', 'image: ollama/ollama:0.32.5', "pinned Ollama image")
+path.write_text(text, encoding="utf-8")
+PY
 chmod 0700 "${BOOTSTRAP_ROOT}/portal.py"
 
 cat >"${BOOTSTRAP_ROOT}/runtime.env" <<EOF
@@ -112,6 +173,7 @@ SETUP_CODE=${SETUP_CODE}
 WORKER_HOST=${WORKER_HOST}
 WORKER_URL=${WORKER_URL}
 BOOTSTRAP_REF=${BOOTSTRAP_REF}
+WORKER_COMMIT=${WORKER_COMMIT}
 EOF
 chmod 0600 "${BOOTSTRAP_ROOT}/runtime.env"
 
@@ -218,6 +280,7 @@ docker run -d \
   "${CADDY_IMAGE}" >/dev/null
 
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
+echo "[bootstrap] private worker source pinned to ${WORKER_COMMIT}"
 echo "[bootstrap] internal ports are blocked at both OCI and host firewall layers"
 echo "[bootstrap] Caddy ${CADDY_IMAGE} and Ollama ${OLLAMA_IMAGE} are version-pinned"
 echo "[bootstrap] 4 GiB swap protects the one-time ARM build from transient memory pressure"
