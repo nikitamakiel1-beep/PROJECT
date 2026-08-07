@@ -1,6 +1,6 @@
 title: "Conway Replicatio — Free Browser-Only Worker"
 description: "Deploys one Oracle Always Free Ampere A1 VM for Conway Replicatio. No local terminal, SSH, Docker, Node.js, or Conway website login is required."
-informationalText: "The stack opens only HTTPS/HTTP. After Apply succeeds, open the browser_setup_url output and use the one_time_setup_code. The worker source is pinned to an audited private commit. Oracle then builds and runs it with local qwen3:4b inference, zero spending, zero children, Honey payouts disabled, automatic SQLite integrity + wallet persistence verification, weekly boot-volume backups, host-level blocking for internal ports, version-pinned Caddy/Ollama images, ARM-build swap protection, retry-safe bootstrap and zero-cost survival independent of Conway credits."
+informationalText: "The stack opens only HTTPS/HTTP. After Apply succeeds, open the browser_setup_url output and use the one_time_setup_code. The worker source is pinned to an audited private commit. Oracle then builds and runs it with local qwen3:4b inference, zero spending, zero children, Honey payouts disabled, automatic SQLite integrity + wallet persistence verification, weekly boot-volume backups, host-level blocking for internal ports, version-pinned Caddy/Ollama images, ARM-build swap protection, retry-safe bootstrap and zero-cost survival independent of Conway credits. If Ampere A1 capacity is temporarily unavailable, retry the same stack later; in constrained regions you can alternatively select the compact 1 OCPU / 6 GB profile."
 schemaVersion: 1.1.0
 version: "20260807"
 locale: "en"
@@ -13,6 +13,7 @@ variableGroups:
       - availability_domain_number
   - title: "Worker"
     variables:
+      - compute_profile
       - instance_display_name
 
 variables:
@@ -36,12 +37,22 @@ variables:
   availability_domain_number:
     type: integer
     title: "Availability domain number"
-    description: "Start with 1. If Oracle reports Out of host capacity, edit the stack and try 2 or 3 where your region has multiple availability domains."
+    description: "Use 1 in single-AD regions such as eu-madrid-3. Only try another number when Oracle actually lists multiple availability domains for your home region."
     required: true
     default: 1
     minimum: 1
     maximum: 3
     multipleOf: 1
+
+  compute_profile:
+    type: enum
+    title: "Always Free compute profile"
+    description: "Full = 2 OCPU / 12 GB (best performance). Compact = 1 OCPU / 6 GB (slower, but a smaller placement request when A1 capacity is constrained). Both remain inside the Always Free A1 allowance."
+    enum:
+      - full
+      - compact
+    default: full
+    required: true
 
   instance_display_name:
     type: string
