@@ -82,6 +82,43 @@ ReadWritePaths=/opt/conway-bootstrap /opt/conway-replicatio /var/log
 WantedBy=multi-user.target
 EOF
 
+# Once the owner clicks the portal's seal/acknowledge button, stop and disable
+# the setup service automatically. This leaves only the worker gateway behind
+# HTTPS and removes the credential-entry surface from the running host.
+cat >/usr/local/sbin/conway-seal-setup-check <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+STATUS=/opt/conway-bootstrap/status.json
+if [[ -s "$STATUS" ]] && jq -e '.sealed == true' "$STATUS" >/dev/null 2>&1; then
+  systemctl disable --now conway-browser-setup.service || true
+  systemctl disable --now conway-browser-setup-seal.timer || true
+fi
+EOF
+chmod 0700 /usr/local/sbin/conway-seal-setup-check
+
+cat >/etc/systemd/system/conway-browser-setup-seal.service <<'EOF'
+[Unit]
+Description=Seal Conway browser setup portal after owner acknowledgement
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/conway-seal-setup-check
+EOF
+
+cat >/etc/systemd/system/conway-browser-setup-seal.timer <<'EOF'
+[Unit]
+Description=Check whether Conway browser setup has been sealed
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=1min
+AccuracySec=10s
+Persistent=true
+
+[Install]
+WantedBy=timers.target
+EOF
+
 cat >"${BOOTSTRAP_ROOT}/Caddyfile" <<EOF
 ${WORKER_HOST} {
     encode zstd gzip
@@ -107,6 +144,7 @@ chmod 0600 "${BOOTSTRAP_ROOT}/Caddyfile"
 
 systemctl daemon-reload
 systemctl enable --now conway-browser-setup.service
+systemctl enable --now conway-browser-setup-seal.timer
 
 docker rm -f conway-replicatio-caddy >/dev/null 2>&1 || true
 docker run -d \
@@ -121,4 +159,5 @@ docker run -d \
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
 echo "[bootstrap] ports 8080, 8081 and 11434 are not exposed publicly"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
+echo "[bootstrap] setup portal auto-disables after owner acknowledgement"
 echo "[bootstrap] complete"
