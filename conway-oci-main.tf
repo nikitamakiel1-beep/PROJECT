@@ -142,6 +142,33 @@ resource "oci_core_instance" "replicatio" {
   }
 }
 
+# Keep at most four scheduled backups: one incremental backup each week, retained
+# for 28 days. Oracle Always Free includes five total boot/block volume backups
+# in the tenancy home region, leaving one slot available for an owner-initiated
+# emergency/manual backup.
+resource "oci_core_volume_backup_policy" "replicatio" {
+  compartment_id = var.compartment_ocid
+  display_name   = "conway-replicatio-weekly-4"
+
+  schedules {
+    backup_type       = "INCREMENTAL"
+    period            = "ONE_WEEK"
+    retention_seconds = 2419200
+    day_of_week       = "SUNDAY"
+    hour_of_day       = 3
+    time_zone         = "UTC"
+  }
+
+  freeform_tags = {
+    "ConwayReplicatio" = "wallet-state-backup"
+  }
+}
+
+resource "oci_core_volume_backup_policy_assignment" "replicatio_boot" {
+  asset_id = oci_core_instance.replicatio.boot_volume_id
+  policy_id = oci_core_volume_backup_policy.replicatio.id
+}
+
 locals {
   worker_hostname = "${replace(oci_core_instance.replicatio.public_ip, ".", "-")}.sslip.io"
 }
