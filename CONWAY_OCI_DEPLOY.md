@@ -23,7 +23,8 @@ This branch contains a public Terraform bootstrap package only. The private Conw
 
 - no public SSH rule;
 - only TCP 80/443 are admitted by the OCI security list;
-- worker 8080, internal supervisor 8081 and Ollama 11434 are not admitted publicly;
+- worker 8080, internal supervisor 8081 and Ollama 11434 are rejected by the OCI security list and independently dropped for non-loopback traffic by the VM host firewall;
+- the local-inference gateway also prefers loopback binding when its Ollama backend is loopback;
 - HTTPS uses Caddy with an IP-derived `sslip.io` hostname;
 - private GitHub token is never stored in Terraform, cloud-init, `.env`, status files or logs;
 - worker control and Honey operator tokens are generated on the Oracle VM;
