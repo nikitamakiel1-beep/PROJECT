@@ -22,7 +22,7 @@ data "oci_identity_availability_domains" "ads" {
 }
 
 data "oci_core_images" "ubuntu" {
-  compartment_id           = var.compartment_ocid
+  compartment_id           = var.tenancy_ocid
   operating_system         = "Canonical Ubuntu"
   operating_system_version = "24.04"
   shape                    = "VM.Standard.A1.Flex"
@@ -104,10 +104,10 @@ resource "oci_core_subnet" "replicatio" {
 }
 
 resource "oci_core_instance" "replicatio" {
-  compartment_id      = var.compartment_ocid
-  availability_domain = data.oci_identity_availability_domains.ads.availability_domains[var.availability_domain_number - 1].name
-  display_name        = var.instance_display_name
-  shape               = "VM.Standard.A1.Flex"
+  compartment_id       = var.compartment_ocid
+  availability_domain  = data.oci_identity_availability_domains.ads.availability_domains[var.availability_domain_number - 1].name
+  display_name         = var.instance_display_name
+  shape                = "VM.Standard.A1.Flex"
   preserve_boot_volume = false
 
   shape_config {
