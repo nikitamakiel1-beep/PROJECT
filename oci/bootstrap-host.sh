@@ -17,6 +17,20 @@ export DEBIAN_FRONTEND=noninteractive
 apt-get update
 apt-get install -y --no-install-recommends ca-certificates curl git jq openssl python3
 
+# ARM builds can transiently use more memory than the runtime. Add a private
+# 4 GiB swapfile once; the VM still uses its 12 GiB Always Free RAM normally.
+if ! swapon --show=NAME --noheadings | grep -qx '/swapfile'; then
+  if [[ ! -f /swapfile ]]; then
+    fallocate -l 4G /swapfile
+    chmod 0600 /swapfile
+    mkswap /swapfile >/dev/null
+  fi
+  swapon /swapfile
+fi
+if ! grep -qE '^/swapfile\s' /etc/fstab; then
+  echo '/swapfile none swap sw 0 0' >> /etc/fstab
+fi
+
 install -m 0755 -d /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
 chmod a+r /etc/apt/keyrings/docker.asc
@@ -81,12 +95,16 @@ WORKER_URL="https://${WORKER_HOST}"
 install -d -m 0700 "$BOOTSTRAP_ROOT" /opt/conway-replicatio /var/lib/conway-caddy /var/lib/conway-caddy-config
 
 curl -fsSL "${PUBLIC_SOURCE}/portal.py" -o "${BOOTSTRAP_ROOT}/portal.py"
-# The generic portal is normalized by this immutable installer: exact Ollama
-# version, 15-second status polling and a high-but-bounded request bucket so an
-# ARM build can run for hours without the browser locking itself out.
+# Normalize the generic portal with the exact deployment contract owned by this
+# immutable bootstrap: pinned Ollama, long-running polling support, zero-cost
+# survival mode, retry-safe rebootstrap, and no direct worker exposure.
 sed -i "s#image: ollama/ollama:latest#image: ${OLLAMA_IMAGE}#g" "${BOOTSTRAP_ROOT}/portal.py"
 sed -i 's/if len(bucket) >= 12:/if len(bucket) >= 1000:/g' "${BOOTSTRAP_ROOT}/portal.py"
 sed -i 's/setInterval(refresh,5000)/setInterval(refresh,15000)/g' "${BOOTSTRAP_ROOT}/portal.py"
+sed -i '/"REPLICATIO_LOCAL_MODEL=" + LOCAL_MODEL,/a\                "REPLICATIO_ZERO_COST_LOCAL=true",' "${BOOTSTRAP_ROOT}/portal.py"
+sed -i '/REPLICATIO_LOCAL_MODEL: "qwen3:4b"/a\      REPLICATIO_ZERO_COST_LOCAL: "true"' "${BOOTSTRAP_ROOT}/portal.py"
+sed -i '/"autoProvision": False,/a\                "allowExisting": True,' "${BOOTSTRAP_ROOT}/portal.py"
+sed -i '/api("\/api\/v1\/bootstrap", control_token, method="POST", payload=bootstrap, timeout=180)/i\            try:\n                api("/api/v1/stop", control_token, method="POST", payload={}, timeout=60)\n            except Exception:\n                pass' "${BOOTSTRAP_ROOT}/portal.py"
 chmod 0700 "${BOOTSTRAP_ROOT}/portal.py"
 
 cat >"${BOOTSTRAP_ROOT}/runtime.env" <<EOF
@@ -122,7 +140,7 @@ EOF
 
 # Once the owner clicks the portal's seal/acknowledge button, stop and disable
 # the setup service automatically. This leaves only the worker gateway behind
-# HTTPS and removes the credential-entry surface from the running host.
+# HTTPS and removes setup credentials and Docker build cache from the host.
 cat >/usr/local/sbin/conway-seal-setup-check <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -130,6 +148,9 @@ STATUS=/opt/conway-bootstrap/status.json
 if [[ -s "$STATUS" ]] && jq -e '.sealed == true' "$STATUS" >/dev/null 2>&1; then
   systemctl disable --now conway-browser-setup.service || true
   rm -f /etc/conway-replicatio-bootstrap.env /opt/conway-bootstrap/runtime.env /opt/conway-bootstrap/portal.py || true
+  docker builder prune -af >/dev/null 2>&1 || true
+  docker image prune -f >/dev/null 2>&1 || true
+  apt-get clean || true
   systemctl disable --now conway-browser-setup-seal.timer || true
 fi
 EOF
@@ -199,7 +220,9 @@ docker run -d \
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
 echo "[bootstrap] internal ports are blocked at both OCI and host firewall layers"
 echo "[bootstrap] Caddy ${CADDY_IMAGE} and Ollama ${OLLAMA_IMAGE} are version-pinned"
-echo "[bootstrap] long-running ARM builds are supported without status-poll lockout"
+echo "[bootstrap] 4 GiB swap protects the one-time ARM build from transient memory pressure"
+echo "[bootstrap] retries preserve the wallet/state and intentionally rebootstrap existing state"
+echo "[bootstrap] zero-cost local mode is independent of Conway Compute credit survival tiers"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
-echo "[bootstrap] setup portal auto-disables and removes its credential-entry files after owner acknowledgement"
+echo "[bootstrap] setup portal auto-disables, deletes its credential files, and prunes build cache after acknowledgement"
 echo "[bootstrap] complete"
