@@ -34,6 +34,36 @@ systemctl enable --now docker
 docker version >/dev/null
 docker compose version >/dev/null
 
+# Defense in depth: OCI admits only 80/443, and the host firewall separately
+# drops any non-loopback attempt to worker/supervisor/Ollama internal ports.
+cat >/usr/local/sbin/conway-private-ports <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+for bin in iptables ip6tables; do
+  command -v "$bin" >/dev/null 2>&1 || continue
+  if ! "$bin" -C INPUT ! -i lo -p tcp -m multiport --dports 8080,8081,11434 -j DROP >/dev/null 2>&1; then
+    "$bin" -I INPUT 1 ! -i lo -p tcp -m multiport --dports 8080,8081,11434 -j DROP
+  fi
+done
+EOF
+chmod 0700 /usr/local/sbin/conway-private-ports
+
+cat >/etc/systemd/system/conway-private-ports.service <<'EOF'
+[Unit]
+Description=Keep Conway Replicatio internal ports loopback-only
+After=network-online.target docker.service
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/conway-private-ports
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 PUBLIC_IP="$(curl -4fsS --max-time 10 https://api.ipify.org || true)"
 if ! [[ "$PUBLIC_IP" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]]; then
   PUBLIC_IP="$(curl -4fsS --max-time 10 https://checkip.amazonaws.com | tr -d '[:space:]' || true)"
@@ -62,9 +92,9 @@ chmod 0600 "${BOOTSTRAP_ROOT}/runtime.env"
 cat >/etc/systemd/system/conway-browser-setup.service <<'EOF'
 [Unit]
 Description=Conway Replicatio browser-only setup portal
-After=network-online.target docker.service
+After=network-online.target docker.service conway-private-ports.service
 Wants=network-online.target
-Requires=docker.service
+Requires=docker.service conway-private-ports.service
 
 [Service]
 Type=simple
@@ -143,6 +173,7 @@ EOF
 chmod 0600 "${BOOTSTRAP_ROOT}/Caddyfile"
 
 systemctl daemon-reload
+systemctl enable --now conway-private-ports.service
 systemctl enable --now conway-browser-setup.service
 systemctl enable --now conway-browser-setup-seal.timer
 
@@ -157,7 +188,7 @@ docker run -d \
   caddy:2-alpine >/dev/null
 
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
-echo "[bootstrap] ports 8080, 8081 and 11434 are not exposed publicly"
+echo "[bootstrap] ports 8080, 8081 and 11434 are blocked at both OCI and host firewall layers"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
 echo "[bootstrap] setup portal auto-disables after owner acknowledgement"
 echo "[bootstrap] complete"
