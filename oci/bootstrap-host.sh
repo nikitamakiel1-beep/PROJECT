@@ -10,6 +10,8 @@ echo "[bootstrap] starting Conway Replicatio browser-only host setup"
 BOOTSTRAP_REF="${BOOTSTRAP_REF:-conway-oci-stack}"
 BOOTSTRAP_ROOT=/opt/conway-bootstrap
 PUBLIC_SOURCE="https://raw.githubusercontent.com/nikitamakiel1-beep/PROJECT/${BOOTSTRAP_REF}/oci"
+CADDY_IMAGE="caddy:2.11.4-alpine"
+OLLAMA_IMAGE="ollama/ollama:0.32.5"
 
 export DEBIAN_FRONTEND=noninteractive
 apt-get update
@@ -79,6 +81,9 @@ WORKER_URL="https://${WORKER_HOST}"
 install -d -m 0700 "$BOOTSTRAP_ROOT" /opt/conway-replicatio /var/lib/conway-caddy /var/lib/conway-caddy-config
 
 curl -fsSL "${PUBLIC_SOURCE}/portal.py" -o "${BOOTSTRAP_ROOT}/portal.py"
+# The portal source remains generic, while this immutable host bootstrap pins the
+# exact Ollama image that its generated Compose file will use.
+sed -i "s#image: ollama/ollama:latest#image: ${OLLAMA_IMAGE}#g" "${BOOTSTRAP_ROOT}/portal.py"
 chmod 0700 "${BOOTSTRAP_ROOT}/portal.py"
 
 cat >"${BOOTSTRAP_ROOT}/runtime.env" <<EOF
@@ -121,6 +126,7 @@ set -euo pipefail
 STATUS=/opt/conway-bootstrap/status.json
 if [[ -s "$STATUS" ]] && jq -e '.sealed == true' "$STATUS" >/dev/null 2>&1; then
   systemctl disable --now conway-browser-setup.service || true
+  rm -f /etc/conway-replicatio-bootstrap.env /opt/conway-bootstrap/runtime.env /opt/conway-bootstrap/portal.py || true
   systemctl disable --now conway-browser-setup-seal.timer || true
 fi
 EOF
@@ -185,10 +191,11 @@ docker run -d \
   -v "${BOOTSTRAP_ROOT}/Caddyfile:/etc/caddy/Caddyfile:ro" \
   -v /var/lib/conway-caddy:/data \
   -v /var/lib/conway-caddy-config:/config \
-  caddy:2-alpine >/dev/null
+  "${CADDY_IMAGE}" >/dev/null
 
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
-echo "[bootstrap] ports 8080, 8081 and 11434 are blocked at both OCI and host firewall layers"
+echo "[bootstrap] internal ports are blocked at both OCI and host firewall layers"
+echo "[bootstrap] Caddy ${CADDY_IMAGE} and Ollama ${OLLAMA_IMAGE} are version-pinned"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
-echo "[bootstrap] setup portal auto-disables after owner acknowledgement"
+echo "[bootstrap] setup portal auto-disables and removes its credential-entry files after owner acknowledgement"
 echo "[bootstrap] complete"
