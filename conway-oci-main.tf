@@ -30,6 +30,20 @@ data "oci_core_images" "ubuntu" {
   sort_order               = "DESC"
 }
 
+locals {
+  compute_profiles = {
+    full = {
+      ocpus         = 2
+      memory_in_gbs = 12
+    }
+    compact = {
+      ocpus         = 1
+      memory_in_gbs = 6
+    }
+  }
+  selected_compute = local.compute_profiles[var.compute_profile]
+}
+
 resource "random_password" "setup_code" {
   length  = 24
   special = false
@@ -111,8 +125,8 @@ resource "oci_core_instance" "replicatio" {
   preserve_boot_volume = false
 
   shape_config {
-    ocpus         = 2
-    memory_in_gbs = 12
+    ocpus         = local.selected_compute.ocpus
+    memory_in_gbs = local.selected_compute.memory_in_gbs
   }
 
   create_vnic_details {
@@ -138,6 +152,7 @@ resource "oci_core_instance" "replicatio" {
 
   freeform_tags = {
     "ConwayReplicatio" = "browser-only-free-worker"
+    "ComputeProfile"   = var.compute_profile
     "SafetyMode"       = "zero-spend-zero-child-first-boot"
   }
 }
