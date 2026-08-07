@@ -154,6 +154,7 @@ resource "oci_core_volume_backup_policy" "replicatio" {
     backup_type       = "INCREMENTAL"
     period            = "ONE_WEEK"
     retention_seconds = 2419200
+    offset_type       = "STRUCTURED"
     day_of_week       = "SUNDAY"
     hour_of_day       = 3
     time_zone         = "UTC"
@@ -165,7 +166,7 @@ resource "oci_core_volume_backup_policy" "replicatio" {
 }
 
 resource "oci_core_volume_backup_policy_assignment" "replicatio_boot" {
-  asset_id = oci_core_instance.replicatio.boot_volume_id
+  asset_id  = oci_core_instance.replicatio.boot_volume_id
   policy_id = oci_core_volume_backup_policy.replicatio.id
 }
 
