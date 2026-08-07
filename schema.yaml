@@ -1,6 +1,6 @@
 title: "Conway Replicatio — Free Browser-Only Worker"
 description: "Deploys one Oracle Always Free Ampere A1 VM for Conway Replicatio. No local terminal, SSH, Docker, Node.js, or Conway website login is required."
-informationalText: "The stack opens only HTTPS/HTTP. After Apply succeeds, open the browser_setup_url output and use the one_time_setup_code. The worker starts with local qwen3:4b inference, zero spending, zero children, Honey payouts disabled, weekly boot-volume backups, host-level blocking for internal ports, and version-pinned Caddy/Ollama images."
+informationalText: "The stack opens only HTTPS/HTTP. After Apply succeeds, open the browser_setup_url output and use the one_time_setup_code. The worker starts with local qwen3:4b inference, zero spending, zero children, Honey payouts disabled, weekly boot-volume backups, host-level blocking for internal ports, version-pinned Caddy/Ollama images, and long-running ARM-build polling support."
 schemaVersion: 1.1.0
 version: "20260807"
 locale: "en"
@@ -55,4 +55,4 @@ variables:
     type: string
     required: true
     visible: false
-    default: "3e872bc499110ad48ee57c9ad5cc7d900164e797"
+    default: "8104662f1916a93bd28747fbe8ee706d32ad5ea6"
