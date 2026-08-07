@@ -98,9 +98,8 @@ install -d -m 0700 "$BOOTSTRAP_ROOT" /opt/conway-replicatio /var/lib/conway-cadd
 curl -fsSL "${PUBLIC_SOURCE}/portal.py" -o "${BOOTSTRAP_ROOT}/portal.py"
 
 # Normalize the generic portal with the exact immutable deployment contract.
-# In particular, the private worker is not allowed to float with its branch:
-# the installer clones the branch for access validation, then fetches/checks out
-# the exact audited worker commit and refuses to continue if HEAD differs.
+# The private worker cannot float with its branch, and the installer itself
+# performs an Oracle-side persistence test before autonomous activation.
 python3 - "${BOOTSTRAP_ROOT}/portal.py" "${WORKER_COMMIT}" <<'PY'
 from pathlib import Path
 import sys
@@ -117,8 +116,13 @@ def replace_once(old, new, label):
     text = text.replace(old, new, 1)
 
 replace_once(
+    'import shutil\nimport subprocess',
+    'import shutil\nimport sqlite3\nimport subprocess',
+    "sqlite import",
+)
+replace_once(
     'BRANCH = "feature/conway-colonial-integration"',
-    f'BRANCH = "feature/conway-colonial-integration"\nWORKER_COMMIT = "{worker_commit}"',
+    f'BRANCH = "feature/conway-colonial-integration"\nWORKER_COMMIT = "{worker_commit}"\nPERSISTENCE_PROOF = INSTALL_ROOT / "data" / "persistence-proof.json"',
     "worker commit constant",
 )
 replace_once(
@@ -156,10 +160,139 @@ replace_once(
             api("/api/v1/bootstrap", control_token, method="POST", payload=bootstrap, timeout=180)''',
     "stop before rebootstrap",
 )
+
+persistence_helpers = r'''
+
+def persistence_snapshot(seed=False):
+    state_dir = INSTALL_ROOT / "data" / ".automaton"
+    db_path = state_dir / "state.db"
+    wallet_path = state_dir / "wallet.json"
+    if not db_path.is_file():
+        raise RuntimeError("SQLite state.db is missing from Oracle persistent storage")
+    if not wallet_path.is_file():
+        raise RuntimeError("Agent Wallet file is missing from Oracle persistent storage")
+
+    wallet_raw = wallet_path.read_bytes()
+    wallet_hash = hashlib.sha256(wallet_raw).hexdigest()
+    try:
+        wallet_meta = json.loads(wallet_raw.decode("utf-8"))
+    except Exception as exc:
+        raise RuntimeError(f"Agent Wallet file is not valid JSON: {exc}")
+    chain_type = str(wallet_meta.get("chainType") or "evm")
+
+    con = sqlite3.connect(str(db_path), timeout=30)
+    try:
+        integrity_row = con.execute("PRAGMA integrity_check").fetchone()
+        integrity = str(integrity_row[0] if integrity_row else "missing")
+        if integrity.lower() != "ok":
+            raise RuntimeError(f"SQLite integrity_check failed: {integrity}")
+
+        tables = {str(row[0]) for row in con.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()}
+        required = {"schema_version", "identity", "turns", "kv", "model_registry"}
+        missing = sorted(required - tables)
+        if missing:
+            raise RuntimeError("SQLite is missing required tables: " + ", ".join(missing))
+
+        schema_row = con.execute("SELECT MAX(version) FROM schema_version").fetchone()
+        schema_version = int(schema_row[0] or 0) if schema_row else 0
+        if schema_version <= 0:
+            raise RuntimeError("SQLite schema version is invalid")
+
+        if seed:
+            marker = secrets.token_hex(32)
+            con.execute(
+                "INSERT INTO kv(key,value,updated_at) VALUES('replicatio.persistence_marker',?,datetime('now')) "
+                "ON CONFLICT(key) DO UPDATE SET value=excluded.value, updated_at=datetime('now')",
+                (marker,),
+            )
+            con.commit()
+        else:
+            marker_row = con.execute("SELECT value FROM kv WHERE key='replicatio.persistence_marker'").fetchone()
+            marker = str(marker_row[0]) if marker_row else ""
+            if len(marker) < 32:
+                raise RuntimeError("SQLite persistence marker is missing after worker restart")
+
+        page_count = int(con.execute("PRAGMA page_count").fetchone()[0])
+        table_count = int(con.execute("SELECT COUNT(*) FROM sqlite_master WHERE type='table'").fetchone()[0])
+    finally:
+        con.close()
+
+    return {
+        "integrity": integrity,
+        "schemaVersion": schema_version,
+        "tableCount": table_count,
+        "pageCount": page_count,
+        "marker": marker,
+        "walletHash": wallet_hash,
+        "chainType": chain_type,
+        "dbPath": str(db_path),
+        "walletPath": str(wallet_path),
+        "checkedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    }
+
+
+def seed_persistence_proof():
+    snapshot = persistence_snapshot(seed=True)
+    atomic_json(PERSISTENCE_PROOF, {
+        "schema": "conway-replicatio/persistence-proof/v1",
+        "workerCommit": WORKER_COMMIT,
+        **snapshot,
+    })
+    return snapshot
+
+
+def verify_persistence_proof():
+    if not PERSISTENCE_PROOF.is_file():
+        raise RuntimeError("Oracle persistence proof was not created")
+    expected = json.loads(PERSISTENCE_PROOF.read_text(encoding="utf-8"))
+    actual = persistence_snapshot(seed=False)
+    if expected.get("workerCommit") != WORKER_COMMIT:
+        raise RuntimeError("Persistence proof worker commit does not match the audited worker")
+    if expected.get("marker") != actual.get("marker"):
+        raise RuntimeError("SQLite persistence marker changed across container restart")
+    if expected.get("walletHash") != actual.get("walletHash"):
+        raise RuntimeError("Agent Wallet changed across container restart")
+    atomic_json(PERSISTENCE_PROOF, {
+        **expected,
+        "verified": True,
+        "verifiedAt": actual["checkedAt"],
+        "postRestartIntegrity": actual["integrity"],
+        "postRestartSchemaVersion": actual["schemaVersion"],
+        "postRestartTableCount": actual["tableCount"],
+    })
+    return actual
+'''
+replace_once('\n\ndef page_html():', persistence_helpers + '\n\ndef page_html():', "persistence helper insertion")
+
+replace_once(
+    '            update_status(stage="checkpoint", progress=90, message="Creating the mandatory pre-activation integrity checkpoint")',
+    '''            update_status(stage="persistence_seed", progress=87, message="Writing a persistence marker to Oracle SQLite and fingerprinting the Agent Wallet")
+            seed_persistence_proof()
+
+            update_status(stage="persistence_restart", progress=88, message="Restarting the cloud worker to prove wallet and SQLite persistence")
+            run(["docker", "compose", "-f", "compose.yml", "restart", "worker"], cwd=INSTALL_ROOT, timeout=300)
+            wait_for_worker(control_token, seconds=300)
+
+            update_status(stage="persistence_verify", progress=89, message="Verifying SQLite integrity and unchanged Agent Wallet after restart")
+            persistence = verify_persistence_proof()
+
+            update_status(stage="checkpoint", progress=90, message="Creating the mandatory pre-activation integrity checkpoint")''',
+    "automatic persistence restart proof",
+)
+replace_once(
+    '                message="Replicatio is running with local qwen3:4b inference, zero spending, zero children and Honey payouts disabled.",',
+    '                message="Replicatio is running. Oracle SQLite integrity, wallet persistence and local qwen3:4b tool calling were verified automatically; spending, children and Honey payouts remain disabled.",',
+    "completion receipt message",
+)
 replace_once(
     '                workerUrl=WORKER_URL,\n                tokenAcknowledged=False,',
-    '                workerUrl=WORKER_URL,\n                workerCommit=WORKER_COMMIT,\n                tokenAcknowledged=False,',
-    "deployment receipt source commit",
+    '                workerUrl=WORKER_URL,\n                workerCommit=WORKER_COMMIT,\n                persistenceVerified=True,\n                sqliteIntegrity=persistence["integrity"],\n                sqliteSchemaVersion=persistence["schemaVersion"],\n                tokenAcknowledged=False,',
+    "deployment receipt persistence metadata",
+)
+replace_once(
+    '                    "workerUrl": status.get("workerUrl") or WORKER_URL,',
+    '                    "workerUrl": status.get("workerUrl") or WORKER_URL,\n                    "persistenceVerified": bool(status.get("persistenceVerified")),\n                    "sqliteIntegrity": status.get("sqliteIntegrity"),\n                    "sqliteSchemaVersion": status.get("sqliteSchemaVersion"),',
+    "status persistence metadata",
 )
 replace_once('if len(bucket) >= 12:', 'if len(bucket) >= 1000:', "long-running polling bucket")
 replace_once('setInterval(refresh,5000)', 'setInterval(refresh,15000)', "long-running polling interval")
@@ -241,6 +374,89 @@ Persistent=true
 WantedBy=timers.target
 EOF
 
+# On every later Oracle VM boot, independently re-check the same persisted
+# wallet fingerprint, SQLite marker and database integrity. This never exposes
+# the wallet contents; it writes only a local verification receipt.
+cat >/usr/local/sbin/conway-persistence-boot-check <<'PY'
+#!/usr/bin/env python3
+import hashlib
+import json
+import os
+import sqlite3
+import sys
+import time
+from pathlib import Path
+
+root = Path("/opt/conway-replicatio/data")
+proof_file = root / "persistence-proof.json"
+status_file = root / "boot-persistence-status.json"
+db_file = root / ".automaton" / "state.db"
+wallet_file = root / ".automaton" / "wallet.json"
+
+if not proof_file.is_file():
+    sys.exit(0)
+
+for _ in range(24):
+    if db_file.is_file() and wallet_file.is_file():
+        break
+    time.sleep(5)
+
+result = {
+    "schema": "conway-replicatio/boot-persistence-status/v1",
+    "checkedAt": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+    "verified": False,
+}
+try:
+    proof = json.loads(proof_file.read_text(encoding="utf-8"))
+    wallet_hash = hashlib.sha256(wallet_file.read_bytes()).hexdigest()
+    con = sqlite3.connect(str(db_file), timeout=30)
+    try:
+        integrity = str(con.execute("PRAGMA integrity_check").fetchone()[0])
+        marker_row = con.execute("SELECT value FROM kv WHERE key='replicatio.persistence_marker'").fetchone()
+        marker = str(marker_row[0]) if marker_row else ""
+        schema_row = con.execute("SELECT MAX(version) FROM schema_version").fetchone()
+        schema_version = int(schema_row[0] or 0) if schema_row else 0
+    finally:
+        con.close()
+    if integrity.lower() != "ok":
+        raise RuntimeError(f"SQLite integrity_check failed: {integrity}")
+    if wallet_hash != proof.get("walletHash"):
+        raise RuntimeError("Agent Wallet fingerprint changed after Oracle VM boot")
+    if marker != proof.get("marker"):
+        raise RuntimeError("SQLite persistence marker changed after Oracle VM boot")
+    result.update({
+        "verified": True,
+        "sqliteIntegrity": integrity,
+        "sqliteSchemaVersion": schema_version,
+        "workerCommit": proof.get("workerCommit"),
+    })
+except Exception as exc:
+    result["error"] = str(exc)
+
+tmp = status_file.with_suffix(".tmp")
+tmp.write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")
+os.chmod(tmp, 0o600)
+tmp.replace(status_file)
+if not result["verified"]:
+    sys.exit(1)
+PY
+chmod 0700 /usr/local/sbin/conway-persistence-boot-check
+
+cat >/etc/systemd/system/conway-persistence-boot-check.service <<'EOF'
+[Unit]
+Description=Verify Conway wallet and SQLite persistence after Oracle VM boot
+After=docker.service network-online.target
+Wants=network-online.target
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/conway-persistence-boot-check
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
 cat >"${BOOTSTRAP_ROOT}/Caddyfile" <<EOF
 ${WORKER_HOST} {
     encode zstd gzip
@@ -268,6 +484,7 @@ systemctl daemon-reload
 systemctl enable --now conway-private-ports.service
 systemctl enable --now conway-browser-setup.service
 systemctl enable --now conway-browser-setup-seal.timer
+systemctl enable conway-persistence-boot-check.service
 
 docker rm -f conway-replicatio-caddy >/dev/null 2>&1 || true
 docker run -d \
@@ -284,6 +501,8 @@ echo "[bootstrap] private worker source pinned to ${WORKER_COMMIT}"
 echo "[bootstrap] internal ports are blocked at both OCI and host firewall layers"
 echo "[bootstrap] Caddy ${CADDY_IMAGE} and Ollama ${OLLAMA_IMAGE} are version-pinned"
 echo "[bootstrap] 4 GiB swap protects the one-time ARM build from transient memory pressure"
+echo "[bootstrap] installer automatically proves SQLite + Agent Wallet persistence across a worker restart before activation"
+echo "[bootstrap] future Oracle VM boots automatically re-check wallet fingerprint, SQLite marker and PRAGMA integrity_check"
 echo "[bootstrap] retries preserve the wallet/state and intentionally rebootstrap existing state"
 echo "[bootstrap] zero-cost local mode is independent of Conway Compute credit survival tiers"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
