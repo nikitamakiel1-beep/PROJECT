@@ -15,12 +15,23 @@ variable "region" {
 
 variable "availability_domain_number" {
   type        = number
-  description = "Availability domain number to try for Ampere A1 capacity. Change and re-apply if Oracle reports out-of-host-capacity."
+  description = "Availability domain number. Use 1 in single-AD regions such as eu-madrid-3."
   default     = 1
 
   validation {
     condition     = var.availability_domain_number >= 1 && var.availability_domain_number <= 3 && floor(var.availability_domain_number) == var.availability_domain_number
     error_message = "availability_domain_number must be 1, 2, or 3."
+  }
+}
+
+variable "compute_profile" {
+  type        = string
+  description = "Always Free Ampere A1 size. full uses 2 OCPU/12 GB; compact uses 1 OCPU/6 GB and can improve placement odds when the region is capacity-constrained."
+  default     = "full"
+
+  validation {
+    condition     = contains(["full", "compact"], var.compute_profile)
+    error_message = "compute_profile must be full or compact."
   }
 }
 
