@@ -10,7 +10,7 @@ variable "compartment_ocid" {
 
 variable "region" {
   type        = string
-  description = "OCI region. Always Free compute must be used in your tenancy home region."
+  description = "OCI region. Always Free compute must be used in the tenancy home region."
 }
 
 variable "availability_domain_number" {
@@ -38,5 +38,5 @@ variable "instance_display_name" {
 variable "bootstrap_ref" {
   type        = string
   description = "Pinned public bootstrap source ref. Do not change unless intentionally upgrading the installer."
-  default     = "564a64bda67aa1fa31cdffdc0a1e893ead430c93"
+  default     = "235746b6988088e8f5addfc8efc3f96bbc2344cf"
 }
