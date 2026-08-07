@@ -1,10 +1,18 @@
 # Conway Replicatio — browser-only Oracle Always Free deployment
 
-This branch contains the public deployment documentation and bootstrap source only. The private Conway-Replicatio worker source remains in `nikitamakiel1-beep/Conway-Replicatio` and is cloned once after the owner enters a fine-grained GitHub read token into the HTTPS setup portal.
+This branch contains the public deployment documentation and bootstrap source only. The private Conway-Replicatio worker source remains in `nikitamakiel1-beep/Conway-Replicatio` and is accessed only after the owner enters a fine-grained GitHub read token into the HTTPS setup portal.
 
-The production deploy button is deliberately pinned to immutable OCI stack snapshot `8df7ee40153c5abe6eb7dee12fdcf91917ed00db` rather than the moving branch. That snapshot also pins the Terraform OCI provider to `8.23.0` and the Random provider to `3.9.0`:
+The production deploy button is deliberately pinned to immutable OCI stack snapshot `a8c1cb30e923986e2e600b887cd7d9f9eeb75611` rather than the moving public branch. That stack pins:
 
-[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/8df7ee40153c5abe6eb7dee12fdcf91917ed00db.zip)
+- Terraform OCI provider `8.23.0`;
+- Terraform Random provider `3.9.0`;
+- public host/bootstrap commit `e6b1b20b02caabe2809f26e60b0c59bc4c51bfe4`;
+- private Conway-Replicatio worker commit `2689083b93296523b81614b6768f6c5b5d95fa27`;
+- Caddy `2.11.4-alpine`;
+- Ollama `0.32.5`;
+- original Conway Automaton `871c53e39b9180920c775759ddc38789699d69ea` inside the private worker build.
+
+[![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/nikitamakiel1-beep/PROJECT/archive/a8c1cb30e923986e2e600b887cd7d9f9eeb75611.zip)
 
 ## Browser-only flow
 
@@ -17,7 +25,7 @@ The production deploy button is deliberately pinned to immutable OCI stack snaps
    - the one-time setup code;
    - a fine-grained GitHub token owned by `nikitamakiel1-beep`, restricted to `Conway-Replicatio`, Contents read-only;
    - a public EVM Creator wallet address only.
-7. The portal verifies ownership, clones the private branch, discards the GitHub token, builds the pinned Automaton + Replicatio Docker image, downloads local `qwen3:4b`, generates the Agent Wallet, applies zero-spend/zero-child policy, verifies an actual Ollama tool call, locks both main-loop and orchestration inference to local Ollama, creates the pre-activation checkpoint and starts the worker under the bounded watchdog.
+7. The portal verifies ownership, initially clones the authorized private repository, fetches and checks out the exact audited private worker commit above, verifies `HEAD`, then discards the GitHub token. It builds the pinned Automaton + Replicatio Docker image, downloads local `qwen3:4b`, generates the Agent Wallet, applies zero-spend/zero-child policy, verifies an actual Ollama tool call, locks both main-loop and orchestration inference to local Ollama, creates the pre-activation checkpoint and starts the worker under the bounded watchdog.
 8. Copy the generated Worker URL and Control Token into `https://conway-replicatio.lovable.app/setup` → **Connect Oracle worker**.
 9. Click **I saved the control token — seal setup**. The setup portal stops revealing the token; a host timer then disables the credential-entry service, removes its temporary credential files and prunes one-time Docker build cache.
 
@@ -29,6 +37,7 @@ The production deploy button is deliberately pinned to immutable OCI stack snaps
 - the local-inference gateway also prefers loopback binding when its Ollama backend is loopback;
 - HTTPS uses Caddy with an IP-derived `sslip.io` hostname;
 - private GitHub token is never stored in Terraform, cloud-init, `.env`, status files or logs;
+- worker source is detached at an exact audited private commit rather than following the feature branch after deployment begins;
 - worker control and Honey operator tokens are generated on the Oracle VM;
 - Agent Wallet private key stays in `/opt/conway-replicatio/data/.automaton` on the Oracle boot volume;
 - local inference uses `qwen3:4b` through loopback HTTP only;
@@ -64,4 +73,4 @@ The Terraform stack contains no GitHub token, wallet private key, Conway key, co
 
 ## Release gate
 
-The code path is now statically hardened, but it is intentionally **not** declared production-proven until the owner performs the first Oracle Resource Manager Apply. That live run must pass the ARM Docker build, qwen3:4b tool-call probe, wallet bootstrap, SQLite/checkpoint readiness gate, worker start, browser-to-Lovable connection and a later reboot/persistence check. No Agent Wallet funding should happen before those live checks pass.
+The code path is statically hardened but intentionally **not** declared production-proven until the owner performs the first Oracle Resource Manager Apply. That live run must pass the ARM Docker build, qwen3:4b tool-call probe, exact worker-source verification, wallet bootstrap, SQLite/checkpoint readiness gate, worker start, browser-to-Lovable connection and a later reboot/persistence check. No Agent Wallet funding should happen before those live checks pass.
