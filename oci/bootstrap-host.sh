@@ -81,9 +81,12 @@ WORKER_URL="https://${WORKER_HOST}"
 install -d -m 0700 "$BOOTSTRAP_ROOT" /opt/conway-replicatio /var/lib/conway-caddy /var/lib/conway-caddy-config
 
 curl -fsSL "${PUBLIC_SOURCE}/portal.py" -o "${BOOTSTRAP_ROOT}/portal.py"
-# The portal source remains generic, while this immutable host bootstrap pins the
-# exact Ollama image that its generated Compose file will use.
+# The generic portal is normalized by this immutable installer: exact Ollama
+# version, 15-second status polling and a high-but-bounded request bucket so an
+# ARM build can run for hours without the browser locking itself out.
 sed -i "s#image: ollama/ollama:latest#image: ${OLLAMA_IMAGE}#g" "${BOOTSTRAP_ROOT}/portal.py"
+sed -i 's/if len(bucket) >= 12:/if len(bucket) >= 1000:/g' "${BOOTSTRAP_ROOT}/portal.py"
+sed -i 's/setInterval(refresh,5000)/setInterval(refresh,15000)/g' "${BOOTSTRAP_ROOT}/portal.py"
 chmod 0700 "${BOOTSTRAP_ROOT}/portal.py"
 
 cat >"${BOOTSTRAP_ROOT}/runtime.env" <<EOF
@@ -196,6 +199,7 @@ docker run -d \
 echo "[bootstrap] browser setup URL: ${WORKER_URL}/setup/"
 echo "[bootstrap] internal ports are blocked at both OCI and host firewall layers"
 echo "[bootstrap] Caddy ${CADDY_IMAGE} and Ollama ${OLLAMA_IMAGE} are version-pinned"
+echo "[bootstrap] long-running ARM builds are supported without status-poll lockout"
 echo "[bootstrap] SSH ingress is not created by the Terraform stack"
 echo "[bootstrap] setup portal auto-disables and removes its credential-entry files after owner acknowledgement"
 echo "[bootstrap] complete"
