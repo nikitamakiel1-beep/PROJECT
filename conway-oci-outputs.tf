@@ -24,6 +24,11 @@ output "lovable_worker_url" {
   value       = "https://${local.worker_hostname}"
 }
 
+output "compute_profile" {
+  description = "Selected Always Free Ampere A1 profile."
+  value       = "${var.compute_profile}: ${local.selected_compute.ocpus} OCPU / ${local.selected_compute.memory_in_gbs} GB"
+}
+
 output "backup_policy" {
   description = "Automatic persistent-state protection applied to the Oracle boot volume."
   value       = "Incremental every Sunday at 03:00 UTC, retained 28 days (normally four scheduled backups, leaving one of the five Always Free backup slots available)."
@@ -31,5 +36,5 @@ output "backup_policy" {
 
 output "deployment_safety" {
   description = "First-boot safety posture."
-  value       = "2 OCPU / 12 GB Ampere A1, 100 GB persistent boot volume, ports 80+443 only, no SSH ingress, local qwen3:4b inference, maxChildren=0, external spending=0, Honey payouts disabled, pre-activation checkpoint, weekly OCI boot-volume backups, and browser setup portal auto-disabled after sealing."
+  value       = "${local.selected_compute.ocpus} OCPU / ${local.selected_compute.memory_in_gbs} GB Ampere A1 (${var.compute_profile}), 100 GB persistent boot volume, ports 80+443 only, no SSH ingress, local qwen3:4b inference, maxChildren=0, external spending=0, Honey payouts disabled, pre-activation checkpoint, weekly OCI boot-volume backups, and browser setup portal auto-disabled after sealing."
 }
