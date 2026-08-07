@@ -16,6 +16,7 @@ output "browser_setup_url" {
 output "one_time_setup_code" {
   description = "Temporary code for the browser setup portal. It is sealed after you acknowledge the generated control token."
   value       = random_password.setup_code.result
+  sensitive   = true
 }
 
 output "lovable_worker_url" {
