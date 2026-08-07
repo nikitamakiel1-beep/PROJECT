@@ -38,5 +38,5 @@ variable "instance_display_name" {
 variable "bootstrap_ref" {
   type        = string
   description = "Pinned public bootstrap source ref. Do not change unless intentionally upgrading the installer."
-  default     = "3e872bc499110ad48ee57c9ad5cc7d900164e797"
+  default     = "8104662f1916a93bd28747fbe8ee706d32ad5ea6"
 }
