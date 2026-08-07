@@ -23,7 +23,12 @@ output "lovable_worker_url" {
   value       = "https://${local.worker_hostname}"
 }
 
+output "backup_policy" {
+  description = "Automatic persistent-state protection applied to the Oracle boot volume."
+  value       = "Incremental every Sunday at 03:00 UTC, retained 28 days (normally four scheduled backups, leaving one of the five Always Free backup slots available)."
+}
+
 output "deployment_safety" {
   description = "First-boot safety posture."
-  value       = "2 OCPU / 12 GB Ampere A1, ports 80+443 only, no SSH ingress, local qwen3:4b inference, maxChildren=0, external spending=0, Honey payouts disabled until the owner changes policy."
+  value       = "2 OCPU / 12 GB Ampere A1, 100 GB persistent boot volume, ports 80+443 only, no SSH ingress, local qwen3:4b inference, maxChildren=0, external spending=0, Honey payouts disabled, pre-activation checkpoint, weekly OCI boot-volume backups, and browser setup portal auto-disabled after sealing."
 }
