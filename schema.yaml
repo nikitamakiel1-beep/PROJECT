@@ -1,0 +1,58 @@
+title: "Conway Replicatio — Free Browser-Only Worker"
+description: "Deploys one Oracle Always Free Ampere A1 VM for Conway Replicatio. No local terminal, SSH, Docker, Node.js, or Conway website login is required."
+informationalText: "The stack opens only HTTPS/HTTP. After Apply succeeds, open the browser_setup_url output and use the one_time_setup_code. The worker starts with local qwen3:4b inference, zero spending, zero children, and Honey payouts disabled."
+schemaVersion: 1.1.0
+version: "20260807"
+locale: "en"
+
+variableGroups:
+  - title: "Oracle destination"
+    variables:
+      - compartment_ocid
+      - region
+      - availability_domain_number
+  - title: "Worker"
+    variables:
+      - instance_display_name
+
+variables:
+  tenancy_ocid:
+    type: string
+    required: true
+    visible: false
+
+  compartment_ocid:
+    type: oci:identity:compartment:id
+    title: "Compartment"
+    description: "Choose the OCI compartment where the free worker should be created."
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: "Home region"
+    description: "Use the tenancy home region for Always Free resources."
+    required: true
+
+  availability_domain_number:
+    type: integer
+    title: "Availability domain number"
+    description: "Start with 1. If Oracle reports Out of host capacity, edit the stack and try 2 or 3 where your region has multiple availability domains."
+    required: true
+    default: 1
+    minimum: 1
+    maximum: 3
+    multipleOf: 1
+
+  instance_display_name:
+    type: string
+    title: "Worker name"
+    description: "Display name only; it does not affect the public HTTPS address."
+    required: true
+    default: "conway-replicatio-worker"
+    pattern: "^.{3,64}$"
+
+  bootstrap_ref:
+    type: string
+    required: true
+    visible: false
+    default: "conway-oci-stack"
