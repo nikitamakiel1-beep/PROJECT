@@ -7,14 +7,10 @@
     }
   ],
   "functions": {
-    "api/tick.ts": {
-      "maxDuration": 60
-    },
-    "api/health.ts": {
-      "maxDuration": 15
-    },
-    "api/readiness.ts": {
-      "maxDuration": 20
-    }
+    "api/tick.ts": { "maxDuration": 60 },
+    "api/health.ts": { "maxDuration": 15 },
+    "api/readiness.ts": { "maxDuration": 20 },
+    "api/owner-decisions.ts": { "maxDuration": 20 },
+    "api/release-status.ts": { "maxDuration": 20 }
   }
 }
