@@ -25,7 +25,7 @@ function lastCronOccurrence(expression: string, timezone: string, now: Date): Da
   }
 }
 
-export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), lookbackMinutes = 6): Promise<{
+export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), lookbackMinutes = 65): Promise<{
   examined: number;
   due: number;
   enqueued: number;
@@ -56,7 +56,11 @@ export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), loo
       trigger_ref: `cron:${definition.schedule_expr}`,
       scheduled_for: occurrence.toISOString(),
       status: "queued",
-      input: { source: "vercel-cron-tick", occurrence: occurrence.toISOString() },
+      input: {
+        source: "vercel-cron-tick",
+        occurrence: occurrence.toISOString(),
+        schedulingMode: "latest-occurrence-coalesced",
+      },
     }, "idempotency_key");
     if (inserted.length > 0) enqueued += 1;
   }
