@@ -1,0 +1,36 @@
+name: Creixement Autonomous Core
+
+on:
+  push:
+    branches:
+      - venture/creixement-control-plane-cloud-v1
+  pull_request:
+    paths:
+      - 'cloud/creixement-agent-core/**'
+      - 'db/migrations/**'
+      - 'config/creixement-autonomy-constitution-v2.json'
+      - 'docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud/creixement-agent-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: cloud/creixement-agent-core/package-lock.json
+      - run: npm install --package-lock-only
+      - run: npm ci
+      - run: npm run check
+      - run: npm test
+      - name: Validate constitution JSON
+        working-directory: .
+        run: node -e "JSON.parse(require('fs').readFileSync('config/creixement-autonomy-constitution-v2.json','utf8')); console.log('constitution ok')"
