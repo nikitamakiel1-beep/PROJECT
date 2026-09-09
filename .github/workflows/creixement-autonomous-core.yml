@@ -7,6 +7,7 @@ on:
       - venture/creixement-overhaul-v3
       - venture/creixement-overhaul-v4
       - venture/creixement-overhaul-v5
+      - venture/creixement-overhaul-v6-converged
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
@@ -93,24 +94,27 @@ jobs:
             db/migrations/007_v4_goal_execution_semantics.sql
             db/migrations/008_v4_production_trust_fabric.sql
             db/migrations/009_v5_runtime_convergence.sql
+            db/migrations/010_v6_autonomic_operations.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'execution_mode' db/migrations/007_v4_goal_execution_semantics.sql
-          grep -q 'v_owner_action_queue_v4' db/migrations/007_v4_goal_execution_semantics.sql
           grep -q 'request_nonces_v4' db/migrations/008_v4_production_trust_fabric.sql
-          grep -q 'capability_contracts_v4' db/migrations/008_v4_production_trust_fabric.sql
-          grep -q 'lineage_nodes_v4' db/migrations/008_v4_production_trust_fabric.sql
-          grep -q 'release_manifests_v4' db/migrations/008_v4_production_trust_fabric.sql
           grep -q 'runtime_heartbeats_v5' db/migrations/009_v5_runtime_convergence.sql
-          grep -q 'job_dead_letters_v5' db/migrations/009_v5_runtime_convergence.sql
-          grep -q 'creixement_reconcile_runtime_v5' db/migrations/009_v5_runtime_convergence.sql
-          grep -q 'v_runtime_readiness_v5' db/migrations/009_v5_runtime_convergence.sql
+          grep -q 'creixement_handler_circuit_decision_v6' db/migrations/010_v6_autonomic_operations.sql
+          grep -q 'owner_decisions_v6' db/migrations/010_v6_autonomic_operations.sql
+          grep -q 'scheduler_bindings_v6' db/migrations/010_v6_autonomic_operations.sql
+          grep -q 'release_attestations_v6' db/migrations/010_v6_autonomic_operations.sql
+          grep -q 'v_operating_health_v6' db/migrations/010_v6_autonomic_operations.sql
+          test -f cloud/creixement-runtime/src/outbox.ts
+          test -f cloud/creixement-runtime/src/tick.ts
           test -f cloud/creixement-runtime/api/tick.ts
           test -f cloud/creixement-runtime/api/health.ts
           test -f cloud/creixement-runtime/api/readiness.ts
+          test -f cloud/creixement-runtime/api/owner-decisions.ts
+          test -f cloud/creixement-runtime/api/release-status.ts
           test -f cloud/creixement-runtime/vercel.json
           grep -q '17 3 \* \* \*' cloud/creixement-runtime/vercel.json
-          echo 'ordered migrations and deployable runtime contracts present'
+          echo 'ordered migrations and converged runtime contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |
