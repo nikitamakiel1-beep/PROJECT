@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { chooseDecisionMode, scoreOpportunity, summarizeFitness } from "./scoring.js";
+import { chooseDecisionMode, economicSignals, scoreOpportunity, summarizeFitness } from "./scoring.js";
 import type { Opportunity } from "./types.js";
 
 const strong: Opportunity = {
@@ -11,6 +11,8 @@ const strong: Opportunity = {
   evidence: [],
   status: "detected",
   metrics: {
+    expectedRevenueLow: 149,
+    expectedRevenueHigh: 149,
     expectedContributionMarginPct: 90,
     paidDemandEvidence: 0.6,
     qualifiedDemandEvidence: 0.9,
@@ -33,6 +35,14 @@ test("strong existing-product opportunity selects USE", () => {
   assert.equal(chooseDecisionMode(strong).mode, "USE");
 });
 
+test("economic signal includes contribution and value density without unbounded ticket bias", () => {
+  const economics = economicSignals(strong);
+  assert.equal(economics.revenueMidpointEur, 149);
+  assert.equal(economics.expectedContributionEur, 134.1);
+  assert.ok(economics.revenueSignal > 0 && economics.revenueSignal <= 1);
+  assert.ok(economics.valueDensitySignal > 0 && economics.valueDensitySignal <= 1);
+});
+
 test("high rights risk forces abstention", () => {
   const risky: Opportunity = {
     ...strong,
@@ -51,4 +61,12 @@ test("paid verified observations dominate fitness", () => {
   assert.equal(summary.paidSuccesses, 2);
   assert.equal(summary.verifiedRevenue, 298);
   assert.ok(summary.fitness > 0.5);
+});
+
+test("a paid failed outcome remains revenue truth but does not count as paid success", () => {
+  const summary = summarizeFitness([
+    { id: "o1", genomeId: "g1", kind: "sale", verified: true, paid: true, revenue: 149, directCost: 5, outcomeScore: 0 },
+  ]);
+  assert.equal(summary.verifiedRevenue, 149);
+  assert.equal(summary.paidSuccesses, 0);
 });
