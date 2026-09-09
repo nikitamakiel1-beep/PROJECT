@@ -1,12 +1,12 @@
 {
   "name": "@creixement/cloud-runtime",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": true,
   "type": "module",
   "scripts": {
     "check": "tsc --noEmit",
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test dist/**/*.test.js"
+    "test": "npm run build && node --test dist/src/*.test.js"
   },
   "dependencies": {
     "cron-parser": "^5.3.1"
