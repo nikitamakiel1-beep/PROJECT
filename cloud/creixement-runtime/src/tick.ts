@@ -38,7 +38,10 @@ export async function runRuntimeTick(
 ): Promise<TickResult> {
   const startedAt = new Date().toISOString();
   const now = options.now ?? new Date();
-  const lookbackMinutes = Math.max(1, Math.min(options.lookbackMinutes ?? 6, 60));
+  // The default Vercel wake-up cadence is hourly. A 65-minute window tolerates
+  // platform delay and captures daily/hourly jobs scheduled at arbitrary minutes.
+  // Sub-hour recurring definitions are intentionally coalesced to their most recent occurrence.
+  const lookbackMinutes = Math.max(1, Math.min(options.lookbackMinutes ?? 65, 180));
   const batchSize = Math.max(1, Math.min(options.batchSize ?? 8, 25));
 
   let scheduling: TickResult["scheduling"];
