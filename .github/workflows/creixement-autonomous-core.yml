@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - venture/creixement-control-plane-cloud-v1
+      - venture/creixement-overhaul-v3
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
@@ -15,9 +16,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: creixement-core-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: cloud/creixement-agent-core
@@ -32,8 +38,24 @@ jobs:
         run: npm run check
       - name: Unit tests
         run: npm test
-      - name: Validate constitutions and scheduler contracts
+      - name: Validate Creixement JSON contracts
         working-directory: .
+        shell: bash
         run: |
-          node -e "JSON.parse(require('fs').readFileSync('config/creixement-autonomy-constitution-v2.json','utf8')); console.log('autonomy constitution ok')"
-          if [ -f config/creixement-scheduler-v2.json ]; then node -e "JSON.parse(require('fs').readFileSync('config/creixement-scheduler-v2.json','utf8')); console.log('scheduler config ok')"; fi
+          set -euo pipefail
+          shopt -s nullglob
+          files=(config/creixement-*.json)
+          if [ ${#files[@]} -eq 0 ]; then echo 'No Creixement JSON contracts found'; exit 1; fi
+          for file in "${files[@]}"; do
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
+          done
+      - name: Reject desktop runtime regressions
+        working-directory: .
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -RniE 'Tectum Local Bridge|local_runtime_required|desktop Excel|Excel/COM|local AutoPPTX' config docs/architecture cloud/creixement-agent-core db/migrations --exclude='001_*' --exclude='002_*'; then
+            echo 'Desktop runtime regression detected in current architecture.'
+            exit 1
+          fi
+          echo 'cloud-only runtime boundary preserved'
