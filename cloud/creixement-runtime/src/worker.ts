@@ -1,12 +1,30 @@
 import type { RuntimeEnv } from "./env.js";
 import type { SupabaseHttp } from "./supabase.js";
-import type { JobDefinitionRow } from "./scheduler.js";
+import { JOB_DEFINITION_SELECT, type JobDefinitionRow } from "./scheduler.js";
 import { authorizeAgentRunBudget } from "./budget.js";
 import { runHandler, writeJobReceipt, type JobExecutionRow } from "./handlers.js";
 
 interface RuntimeControlDecision {
   allowed: boolean;
   reason: string;
+}
+
+interface CircuitDecision {
+  allowed: boolean;
+  state: string;
+  reason: string;
+}
+
+async function recordHandlerResult(db: SupabaseHttp, handler: string, success: boolean, error: Record<string, unknown> | null): Promise<void> {
+  try {
+    await db.rpc("creixement_record_handler_result_v6", {
+      p_handler: handler,
+      p_success: success,
+      p_error: error,
+    });
+  } catch {
+    // Do not mask the primary job outcome if circuit telemetry itself is unavailable.
+  }
 }
 
 export async function processClaimedJobs(db: SupabaseHttp, env: RuntimeEnv, batchSize = 8): Promise<{
@@ -17,7 +35,7 @@ export async function processClaimedJobs(db: SupabaseHttp, env: RuntimeEnv, batc
 }> {
   const claimed = await db.rpc<JobExecutionRow[]>("creixement_claim_jobs", {
     worker: env.runtimeId,
-    batch_size: batchSize,
+    batch_size: Math.max(1, Math.min(batchSize, 25)),
     lease_for_seconds: 240,
   });
   let succeeded = 0;
@@ -26,7 +44,7 @@ export async function processClaimedJobs(db: SupabaseHttp, env: RuntimeEnv, batc
 
   for (const execution of claimed) {
     const definitions = await db.select<JobDefinitionRow[]>(
-      `job_definitions?id=eq.${encodeURIComponent(execution.job_definition_id)}&select=id,job_key,trigger_type,schedule_expr,timezone,handler_key,owner_agent_slug,autonomy_level,policy_key,required_connectors,enabled,max_attempts&limit=1`,
+      `job_definitions?id=eq.${encodeURIComponent(execution.job_definition_id)}&select=${JOB_DEFINITION_SELECT}&limit=1`,
     );
     const definition = definitions.at(0);
     if (!definition) {
@@ -56,6 +74,23 @@ export async function processClaimedJobs(db: SupabaseHttp, env: RuntimeEnv, batc
           p_worker: env.runtimeId,
           p_status: "blocked",
           p_output: { reason: control?.reason ?? "runtime control denied execution" },
+          p_error: null,
+          p_receipt_ref: null,
+        });
+        continue;
+      }
+
+      const circuits = await db.rpc<CircuitDecision[]>("creixement_handler_circuit_decision_v6", {
+        p_handler: definition.handler_key,
+      });
+      const circuit = circuits.at(0);
+      if (!circuit?.allowed) {
+        blocked += 1;
+        await db.rpc("creixement_finish_job", {
+          p_job_id: execution.id,
+          p_worker: env.runtimeId,
+          p_status: "blocked",
+          p_output: { reason: circuit?.reason ?? "handler circuit denied execution", circuitState: circuit?.state ?? "unknown" },
           p_error: null,
           p_receipt_ref: null,
         });
@@ -112,17 +147,23 @@ export async function processClaimedJobs(db: SupabaseHttp, env: RuntimeEnv, batc
         p_error: null,
         p_receipt_ref: receiptId,
       });
-      if (result.status === "succeeded") succeeded += 1;
-      else blocked += 1;
+      if (result.status === "succeeded") {
+        succeeded += 1;
+        await recordHandlerResult(db, definition.handler_key, true, null);
+      } else {
+        blocked += 1;
+      }
     } catch (error) {
       failed += 1;
       const message = error instanceof Error ? error.message : String(error);
+      const failure = { code: "runtime_exception", message: message.slice(0, 1000) };
+      await recordHandlerResult(db, definition.handler_key, false, failure);
       await db.rpc("creixement_finish_job", {
         p_job_id: execution.id,
         p_worker: env.runtimeId,
         p_status: "failed",
         p_output: null,
-        p_error: { code: "runtime_exception", message: message.slice(0, 1000) },
+        p_error: failure,
         p_receipt_ref: null,
       });
     }
