@@ -201,11 +201,13 @@ export interface MutationPlan {
 
 export interface EvolutionConstitution {
   maxGenesChangedPerMutation: number;
+  maxGenesChangedPerCrossover?: number;
   minVerifiedObservationsForCrossover: number;
   minVerifiedSuccessesForPromotion: number;
   telomereDecayOnFailure: number;
   telomereRestoreOnPaidSuccess: number;
   explorationBudgetFloor: number;
+  explorationBudgetCeiling?: number;
 }
 
 export interface OutcomeVerification {
