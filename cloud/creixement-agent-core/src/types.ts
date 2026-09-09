@@ -1,5 +1,14 @@
 export type DecisionMode = "USE" | "BUILD" | "BUY" | "COMBINE" | "ABSTAIN";
 export type AutonomyLevel = "L0" | "L1" | "L2" | "L3";
+export type TruthLevel =
+  | "verified_external_outcome"
+  | "executed_connector_receipt"
+  | "governed_source_evidence"
+  | "human_approved_decision"
+  | "evidence_backed_model_inference"
+  | "hypothesis"
+  | "generated_narrative";
+
 export type OpportunityStatus =
   | "detected"
   | "researching"
@@ -21,6 +30,7 @@ export interface EvidenceRef {
   digest?: string;
   authority?: number;
   freshness?: number;
+  truthLevel?: TruthLevel;
 }
 
 export interface OpportunitySignal {
@@ -129,6 +139,9 @@ export interface PolicyEnvelope {
   enabled: boolean;
   prerequisites?: string[];
   limits?: Record<string, number | string | boolean | string[]>;
+  allowedAgents?: string[];
+  allowedConnectors?: string[];
+  expiresAt?: string;
 }
 
 export interface ProposedAction {
@@ -142,6 +155,11 @@ export interface ProposedAction {
   rightsSatisfied: boolean;
   consentSatisfied: boolean;
   payload: Record<string, unknown>;
+  externalEffect?: "none" | "internal" | "external";
+  estimatedExternalCostEur?: number;
+  batchSize?: number;
+  targetRef?: string;
+  expiresAt?: string;
 }
 
 export interface PolicyDecision {
@@ -164,6 +182,9 @@ export interface ExecutionReceipt {
   status: "started" | "succeeded" | "failed" | "blocked" | "queued" | "cancelled";
   startedAt: string;
   completedAt?: string;
+  verified?: boolean;
+  retryable?: boolean;
+  error?: Record<string, unknown>;
 }
 
 export interface OpportunityDecision {
@@ -185,4 +206,29 @@ export interface EvolutionConstitution {
   telomereDecayOnFailure: number;
   telomereRestoreOnPaidSuccess: number;
   explorationBudgetFloor: number;
+}
+
+export interface OutcomeVerification {
+  verified: boolean;
+  reason: string;
+  truthLevel: TruthLevel;
+  evidenceRefs?: EvidenceRef[];
+}
+
+export interface JobDefinition {
+  jobKey: string;
+  name: string;
+  triggerType: "cron" | "event" | "manual" | "condition";
+  scheduleExpr?: string;
+  timezone: string;
+  eventTopic?: string;
+  handlerKey: string;
+  ownerAgent: string;
+  autonomyLevel: AutonomyLevel;
+  policyKey?: string;
+  requiredConnectors: string[];
+  enabled: boolean;
+  maxRuntimeSeconds: number;
+  maxAttempts: number;
+  concurrencyLimit: number;
 }
