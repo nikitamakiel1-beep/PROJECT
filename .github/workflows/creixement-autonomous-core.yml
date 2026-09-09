@@ -92,6 +92,7 @@ jobs:
             db/migrations/006_v4_initial_operating_backlog.sql
             db/migrations/007_v4_goal_execution_semantics.sql
             db/migrations/008_v4_production_trust_fabric.sql
+            db/migrations/009_v5_runtime_convergence.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'execution_mode' db/migrations/007_v4_goal_execution_semantics.sql
@@ -100,8 +101,15 @@ jobs:
           grep -q 'capability_contracts_v4' db/migrations/008_v4_production_trust_fabric.sql
           grep -q 'lineage_nodes_v4' db/migrations/008_v4_production_trust_fabric.sql
           grep -q 'release_manifests_v4' db/migrations/008_v4_production_trust_fabric.sql
+          grep -q 'runtime_heartbeats_v5' db/migrations/009_v5_runtime_convergence.sql
+          grep -q 'job_dead_letters_v5' db/migrations/009_v5_runtime_convergence.sql
+          grep -q 'creixement_reconcile_runtime_v5' db/migrations/009_v5_runtime_convergence.sql
+          grep -q 'v_runtime_readiness_v5' db/migrations/009_v5_runtime_convergence.sql
           test -f cloud/creixement-runtime/api/tick.ts
+          test -f cloud/creixement-runtime/api/health.ts
+          test -f cloud/creixement-runtime/api/readiness.ts
           test -f cloud/creixement-runtime/vercel.json
+          grep -q '17 3 \* \* \*' cloud/creixement-runtime/vercel.json
           echo 'ordered migrations and deployable runtime contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
