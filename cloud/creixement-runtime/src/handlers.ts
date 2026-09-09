@@ -68,10 +68,32 @@ async function counterpartyFreshness(ctx: HandlerContext): Promise<HandlerResult
 }
 
 async function deadLetterTriage(ctx: HandlerContext): Promise<HandlerResult> {
-  const rows = await ctx.db.select<Array<Record<string, unknown>>>(
-    "dead_letter_events?select=id,event_key,topic,attempts,final_error,dead_lettered_at,resolution_status&resolution_status=eq.open&order=dead_lettered_at.asc&limit=100",
-  );
-  return { status: "succeeded", output: { openDeadLetters: rows, count: rows.length } };
+  const [events, jobs] = await Promise.all([
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "dead_letter_events?select=id,event_key,topic,attempts,final_error,dead_lettered_at,resolution_status&resolution_status=eq.open&order=dead_lettered_at.asc&limit=100",
+    ),
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "job_dead_letters_v5?select=id,job_key,attempts,final_error,dead_lettered_at,resolution_status&resolution_status=eq.open&order=dead_lettered_at.asc&limit=100",
+    ),
+  ]);
+  return {
+    status: "succeeded",
+    output: { openEventDeadLetters: events, openJobDeadLetters: jobs, count: events.length + jobs.length },
+  };
+}
+
+async function runtimeReconcile(ctx: HandlerContext): Promise<HandlerResult> {
+  const findings = await ctx.db.rpc<Array<Record<string, unknown>>>("creixement_reconcile_runtime_v5", {});
+  const readiness = await ctx.db.select<Array<Record<string, unknown>>>("v_runtime_readiness_v5?select=*&limit=1");
+  return {
+    status: "succeeded",
+    output: {
+      findings,
+      findingCount: findings.length,
+      readiness: readiness.at(0) ?? null,
+      observedAt: new Date().toISOString(),
+    },
+  };
 }
 
 const handlers: Record<string, (ctx: HandlerContext) => Promise<HandlerResult>> = {
@@ -81,6 +103,7 @@ const handlers: Record<string, (ctx: HandlerContext) => Promise<HandlerResult>> 
   "evolution.evaluate_niches": evolutionNiches,
   "counterparty.refresh_staleness": counterpartyFreshness,
   "automation.dead_letter_triage": deadLetterTriage,
+  "automation.runtime_reconcile": runtimeReconcile,
 };
 
 export async function runHandler(ctx: HandlerContext): Promise<HandlerResult> {
@@ -107,7 +130,7 @@ export async function writeJobReceipt(ctx: HandlerContext, result: HandlerResult
     actor_agent: ctx.definition.owner_agent_slug,
     action_class: `job:${ctx.definition.handler_key}`,
     connector_slug: null,
-    policy_version: ctx.definition.policy_key ?? "internal-runtime-v4",
+    policy_version: ctx.definition.policy_key ?? "internal-runtime-v5",
     policy_decision: result.status === "succeeded" ? "authorized_internal" : "blocked_unimplemented",
     input_digest: inputDigest,
     output_digest: outputDigest,
