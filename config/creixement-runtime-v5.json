@@ -1,0 +1,55 @@
+{
+  "schema_version": "5.0.0",
+  "runtime": {
+    "cloud_only": true,
+    "package": "cloud/creixement-runtime",
+    "entrypoints": {
+      "tick": "/api/tick",
+      "health": "/api/health",
+      "readiness": "/api/readiness"
+    },
+    "tick_target_minutes": 5,
+    "native_vercel_hobby_safety_cron": "17 3 * * *",
+    "high_frequency_scheduler": {
+      "state": "not_configured",
+      "required": true,
+      "acceptable_modes": [
+        "vercel_pro_cron",
+        "supabase_pg_cron_http_trigger",
+        "managed_external_https_scheduler"
+      ],
+      "authentication": "Bearer CRON_SECRET",
+      "must_be_cloud": true
+    }
+  },
+  "required_server_secrets": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "CRON_SECRET",
+    "CREIXEMENT_API_TOKEN"
+  ],
+  "optional_attestation_env": [
+    "CREIXEMENT_RUNTIME_ID",
+    "CREIXEMENT_RUNTIME_VERSION",
+    "CREIXEMENT_COMMIT_SHA"
+  ],
+  "execution": {
+    "fail_closed_unknown_handlers": true,
+    "connector_readiness_required": true,
+    "runtime_control_required": true,
+    "budget_reservation_required": true,
+    "execution_receipt_required": true,
+    "idempotency_required": true,
+    "job_leasing_required": true,
+    "retry_backoff_required": true,
+    "dead_letter_required": true,
+    "heartbeat_required": true
+  },
+  "external_effects": {
+    "outreach_enabled": false,
+    "publication_enabled": false,
+    "payments_enabled": false,
+    "contracts_enabled": false,
+    "property_commitments_enabled": false
+  }
+}
