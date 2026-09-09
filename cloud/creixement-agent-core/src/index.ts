@@ -5,4 +5,5 @@ export * from "./evolution.js";
 export * from "./runtime.js";
 export * from "./childAgents.js";
 export * from "./connectors.js";
+export * from "./tectumGovernance.js";
 export * from "./orchestrator.js";
