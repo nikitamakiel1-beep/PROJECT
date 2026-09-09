@@ -8,8 +8,9 @@ on:
     paths:
       - 'cloud/creixement-agent-core/**'
       - 'db/migrations/**'
-      - 'config/creixement-autonomy-constitution-v2.json'
-      - 'docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md'
+      - 'config/creixement-*.json'
+      - 'docs/architecture/CREIXEMENT_*.md'
+      - '.github/workflows/creixement-autonomous-core.yml'
 
 permissions:
   contents: read
@@ -25,12 +26,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-          cache: npm
-          cache-dependency-path: cloud/creixement-agent-core/package-lock.json
-      - run: npm install --package-lock-only
-      - run: npm ci
-      - run: npm run check
-      - run: npm test
-      - name: Validate constitution JSON
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Validate constitutions and scheduler contracts
         working-directory: .
-        run: node -e "JSON.parse(require('fs').readFileSync('config/creixement-autonomy-constitution-v2.json','utf8')); console.log('constitution ok')"
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('config/creixement-autonomy-constitution-v2.json','utf8')); console.log('autonomy constitution ok')"
+          if [ -f config/creixement-scheduler-v2.json ]; then node -e "JSON.parse(require('fs').readFileSync('config/creixement-scheduler-v2.json','utf8')); console.log('scheduler config ok')"; fi
