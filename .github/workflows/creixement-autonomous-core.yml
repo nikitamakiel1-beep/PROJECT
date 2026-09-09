@@ -1,0 +1,39 @@
+name: Creixement Autonomous Core
+
+on:
+  push:
+    branches:
+      - venture/creixement-control-plane-cloud-v1
+  pull_request:
+    paths:
+      - 'cloud/creixement-agent-core/**'
+      - 'db/migrations/**'
+      - 'config/creixement-*.json'
+      - 'docs/architecture/CREIXEMENT_*.md'
+      - '.github/workflows/creixement-autonomous-core.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: cloud/creixement-agent-core
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        run: npm run check
+      - name: Unit tests
+        run: npm test
+      - name: Validate constitutions and scheduler contracts
+        working-directory: .
+        run: |
+          node -e "JSON.parse(require('fs').readFileSync('config/creixement-autonomy-constitution-v2.json','utf8')); console.log('autonomy constitution ok')"
+          if [ -f config/creixement-scheduler-v2.json ]; then node -e "JSON.parse(require('fs').readFileSync('config/creixement-scheduler-v2.json','utf8')); console.log('scheduler config ok')"; fi
