@@ -12,6 +12,9 @@
     },
     "api/health.ts": {
       "maxDuration": 15
+    },
+    "api/readiness.ts": {
+      "maxDuration": 20
     }
   }
 }
