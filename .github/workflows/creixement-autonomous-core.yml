@@ -9,6 +9,7 @@ on:
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
+      - 'cloud/creixement-runtime/**'
       - 'db/migrations/**'
       - 'config/creixement-*.json'
       - 'docs/architecture/CREIXEMENT_*.md'
@@ -22,7 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  core:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     defaults:
@@ -33,11 +34,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install dependencies
+      - name: Install core dependencies
         run: npm install --no-audit --no-fund
-      - name: Typecheck
+      - name: Typecheck core
         run: npm run check
-      - name: Unit tests
+      - name: Unit test core
         run: npm test
       - name: Validate Creixement JSON contracts
         working-directory: .
@@ -77,8 +78,40 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RniE 'Tectum Local Bridge|local_runtime_required' config cloud/creixement-agent-core docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
+          if grep -RniE 'Tectum Local Bridge|local_runtime_required' config cloud/creixement-agent-core cloud/creixement-runtime docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
             echo 'Active local-runtime regression detected.'
             exit 1
           fi
           echo 'cloud-only runtime boundary preserved'
+
+  runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: cloud/creixement-runtime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install runtime dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck runtime
+        run: npm run check
+      - name: Unit test runtime
+        run: npm test
+      - name: Validate Vercel runtime contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          node - <<'NODE'
+          const fs = require('fs');
+          const cfg = JSON.parse(fs.readFileSync('vercel.json','utf8'));
+          if (!Array.isArray(cfg.crons) || !cfg.crons.some(c => c.path === '/api/tick')) throw new Error('missing /api/tick cron');
+          console.log('vercel runtime contract ok');
+          NODE
+          test -f api/tick.ts
+          test -f api/health.ts
+          grep -q 'CRON_SECRET' src/env.ts
+          grep -q 'CREIXEMENT_API_TOKEN' src/env.ts
