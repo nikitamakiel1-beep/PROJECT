@@ -1,11 +1,14 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { chooseDecisionMode } from "./scoring.js";
-import { decidePolicy } from "./policy.js";
+import { decidePolicy, type PolicyRuntimeContext } from "./policy.js";
+import { deterministicIdempotencyKey, stableDigest } from "./runtime.js";
 import type {
   ExecutionReceipt,
   Opportunity,
   OpportunityDecision,
   OpportunitySignal,
+  OutcomeVerification,
+  PolicyDecision,
   PolicyEnvelope,
   ProposedAction,
 } from "./types.js";
@@ -32,15 +35,38 @@ export interface ActionExecutor {
     output?: unknown;
     connectorReceipt?: Record<string, unknown>;
     error?: unknown;
+    retryable?: boolean;
   }>;
+}
+
+export interface ActionResultVerifier {
+  verify(
+    action: ProposedAction,
+    execution: { status: "succeeded" | "failed"; output?: unknown; connectorReceipt?: Record<string, unknown>; error?: unknown },
+  ): Promise<OutcomeVerification>;
 }
 
 export interface ReceiptStore {
   save(receipt: ExecutionReceipt): Promise<void>;
+  getByIdempotencyKey?(idempotencyKey: string): Promise<ExecutionReceipt | null>;
+}
+
+export interface ApprovalQueue {
+  queue(input: {
+    correlationId: string;
+    action: ProposedAction;
+    policy: PolicyDecision;
+    inputDigest: string;
+    idempotencyKey: string;
+  }): Promise<void>;
 }
 
 export interface RunObserver {
   onEvent(event: { type: string; correlationId: string; payload: Record<string, unknown> }): Promise<void>;
+}
+
+export interface PolicyContextProvider {
+  getContext(input: { correlationId: string; action: ProposedAction; actionsThisRun: number }): Promise<PolicyRuntimeContext>;
 }
 
 export interface AutonomousLoopDeps {
@@ -51,15 +77,30 @@ export interface AutonomousLoopDeps {
   executor: ActionExecutor;
   receipts: ReceiptStore;
   observer?: RunObserver;
+  resultVerifier?: ActionResultVerifier;
+  approvals?: ApprovalQueue;
+  policyContext?: PolicyContextProvider;
   policyEnvelopes: PolicyEnvelope[];
 }
 
-function digest(value: unknown): string {
-  return createHash("sha256").update(JSON.stringify(value)).digest("hex");
+function idempotencyKey(action: ProposedAction, opportunity: Opportunity): string {
+  return deterministicIdempotencyKey({
+    opportunityId: opportunity.id,
+    actionClass: action.actionClass,
+    connector: action.connector ?? null,
+    targetRef: action.targetRef ?? opportunity.targetEntityRef ?? null,
+    payload: action.payload,
+  });
 }
 
-function idempotencyKey(action: ProposedAction, opportunity: Opportunity): string {
-  return digest({ opportunityId: opportunity.id, actionClass: action.actionClass, payload: action.payload });
+function errorRecord(error: unknown): Record<string, unknown> {
+  if (error instanceof Error) return { name: error.name, message: error.message };
+  if (error && typeof error === "object") return { ...error as Record<string, unknown> };
+  return { message: String(error) };
+}
+
+function isReusableReceipt(receipt: ExecutionReceipt): boolean {
+  return ["succeeded", "queued", "blocked", "cancelled"].includes(receipt.status);
 }
 
 export class AutonomousEconomicLoop {
@@ -110,9 +151,29 @@ export class AutonomousEconomicLoop {
     }
 
     const actions = await this.deps.planner.plan(opportunity, decision);
+    let actionsThisRun = 0;
+
     for (const action of actions) {
-      const policy = decidePolicy(action, this.deps.policyEnvelopes);
       const key = idempotencyKey(action, opportunity);
+      const inputDigest = stableDigest(action.payload);
+      const existing = await this.deps.receipts.getByIdempotencyKey?.(key);
+
+      if (existing && isReusableReceipt(existing)) {
+        receipts.push(existing);
+        await this.emit("action_deduplicated", correlationId, {
+          actionId: action.id,
+          actionClass: action.actionClass,
+          idempotencyKey: key,
+          existingStatus: existing.status,
+        });
+        continue;
+      }
+
+      const dynamicContext = await this.deps.policyContext?.getContext({ correlationId, action, actionsThisRun });
+      const policy = decidePolicy(action, this.deps.policyEnvelopes, {
+        actionsThisRun,
+        ...(dynamicContext ?? {}),
+      });
       const startedAt = new Date().toISOString();
 
       if (!policy.allowed) {
@@ -123,13 +184,19 @@ export class AutonomousEconomicLoop {
           actionClass: action.actionClass,
           policyVersion: policy.policyVersion ?? "none",
           policyDecision: policy.requiresHumanApproval ? "approval_required" : "blocked",
-          inputDigest: digest(action.payload),
+          inputDigest,
           status: policy.requiresHumanApproval ? "queued" : "blocked",
           startedAt,
           completedAt: new Date().toISOString(),
+          verified: false,
         };
         receipts.push(receipt);
         await this.deps.receipts.save(receipt);
+
+        if (policy.requiresHumanApproval && this.deps.approvals) {
+          await this.deps.approvals.queue({ correlationId, action, policy, inputDigest, idempotencyKey: key });
+        }
+
         await this.emit("action_not_executed", correlationId, {
           actionId: action.id,
           actionClass: action.actionClass,
@@ -139,9 +206,36 @@ export class AutonomousEconomicLoop {
         continue;
       }
 
-      const execution = await this.deps.executor.execute(action, { correlationId, idempotencyKey: key });
+      actionsThisRun += 1;
+      await this.emit("action_authorized", correlationId, {
+        actionId: action.id,
+        actionClass: action.actionClass,
+        policyVersion: policy.policyVersion ?? "unknown",
+        idempotencyKey: key,
+      });
+
+      let execution: Awaited<ReturnType<ActionExecutor["execute"]>>;
+      try {
+        execution = await this.deps.executor.execute(action, { correlationId, idempotencyKey: key });
+      } catch (error) {
+        execution = { status: "failed", error, retryable: true };
+      }
+
       const completedAt = new Date().toISOString();
-      const outputDigest = execution.output === undefined ? undefined : digest(execution.output);
+      const outputDigest = execution.output === undefined ? undefined : stableDigest(execution.output);
+      let outcome: OutcomeVerification | undefined;
+      if (this.deps.resultVerifier) {
+        try {
+          outcome = await this.deps.resultVerifier.verify(action, execution);
+        } catch (error) {
+          outcome = {
+            verified: false,
+            reason: `Result verification failed: ${errorRecord(error).message ?? "unknown"}`,
+            truthLevel: execution.connectorReceipt ? "executed_connector_receipt" : "hypothesis",
+          };
+        }
+      }
+
       const receipt: ExecutionReceipt = {
         correlationId,
         idempotencyKey: key,
@@ -149,19 +243,26 @@ export class AutonomousEconomicLoop {
         actionClass: action.actionClass,
         policyVersion: policy.policyVersion ?? "unknown",
         policyDecision: "authorized",
-        inputDigest: digest(action.payload),
+        inputDigest,
         ...(outputDigest ? { outputDigest } : {}),
         ...(execution.connectorReceipt ? { connectorReceipt: execution.connectorReceipt } : {}),
         status: execution.status,
         startedAt,
         completedAt,
+        verified: outcome?.verified ?? false,
+        retryable: execution.retryable ?? false,
+        ...(execution.error ? { error: errorRecord(execution.error) } : {}),
       };
       receipts.push(receipt);
       await this.deps.receipts.save(receipt);
+
       await this.emit("action_executed", correlationId, {
         actionId: action.id,
         actionClass: action.actionClass,
         status: execution.status,
+        verified: outcome?.verified ?? false,
+        truthLevel: outcome?.truthLevel ?? (execution.connectorReceipt ? "executed_connector_receipt" : "hypothesis"),
+        verificationReason: outcome?.reason ?? "No result verifier configured; execution success is not business-outcome proof.",
         idempotencyKey: key,
       });
     }
