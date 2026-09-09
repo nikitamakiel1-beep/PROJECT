@@ -27,6 +27,11 @@ function cloneGenes(genes: GenomeGenes): GenomeGenes {
   return JSON.parse(JSON.stringify(genes)) as GenomeGenes;
 }
 
+function baseChild(parent: CommercialGenome): Omit<CommercialGenome, "fitness" | "confidence"> {
+  const { fitness: _fitness, confidence: _confidence, ...rest } = parent;
+  return rest;
+}
+
 export function applyMutation(
   parent: CommercialGenome,
   plan: MutationPlan,
@@ -46,7 +51,7 @@ export function applyMutation(
   }
 
   return {
-    ...parent,
+    ...baseChild(parent),
     id: childId,
     parentIds: [parent.id],
     generation: parent.generation + 1,
@@ -54,8 +59,6 @@ export function applyMutation(
     genes: { ...cloneGenes(parent.genes), ...plan.changedGenes },
     explorationBudget: Math.max(parent.explorationBudget, constitution.explorationBudgetFloor),
     telomere: Math.max(parent.telomere - 0.02, 0),
-    fitness: undefined,
-    confidence: undefined,
     verifiedObservations: 0,
     verifiedSuccesses: 0,
     paidSuccesses: 0,
@@ -85,7 +88,7 @@ export function crossover(
   }
 
   return {
-    ...a,
+    ...baseChild(a),
     id: childId,
     lineageId: a.lineageId,
     parentIds: [a.id, b.id],
@@ -97,8 +100,6 @@ export function crossover(
       constitution.explorationBudgetFloor,
     ),
     telomere: Math.max((a.telomere + b.telomere) / 2 - 0.01, 0),
-    fitness: undefined,
-    confidence: undefined,
     verifiedObservations: 0,
     verifiedSuccesses: 0,
     paidSuccesses: 0,
