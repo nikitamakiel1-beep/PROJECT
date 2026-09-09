@@ -1,0 +1,124 @@
+{
+  "schema_version": "1.0.0",
+  "name": "Creixement Cloud Control Plane",
+  "production_runtime_policy": "cloud_only",
+  "local_production_dependencies_allowed": false,
+  "operator_machine_required": false,
+  "systems_of_record": {
+    "control_plane_state": "supabase_postgresql",
+    "business_records_and_evidence": "google_drive",
+    "commercial_ledger": "google_sheets_crm",
+    "versioned_source_and_contracts": "github",
+    "execution_backlog": "linear",
+    "operator_cockpit": "lovable"
+  },
+  "autonomy_levels": {
+    "L0": "observe",
+    "L1": "recommend",
+    "L2": "bounded_reversible_operation",
+    "L3": "consequential_approval_required"
+  },
+  "agents": [
+    "chief_orchestrator",
+    "research",
+    "product_architect",
+    "commercial",
+    "report_factory",
+    "tectum",
+    "funding",
+    "marketing",
+    "finance",
+    "qa_critic",
+    "compliance_governor",
+    "automation_engineer",
+    "synthesis"
+  ],
+  "connectors": {
+    "wave_1": [
+      "google_drive",
+      "google_sheets_crm",
+      "github",
+      "linear"
+    ],
+    "wave_2": [
+      "gmail",
+      "google_calendar",
+      "google_contacts",
+      "lovable"
+    ],
+    "wave_3": [
+      "clay_or_approved_enrichment",
+      "market_data_providers",
+      "funding_feeds"
+    ],
+    "tectum": [
+      "tectum_cloud_underwriting",
+      "tectum_cloud_renderer"
+    ],
+    "optional_migration": [
+      "microsoft_365_cloud_workbook"
+    ]
+  },
+  "tectum": {
+    "desktop_excel_production_dependency": false,
+    "windows_com_dependency": false,
+    "local_autopptx_dependency": false,
+    "canonical_target": "deterministic_cloud_underwriting_service",
+    "workbook_role_after_migration": "controlled_projection_and_compatibility_artifact",
+    "required_scenarios": [
+      "Traditional",
+      "Rooms",
+      "Temporary"
+    ],
+    "release_gates": [
+      "golden_case_underwriting_equivalence",
+      "golden_report_render_fidelity",
+      "evidence_rights_validation",
+      "hash_bound_approvals",
+      "cloud_only_runtime_attestation"
+    ],
+    "forbidden": [
+      "unattended_unauthorised_portal_scraping",
+      "access_control_bypass",
+      "unlicensed_media_use",
+      "silent_material_assumptions",
+      "automatic_property_offer",
+      "automatic_financing_commitment",
+      "automatic_contract",
+      "automatic_payment",
+      "automatic_purchase"
+    ]
+  },
+  "run_contract": {
+    "required_fields": [
+      "correlation_id",
+      "idempotency_key",
+      "input_digest",
+      "policy_decision",
+      "output_digest",
+      "status",
+      "receipt"
+    ],
+    "loop": [
+      "listen",
+      "ingest",
+      "normalise",
+      "verify",
+      "update_memory",
+      "detect",
+      "compile_context",
+      "route_agents",
+      "deliberate",
+      "critique",
+      "rank",
+      "policy_check",
+      "execute_or_queue",
+      "verify_result",
+      "write_receipt",
+      "learn"
+    ]
+  },
+  "browser_secret_policy": "never_expose_reusable_credentials",
+  "default_external_action_policy": "L3",
+  "revenue_truth_policy": "record_only_satisfied_commercial_conditions"
+}
