@@ -1,0 +1,142 @@
+{
+  "schema_version": "4.0.0",
+  "name": "Creixement Autonomous Company Runtime",
+  "runtime": "cloud_only",
+  "operator_surface": "lovable",
+  "mission": "Continuously discover, validate, build, sell, deliver and improve the highest-value lawful Creixement opportunities using verified evidence, bounded autonomy and economic selection.",
+  "truth_hierarchy": [
+    "verified_external_outcome",
+    "executed_connector_receipt",
+    "governed_source_evidence",
+    "human_approved_decision",
+    "evidence_backed_model_inference",
+    "hypothesis",
+    "generated_narrative"
+  ],
+  "goal_system": {
+    "dag_required": true,
+    "cycles_forbidden": true,
+    "default_review_hours": 24,
+    "priority_components": {
+      "expected_economic_value": 1.0,
+      "strategic_value": 0.6,
+      "urgency": 0.5,
+      "confidence": 0.7,
+      "reversibility": 0.3,
+      "risk": -0.8,
+      "blocked_dependency_penalty": -2.0
+    }
+  },
+  "budgets": {
+    "separate_resource_from_payment_authority": true,
+    "default": {
+      "attention_units_per_day": 100,
+      "agent_runs_per_day": 250,
+      "experiment_slots": 20,
+      "enrichment_records_per_day": 100,
+      "external_api_cost_eur_per_day": 0,
+      "external_messages_per_day": 0,
+      "publications_per_day": 0
+    },
+    "hard_fail_on_exceed": true
+  },
+  "portfolio": {
+    "default_allocation": {
+      "exploit": 0.7,
+      "adjacency": 0.2,
+      "exploration": 0.1
+    },
+    "min_exploration": 0.05,
+    "max_exploration": 0.25,
+    "max_single_niche_share": 0.5,
+    "min_verified_observations_before_large_reallocation": 3
+  },
+  "provider_router": {
+    "modes": ["USE", "BUILD", "BUY", "COMBINE", "ABSTAIN"],
+    "buy_enabled": false,
+    "require_runtime_ready": true,
+    "require_rights_or_terms": true,
+    "require_receipts_for_execution": true,
+    "require_idempotency_for_writes": true,
+    "fail_closed_on_open_circuit": true
+  },
+  "memory": {
+    "structured_provenance_required": true,
+    "contradictions_preserved": true,
+    "lower_truth_cannot_overwrite_higher_truth": true,
+    "default_ttl_days_by_kind": {
+      "market_price": 7,
+      "funding_call": 1,
+      "company_profile": 30,
+      "contact_role": 30,
+      "property_listing": 1,
+      "product_configuration": 365,
+      "verified_transaction": 3650
+    }
+  },
+  "experiments": {
+    "default_max_observations": 100,
+    "default_min_effect": 0.1,
+    "require_stop_rules": true,
+    "require_expiry": true,
+    "allow_single_case_qualitative": true,
+    "never_infer_paid_demand_from_unpaid_engagement": true
+  },
+  "child_agents": {
+    "enabled": true,
+    "max_depth": 1,
+    "max_parallel_per_parent": 6,
+    "default_ttl_minutes": 30,
+    "no_privilege_escalation": true,
+    "cannot_create_authorization_envelopes": true,
+    "promotion_min_verified_successes": 3
+  },
+  "runtime_fabric": {
+    "durable_outbox": true,
+    "leased_jobs": true,
+    "idempotency_required": true,
+    "correlation_ids": true,
+    "structured_traces": true,
+    "dead_letters": true,
+    "replay_controls": true,
+    "circuit_breakers": true,
+    "priority_aging": true,
+    "terminal_state_immutability": true
+  },
+  "slo_defaults": {
+    "job_success_rate": 0.98,
+    "receipt_verification_rate": 1.0,
+    "connector_sync_success_rate": 0.98,
+    "max_p95_job_latency_seconds": 900,
+    "max_oldest_queue_age_seconds": 1800,
+    "max_dead_letter_rate": 0.01
+  },
+  "service_identity": {
+    "least_privilege": true,
+    "secret_values_never_in_source_or_browser": true,
+    "rotation_metadata_required": true
+  },
+  "release": {
+    "require_ci": true,
+    "require_clean_install_migrations": true,
+    "require_upgrade_path": true,
+    "require_cloud_only_regression_gate": true,
+    "require_no_critical_incidents": true,
+    "require_rollback_plan": true,
+    "require_backup_restore_rehearsal": true,
+    "require_runtime_connectors_for_enabled_jobs": true,
+    "tectum_requires_golden_underwriting_equivalence": true,
+    "tectum_requires_golden_render_fidelity": true
+  },
+  "non_delegable_default": [
+    "material_contract_signature",
+    "bank_transfer",
+    "unrestricted_payment",
+    "property_offer",
+    "property_purchase",
+    "financing_commitment",
+    "destructive_governed_record_deletion",
+    "rights_or_consent_bypass",
+    "unreceipted_external_action"
+  ]
+}
