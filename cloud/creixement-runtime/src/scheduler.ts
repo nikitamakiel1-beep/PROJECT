@@ -7,6 +7,7 @@ export interface JobDefinitionRow {
   trigger_type: "cron" | "event" | "manual" | "condition";
   schedule_expr: string | null;
   timezone: string;
+  event_topic: string | null;
   handler_key: string;
   owner_agent_slug: string;
   autonomy_level: "L0" | "L1" | "L2" | "L3";
@@ -15,6 +16,8 @@ export interface JobDefinitionRow {
   enabled: boolean;
   max_attempts: number;
 }
+
+export const JOB_DEFINITION_SELECT = "id,job_key,trigger_type,schedule_expr,timezone,event_topic,handler_key,owner_agent_slug,autonomy_level,policy_key,required_connectors,enabled,max_attempts";
 
 function lastCronOccurrence(expression: string, timezone: string, now: Date): Date | null {
   try {
@@ -32,7 +35,7 @@ export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), loo
   invalidSchedules: string[];
 }> {
   const definitions = await db.select<JobDefinitionRow[]>(
-    "job_definitions?enabled=eq.true&trigger_type=eq.cron&select=id,job_key,trigger_type,schedule_expr,timezone,handler_key,owner_agent_slug,autonomy_level,policy_key,required_connectors,enabled,max_attempts",
+    `job_definitions?enabled=eq.true&trigger_type=eq.cron&select=${JOB_DEFINITION_SELECT}`,
   );
   const floor = now.getTime() - lookbackMinutes * 60_000;
   let due = 0;
@@ -56,7 +59,7 @@ export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), loo
       trigger_ref: `cron:${definition.schedule_expr}`,
       scheduled_for: occurrence.toISOString(),
       status: "queued",
-      input: { source: "vercel-cron-tick", occurrence: occurrence.toISOString() },
+      input: { source: "cloud-runtime-tick", occurrence: occurrence.toISOString() },
     }, "idempotency_key");
     if (inserted.length > 0) enqueued += 1;
   }
