@@ -3,25 +3,6 @@ import { authorizeBearer } from "../src/auth.js";
 import { loadEnv } from "../src/env.js";
 import { SupabaseHttp } from "../src/supabase.js";
 
-interface ConnectorHealthRow {
-  slug: string;
-  effective_health: string;
-}
-
-interface JobRow {
-  job_key: string;
-  enabled: boolean;
-  required_connectors: string[];
-}
-
-interface GoalRow {
-  goal_key: string;
-  execution_mode: string;
-  blocker_type: string | null;
-  runnable: boolean;
-  status: string;
-}
-
 export default async function handler(request: VercelRequest, response: VercelResponse): Promise<void> {
   if (request.method !== "GET") {
     response.status(405).json({ ok: false, error: "method_not_allowed" });
@@ -36,54 +17,47 @@ export default async function handler(request: VercelRequest, response: VercelRe
     }
 
     const db = new SupabaseHttp(env);
-    const [connectors, jobs, goals, incidents] = await Promise.all([
-      db.select<ConnectorHealthRow[]>("v_connector_health?select=slug,effective_health&order=slug.asc"),
-      db.select<JobRow[]>("job_definitions?select=job_key,enabled,required_connectors&order=job_key.asc"),
-      db.select<GoalRow[]>("v_goal_queue_v4?select=goal_key,execution_mode,blocker_type,runnable,status&order=priority_score.desc"),
-      db.select<Array<{ severity: string; status: string }>>("incidents?select=severity,status&status=neq.resolved&status=neq.closed"),
+    const [healthRows, schedulerRows, connectorBlockers, ownerActions, goals, providers] = await Promise.all([
+      db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
+      db.select<Array<Record<string, unknown>>>("v_scheduler_readiness_v6?select=*&limit=1"),
+      db.select<Array<Record<string, unknown>>>("v_enabled_job_connector_blockers_v6?select=*&order=job_key.asc"),
+      db.select<Array<Record<string, unknown>>>("v_owner_action_queue_v4?select=*&limit=100"),
+      db.select<Array<Record<string, unknown>>>("v_goal_queue_v4?select=goal_key,status,execution_mode,blocker_type,runnable,priority_score&order=priority_score.desc&limit=100"),
+      db.select<Array<Record<string, unknown>>>("v_provider_readiness_v6?select=provider_key,runtime_state,authorized,runtime_ready,operational&order=provider_key.asc"),
     ]);
 
-    const connectorState = new Map(connectors.map((row) => [row.slug, row.effective_health]));
-    const enabledJobs = jobs.filter((job) => job.enabled);
-    const blockedEnabledJobs = enabledJobs.flatMap((job) => {
-      const missing = job.required_connectors.filter((slug) => connectorState.get(slug) !== "runtime_ready");
-      return missing.length ? [{ jobKey: job.job_key, missingConnectors: missing }] : [];
-    });
+    const health = healthRows.at(0) ?? {};
+    const scheduler = schedulerRows.at(0) ?? {};
+    const healthyInstances = Number(health.healthy_runtime_instances ?? 0);
+    const criticalDrift = Number(health.critical_drift ?? 0);
+    const criticalIncidents = Number(health.critical_incidents ?? 0);
+    const highFrequencyReady = scheduler.high_frequency_ready === true;
 
-    const criticalIncidents = incidents.filter((incident) => incident.severity === "critical").length;
-    const internalJobs = enabledJobs.filter((job) => job.required_connectors.length === 0);
-    const ownerQueue = goals.filter((goal) => goal.execution_mode === "owner" || goal.blocker_type === "owner_policy");
-    const externalBlockers = goals.filter((goal) => goal.blocker_type === "external_account" || goal.blocker_type === "connector");
+    const internalAutonomy = healthyInstances > 0 && criticalDrift === 0 && criticalIncidents === 0;
+    const connectorAutonomy = internalAutonomy && connectorBlockers.length === 0;
+    const continuousAutonomy = connectorAutonomy && highFrequencyReady;
 
-    const readyForInternalAutonomy = internalJobs.length > 0 && criticalIncidents === 0;
-    const readyForConnectorAutonomy = blockedEnabledJobs.length === 0 && criticalIncidents === 0;
-    const readyForExternalAutonomy = false;
-
-    response.status(readyForInternalAutonomy ? 200 : 503).json({
-      ok: readyForInternalAutonomy,
+    response.status(internalAutonomy ? 200 : 503).json({
+      ok: internalAutonomy,
       runtimeId: env.runtimeId,
+      version: env.runtimeVersion,
+      commitSha: env.commitSha,
       observedAt: new Date().toISOString(),
       readiness: {
-        internalAutonomy: readyForInternalAutonomy,
-        connectorAutonomy: readyForConnectorAutonomy,
-        externalAutonomy: readyForExternalAutonomy,
+        internalAutonomy,
+        connectorAutonomy,
+        continuousAutonomy,
+        externalAutonomy: false,
       },
-      counts: {
-        connectors: connectors.length,
-        runtimeReadyConnectors: connectors.filter((row) => row.effective_health === "runtime_ready").length,
-        enabledJobs: enabledJobs.length,
-        internalJobs: internalJobs.length,
-        blockedEnabledJobs: blockedEnabledJobs.length,
-        criticalIncidents,
-        ownerQueue: ownerQueue.length,
-        externalBlockers: externalBlockers.length,
-      },
+      operatingHealth: health,
+      scheduler,
       blockers: {
-        enabledJobs: blockedEnabledJobs,
-        owner: ownerQueue.map((goal) => goal.goal_key),
-        external: externalBlockers.map((goal) => goal.goal_key),
-        externalAutonomy: "Disabled until an explicit outbound/publication authorization envelope is configured and verified.",
+        enabledJobConnectors: connectorBlockers,
+        ownerActions,
+        goals: goals.filter((goal) => goal.runnable !== true),
+        externalAutonomy: "Disabled until explicit external-effect authorization envelopes, providers, budgets and receipts are all verified.",
       },
+      providers,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
