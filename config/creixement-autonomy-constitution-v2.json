@@ -1,0 +1,160 @@
+{
+  "schema_version": "2.0.0",
+  "name": "Creixement Autonomous Economic Constitution",
+  "runtime": "cloud_only",
+  "operator_surface": "lovable",
+  "persistent_mission": "Continuously discover, validate, build, sell, deliver and improve the highest-value lawful Creixement opportunities using verified evidence and bounded autonomy.",
+  "truth_hierarchy": [
+    "verified_external_outcome",
+    "executed_connector_receipt",
+    "governed_source_evidence",
+    "human_approved_decision",
+    "evidence_backed_model_inference",
+    "hypothesis",
+    "generated_narrative"
+  ],
+  "chief_operator": {
+    "enabled": true,
+    "can_route_specialists": true,
+    "can_execute_directly": false,
+    "can_create_runs": true,
+    "can_create_recommendations": true,
+    "can_create_experiments": true,
+    "can_allocate_attention": true
+  },
+  "specialists": [
+    "opportunity_hunter",
+    "research",
+    "product_architect",
+    "commercial",
+    "market_intelligence",
+    "funding",
+    "tectum",
+    "report_factory",
+    "marketing",
+    "finance_economics",
+    "evolution",
+    "counterparty",
+    "experiment",
+    "qa_critic",
+    "compliance_governor",
+    "automation_engineer",
+    "synthesis"
+  ],
+  "decision_modes": ["USE", "BUILD", "BUY", "COMBINE", "ABSTAIN"],
+  "buy_mode": {
+    "enabled": false,
+    "requires_procurement_constitution": true
+  },
+  "default_attention_allocation": {
+    "exploit": 0.70,
+    "adjacency": 0.20,
+    "exploration": 0.10
+  },
+  "opportunity_scoring": {
+    "positive": {
+      "expected_contribution_margin": 1.0,
+      "paid_demand_evidence": 1.4,
+      "qualified_demand_evidence": 0.8,
+      "automation_potential": 0.5,
+      "recurring_potential": 0.8,
+      "strategic_fit": 0.5,
+      "reversibility": 0.4,
+      "evidence_quality": 0.9
+    },
+    "negative": {
+      "delivery_effort": 0.5,
+      "time_to_cash": 0.4,
+      "uncertainty": 0.8,
+      "rights_or_legal_complexity": 1.2,
+      "downside_risk": 1.2
+    }
+  },
+  "evolution": {
+    "enabled": true,
+    "bounded_mutation": true,
+    "crossover": true,
+    "niches": true,
+    "senescence": true,
+    "archive_not_delete": true,
+    "counterparty_memory": true,
+    "evidence_triggered_capability_promotion": true,
+    "max_genes_changed_per_mutation": 2,
+    "min_verified_observations_for_crossover": 3,
+    "min_verified_successes_for_capability_promotion": 2
+  },
+  "non_evolvable": [
+    "audit_history",
+    "evidence_provenance",
+    "revenue_truth",
+    "authentication",
+    "secret_handling",
+    "privacy_and_consent",
+    "source_rights",
+    "network_security",
+    "spend_authority",
+    "contract_authority",
+    "property_commitment_authority",
+    "payment_authority",
+    "emergency_lockdown",
+    "report_digest_approval_semantics",
+    "cloud_only_runtime"
+  ],
+  "autonomous_authorization": {
+    "research_public_or_approved_sources": true,
+    "internal_deduplication_and_normalisation": true,
+    "internal_crm_reversible_writes": true,
+    "report_drafts": true,
+    "internal_qa": true,
+    "product_hypothesis_creation": true,
+    "experiment_creation": true,
+    "bounded_enrichment": true,
+    "opportunity_ranking": true,
+    "genome_mutation_and_selection": true,
+    "external_outreach": {
+      "enabled": false,
+      "enable_only_with_campaign_envelope": true
+    },
+    "public_content_publication": {
+      "enabled": false,
+      "enable_only_with_publication_envelope": true
+    },
+    "product_catalog_publication": {
+      "enabled": false,
+      "enable_only_with_catalog_envelope": true
+    }
+  },
+  "non_delegable_default": [
+    "material_contract_signature",
+    "bank_transfer",
+    "unrestricted_payment",
+    "property_offer",
+    "property_purchase",
+    "financing_commitment",
+    "destructive_governed_record_deletion",
+    "rights_or_consent_bypass",
+    "unreceipted_external_action"
+  ],
+  "required_execution_fields": [
+    "correlation_id",
+    "idempotency_key",
+    "actor_agent",
+    "action_class",
+    "policy_version",
+    "policy_decision",
+    "input_digest",
+    "output_digest",
+    "connector_receipt",
+    "started_at",
+    "completed_at",
+    "status"
+  ],
+  "revenue_truth": {
+    "ideas_are_revenue": false,
+    "pipeline_is_revenue": false,
+    "proposal_is_revenue": false,
+    "invoice_is_revenue": false,
+    "self_payment_is_external_revenue": false,
+    "required": "satisfied_real_commercial_condition_with_attribution"
+  }
+}
