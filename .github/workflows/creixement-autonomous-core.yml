@@ -6,9 +6,11 @@ on:
       - venture/creixement-control-plane-cloud-v1
       - venture/creixement-overhaul-v3
       - venture/creixement-overhaul-v4
+      - venture/creixement-overhaul-v5
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
+      - 'cloud/creixement-runtime/**'
       - 'db/migrations/**'
       - 'config/creixement-*.json'
       - 'docs/architecture/CREIXEMENT_*.md'
@@ -22,7 +24,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  validate:
+  validate-core:
     runs-on: ubuntu-latest
     timeout-minutes: 12
     defaults:
@@ -33,14 +35,42 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install dependencies
+      - name: Install core dependencies
         run: npm install --no-audit --no-fund
-      - name: Typecheck
+      - name: Core typecheck
         run: npm run check
-      - name: Unit tests
+      - name: Core unit tests
         run: npm test
+
+  validate-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    defaults:
+      run:
+        working-directory: cloud/creixement-runtime
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install runtime dependencies
+        run: npm install --no-audit --no-fund
+      - name: Runtime typecheck
+        run: npm run check
+      - name: Runtime unit tests
+        run: npm test
+      - name: Runtime build
+        run: npm run build
+
+  validate-contracts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
       - name: Validate Creixement JSON contracts
-        working-directory: .
         shell: bash
         run: |
           set -euo pipefail
@@ -50,8 +80,7 @@ jobs:
           for file in "${files[@]}"; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
           done
-      - name: Validate ordered migrations and v4 trust contracts
-        working-directory: .
+      - name: Validate ordered migrations and trust contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -71,13 +100,14 @@ jobs:
           grep -q 'capability_contracts_v4' db/migrations/008_v4_production_trust_fabric.sql
           grep -q 'lineage_nodes_v4' db/migrations/008_v4_production_trust_fabric.sql
           grep -q 'release_manifests_v4' db/migrations/008_v4_production_trust_fabric.sql
-          echo 'ordered migration and trust-fabric contracts present'
+          test -f cloud/creixement-runtime/api/tick.ts
+          test -f cloud/creixement-runtime/vercel.json
+          echo 'ordered migrations and deployable runtime contracts present'
       - name: Reject active local-runtime regressions
-        working-directory: .
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RniE 'Tectum Local Bridge|local_runtime_required' config cloud/creixement-agent-core docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
+          if grep -RniE 'Tectum Local Bridge|local_runtime_required|desktop Excel COM|local AutoPPTX' config cloud docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
             echo 'Active local-runtime regression detected.'
             exit 1
           fi
