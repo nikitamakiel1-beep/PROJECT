@@ -1,0 +1,71 @@
+{
+  "schema_version": "6.0.0",
+  "runtime": {
+    "cloud_only": true,
+    "package": "cloud/creixement-runtime",
+    "entrypoints": {
+      "tick": "/api/tick",
+      "health": "/api/health",
+      "readiness": "/api/readiness",
+      "owner_decisions": "/api/owner-decisions",
+      "release_status": "/api/release-status"
+    },
+    "tick_target_minutes": 5,
+    "native_vercel_hobby_safety_cron": "17 3 * * *",
+    "continuous_scheduler_required": true,
+    "continuous_scheduler_state_source": "scheduler_bindings_v6",
+    "authentication": {
+      "scheduler": "Bearer CRON_SECRET",
+      "operator_read": "Bearer CREIXEMENT_API_TOKEN",
+      "owner_decision": "Bearer CREIXEMENT_OWNER_TOKEN"
+    }
+  },
+  "required_server_secrets": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "CRON_SECRET",
+    "CREIXEMENT_API_TOKEN",
+    "CREIXEMENT_OWNER_TOKEN"
+  ],
+  "execution": {
+    "event_outbox_routing": true,
+    "fail_closed_unknown_handlers": true,
+    "handler_circuit_breakers": true,
+    "connector_readiness_required": true,
+    "runtime_control_required": true,
+    "budget_reservation_required": true,
+    "execution_receipt_required": true,
+    "idempotency_required": true,
+    "job_leasing_required": true,
+    "retry_backoff_required": true,
+    "job_dead_letter_required": true,
+    "outbox_dead_letter_required": true,
+    "heartbeat_required": true,
+    "desired_state_reconciliation": true
+  },
+  "owner_boundary": {
+    "decision_ingress_is_execution": false,
+    "decisions_are_immutable": true,
+    "decisions_emit_events": true,
+    "downstream_policy_recheck_required": true,
+    "non_delegable_actions_remain_owner_only": true
+  },
+  "release": {
+    "migration_head": "011_v6_invariant_guards.sql",
+    "runtime_version": "0.6.0",
+    "ci_success_required": true,
+    "healthy_runtime_required": true,
+    "high_frequency_scheduler_required": true,
+    "critical_drift_allowed": 0,
+    "critical_incidents_allowed": 0,
+    "enabled_job_connector_blockers_allowed": 0,
+    "machine_attestation_table": "release_attestations_v6"
+  },
+  "external_effects": {
+    "outreach_enabled": false,
+    "publication_enabled": false,
+    "payments_enabled": false,
+    "contracts_enabled": false,
+    "property_commitments_enabled": false
+  }
+}
