@@ -4,6 +4,9 @@ export interface RuntimeEnv {
   cronSecret: string;
   apiToken: string;
   runtimeId: string;
+  runtimeVersion: string;
+  commitSha: string | null;
+  environment: string;
 }
 
 function required(name: string): string {
@@ -20,6 +23,9 @@ export function loadEnv(): RuntimeEnv {
     supabaseServiceRoleKey: required("SUPABASE_SERVICE_ROLE_KEY"),
     cronSecret: required("CRON_SECRET"),
     apiToken: required("CREIXEMENT_API_TOKEN"),
-    runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "vercel-runtime-v4",
+    runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "vercel-runtime-v5",
+    runtimeVersion: process.env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.5.0",
+    commitSha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.CREIXEMENT_COMMIT_SHA?.trim() || null,
+    environment: process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV?.trim() || "production",
   };
 }
