@@ -8,6 +8,9 @@ export type GoalStatus =
   | "cancelled"
   | "expired";
 
+export type GoalExecutionMode = "autonomous" | "hybrid" | "owner";
+export type GoalBlockerType = "none" | "dependency" | "external_account" | "owner_policy" | "connector" | "technical";
+
 export interface GoalBudget {
   attentionUnits?: number;
   agentRuns?: number;
@@ -23,6 +26,8 @@ export interface Goal {
   objective: string;
   successCondition: string;
   status: GoalStatus;
+  executionMode?: GoalExecutionMode;
+  blockerType?: GoalBlockerType;
   parentGoalId?: string;
   dependencies: string[];
   ownerAgent: string;
@@ -82,7 +87,9 @@ export function assertAcyclicGoals(goals: Goal[]): void {
 }
 
 export function isGoalRunnable(goal: Goal, goals: Goal[], now = new Date()): boolean {
-  if (!(goal.status === "proposed" || goal.status === "ready" || goal.status === "blocked")) return false;
+  if (!(goal.status === "proposed" || goal.status === "ready")) return false;
+  if ((goal.executionMode ?? "autonomous") === "owner") return false;
+  if ((goal.blockerType ?? "none") !== "none") return false;
   if (goal.expiresAt && new Date(goal.expiresAt).getTime() <= now.getTime()) return false;
   const byId = new Map(goals.map((candidate) => [candidate.id, candidate]));
   return goal.dependencies.every((dependencyId) => byId.get(dependencyId)?.status === "succeeded");
@@ -125,6 +132,11 @@ export function rankRunnableGoals(
 export function deriveGoalState(goal: Goal, goals: Goal[], now = new Date()): GoalStatus {
   if (["succeeded", "failed", "cancelled", "expired"].includes(goal.status)) return goal.status;
   if (goal.expiresAt && new Date(goal.expiresAt).getTime() <= now.getTime()) return "expired";
+  if ((goal.blockerType ?? "none") !== "none" || goal.status === "blocked") return "blocked";
   if (isGoalRunnable(goal, goals, now)) return goal.status === "active" ? "active" : "ready";
   return "blocked";
+}
+
+export function ownerGoals(goals: Goal[]): Goal[] {
+  return goals.filter((goal) => (goal.executionMode ?? "autonomous") === "owner" && !["succeeded","failed","cancelled","expired"].includes(goal.status));
 }
