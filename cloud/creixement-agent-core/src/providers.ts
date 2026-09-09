@@ -49,7 +49,7 @@ export function routeProvider(
   buyEnabled = false,
 ): ProviderRoute {
   const candidates = providers.filter((provider) => usable(provider, requirement));
-  if (candidates.length) {
+  if (candidates.length > 0) {
     const ranked = [...candidates].sort((a, b) => {
       const score = (p: ProviderDescriptor): number =>
         clamp01(p.reliability) * 0.35 +
@@ -59,7 +59,9 @@ export function routeProvider(
         Math.min(p.latencyMs / 10000, 1) * 0.05;
       return score(b) - score(a) || a.key.localeCompare(b.key);
     });
-    return { mode: "USE", provider: ranked[0], reason: "Best runtime-ready permitted provider satisfying the operation contract." };
+    const best = ranked.at(0);
+    if (!best) throw new Error("Provider ranking invariant failed");
+    return { mode: "USE", provider: best, reason: "Best runtime-ready permitted provider satisfying the operation contract." };
   }
 
   const near = providers.some((provider) =>
