@@ -1,0 +1,20 @@
+name = "creixement-runtime"
+main = "src/index.ts"
+compatibility_date = "2026-09-11"
+compatibility_flags = ["nodejs_compat"]
+workers_dev = true
+
+[triggers]
+crons = ["*/5 * * * *"]
+
+[observability]
+enabled = true
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
+
+[vars]
+CREIXEMENT_RUNTIME_ID = "cloudflare-runtime-v6"
+CREIXEMENT_RUNTIME_VERSION = "0.6.2"
+CREIXEMENT_ENVIRONMENT = "production"
+CREIXEMENT_DB_TIMEOUT_MS = "8000"
