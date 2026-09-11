@@ -19,6 +19,7 @@ export interface RuntimeTickResult {
   completedAt: string;
   elapsedMs: number;
   phases: {
+    maintenance: TickPhase;
     outbox: TickPhase;
     scheduling: TickPhase;
     reconciliation: TickPhase;
@@ -66,13 +67,18 @@ export async function runRuntimeTick(
     // Heartbeat storage failure is reflected by readiness; execution may still produce useful receipts.
   }
 
+  const maintenance = await phase(async () => {
+    const rows = await db.rpc<Array<Record<string, unknown>>>("creixement_reap_expired_leases_v6", {});
+    return rows.at(0) ?? { job_requeued: 0, job_dead_lettered: 0, outbox_requeued: 0, outbox_dead_lettered: 0 };
+  });
+
   const outbox = await phase(async () => {
     const result = await routeClaimedOutboxEvents(db, env, options.outboxBatchSize ?? 20);
     return { ...result };
   });
 
   const scheduling = await phase(async () => {
-    const result = await enqueueDueCronJobs(db, started, options.lookbackMinutes ?? 10);
+    const result = await enqueueDueCronJobs(db, started, options.lookbackMinutes ?? 1500);
     return { ...result };
   });
 
@@ -88,14 +94,15 @@ export async function runRuntimeTick(
 
   const workerFailures = Number(execution.data?.failed ?? 0);
   const outboxFailures = Number(outbox.data?.failed ?? 0);
-  const ok = outbox.ok && scheduling.ok && reconciliation.ok && execution.ok && workerFailures === 0 && outboxFailures === 0;
+  const ok = maintenance.ok && outbox.ok && scheduling.ok && reconciliation.ok && execution.ok
+    && workerFailures === 0 && outboxFailures === 0;
   const completed = new Date();
 
   try {
     await heartbeat(db, env, ok ? "healthy" : "degraded", {
       phase: "tick_completed",
       completedAt: completed.toISOString(),
-      phases: { outbox, scheduling, reconciliation, execution },
+      phases: { maintenance, outbox, scheduling, reconciliation, execution },
     });
   } catch {
     // The readiness endpoint independently exposes heartbeat staleness.
@@ -109,6 +116,6 @@ export async function runRuntimeTick(
     startedAt,
     completedAt: completed.toISOString(),
     elapsedMs: completed.getTime() - started.getTime(),
-    phases: { outbox, scheduling, reconciliation, execution },
+    phases: { maintenance, outbox, scheduling, reconciliation, execution },
   };
 }
