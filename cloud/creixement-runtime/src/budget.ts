@@ -27,6 +27,33 @@ const zero = (): BudgetUsageRow => ({
   external_api_cost_eur: 0, external_messages: 0, publications: 0,
 });
 
+function zonedParts(date: Date, timeZone: string): Record<string, number> {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone, year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+  }).formatToParts(date);
+  return Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, Number(part.value)]));
+}
+
+function offsetMs(date: Date, timeZone: string): number {
+  const p = zonedParts(date, timeZone);
+  const representedUtc = Date.UTC(p.year!, p.month! - 1, p.day!, p.hour!, p.minute!, p.second!);
+  const epochSecond = Math.floor(date.getTime() / 1000) * 1000;
+  return representedUtc - epochSecond;
+}
+
+export function startOfDayInTimeZone(now: Date, timeZone = "Europe/Madrid"): Date {
+  const p = zonedParts(now, timeZone);
+  const target = Date.UTC(p.year!, p.month! - 1, p.day!, 0, 0, 0);
+  let guess = target;
+  for (let i = 0; i < 4; i += 1) {
+    const next = target - offsetMs(new Date(guess), timeZone);
+    if (Math.abs(next - guess) < 1000) return new Date(next);
+    guess = next;
+  }
+  return new Date(guess);
+}
+
 export async function authorizeAgentRunBudget(db: SupabaseHttp, input: {
   correlationId: string;
   idempotencyKey: string;
@@ -39,10 +66,9 @@ export async function authorizeAgentRunBudget(db: SupabaseHttp, input: {
   const budget = budgets.at(0);
   if (!budget) return { allowed: false, reason: "No active global daily budget envelope exists." };
 
-  const startUtc = new Date();
-  startUtc.setUTCHours(0, 0, 0, 0);
+  const start = startOfDayInTimeZone(new Date(), "Europe/Madrid");
   const usage = await db.select<BudgetUsageRow[]>(
-    `budget_usage_events?budget_id=eq.${encodeURIComponent(budget.id)}&occurred_at=gte.${encodeURIComponent(startUtc.toISOString())}&select=attention_units,agent_runs,experiment_slots,enrichment_records,external_api_cost_eur,external_messages,publications`,
+    `budget_usage_events?budget_id=eq.${encodeURIComponent(budget.id)}&occurred_at=gte.${encodeURIComponent(start.toISOString())}&select=attention_units,agent_runs,experiment_slots,enrichment_records,external_api_cost_eur,external_messages,publications`,
   );
   const used = usage.reduce<BudgetUsageRow>((acc, row) => ({
     attention_units: acc.attention_units + Number(row.attention_units ?? 0),
@@ -65,7 +91,7 @@ export async function authorizeAgentRunBudget(db: SupabaseHttp, input: {
     action_class: input.actionClass,
     actor_agent: input.actorAgent,
     agent_runs: 1,
-    metadata: { runtime: "creixement-cloud-runtime-v4" },
+    metadata: { runtime: "creixement-cloud-runtime-v6.1", operatingTimeZone: "Europe/Madrid" },
   }, "idempotency_key");
 
   return { allowed: true, reason: "Global daily agent-run budget reserved.", budgetId: budget.id };
