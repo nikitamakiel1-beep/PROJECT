@@ -10,7 +10,19 @@ export class SupabaseHttp {
     headers.set("Content-Type", "application/json");
     if (!headers.has("Prefer")) headers.set("Prefer", "return=representation");
 
-    const response = await fetch(`${this.env.supabaseUrl}/rest/v1/${path}`, { ...init, headers });
+    const timeout = AbortSignal.timeout(this.env.requestTimeoutMs);
+    const signal = init.signal ? AbortSignal.any([init.signal, timeout]) : timeout;
+
+    let response: Response;
+    try {
+      response = await fetch(`${this.env.supabaseUrl}/rest/v1/${path}`, { ...init, headers, signal });
+    } catch (error) {
+      if (signal.aborted) {
+        throw new Error(`Supabase request timed out after ${this.env.requestTimeoutMs}ms: ${path.slice(0, 200)}`);
+      }
+      throw error;
+    }
+
     const text = await response.text();
     if (!response.ok) throw new Error(`Supabase ${response.status}: ${text.slice(0, 1000)}`);
     if (!text) return undefined as T;
