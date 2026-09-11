@@ -28,16 +28,17 @@ function lastCronOccurrence(expression: string, timezone: string, now: Date): Da
   }
 }
 
-export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), lookbackMinutes = 6): Promise<{
+export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), lookbackMinutes = 1500): Promise<{
   examined: number;
   due: number;
   enqueued: number;
   invalidSchedules: string[];
 }> {
+  const boundedLookback = Math.max(1, Math.min(Math.floor(lookbackMinutes), 1500));
   const definitions = await db.select<JobDefinitionRow[]>(
     `job_definitions?enabled=eq.true&trigger_type=eq.cron&select=${JOB_DEFINITION_SELECT}`,
   );
-  const floor = now.getTime() - lookbackMinutes * 60_000;
+  const floor = now.getTime() - boundedLookback * 60_000;
   let due = 0;
   let enqueued = 0;
   const invalidSchedules: string[] = [];
@@ -59,7 +60,11 @@ export async function enqueueDueCronJobs(db: SupabaseHttp, now = new Date(), loo
       trigger_ref: `cron:${definition.schedule_expr}`,
       scheduled_for: occurrence.toISOString(),
       status: "queued",
-      input: { source: "cloud-runtime-tick", occurrence: occurrence.toISOString() },
+      input: {
+        source: "cloud-runtime-scheduler",
+        occurrence: occurrence.toISOString(),
+        lookbackMinutes: boundedLookback,
+      },
     }, "idempotency_key");
     if (inserted.length > 0) enqueued += 1;
   }
