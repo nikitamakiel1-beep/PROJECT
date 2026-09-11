@@ -1,5 +1,5 @@
 {
-  "schema_version": "6.1.0",
+  "schema_version": "6.2.0",
   "runtime": {
     "cloud_only": true,
     "package": "cloud/creixement-runtime",
@@ -32,7 +32,7 @@
   "optional_server_configuration": {
     "CREIXEMENT_DB_TIMEOUT_MS": "1000..30000; default 8000",
     "CREIXEMENT_RUNTIME_ID": "stable runtime instance identifier",
-    "CREIXEMENT_RUNTIME_VERSION": "defaults to 0.6.1",
+    "CREIXEMENT_RUNTIME_VERSION": "defaults to 0.6.2",
     "CREIXEMENT_COMMIT_SHA": "fallback commit attestation when platform metadata is absent"
   },
   "execution": {
@@ -57,6 +57,14 @@
     "desired_state_reconciliation": true,
     "drift_history_preserved": true
   },
+  "truth_model": {
+    "configuration_is_not_verification": true,
+    "ci_success_requires_verified_evidence": true,
+    "release_runtime_must_match_commit": true,
+    "scheduler_active_requires_verification_receipt": true,
+    "provider_operational_requires_recent_verification_days": 30,
+    "truth_grade_view": "v_truth_grade_v6"
+  },
   "owner_boundary": {
     "decision_ingress_is_execution": false,
     "decisions_are_immutable": true,
@@ -65,9 +73,11 @@
     "non_delegable_actions_remain_owner_only": true
   },
   "release": {
-    "migration_head": "012_v6_resilience_and_release_integrity.sql",
-    "runtime_version": "0.6.1",
+    "migration_head": "013_v6_verified_evidence_gates.sql",
+    "runtime_version": "0.6.2",
     "ci_success_required": true,
+    "ci_verified_evidence_required": true,
+    "matching_commit_heartbeat_required": true,
     "healthy_runtime_required": true,
     "high_frequency_scheduler_required": true,
     "critical_drift_allowed": 0,
@@ -77,6 +87,7 @@
     "open_handler_circuits_allowed": 0,
     "enabled_job_connector_blockers_allowed": 0,
     "machine_attestation_table": "release_attestations_v6",
+    "release_evidence_table": "release_evidence_v6",
     "production_gate_view": "v_production_gate_v6"
   },
   "external_effects": {
