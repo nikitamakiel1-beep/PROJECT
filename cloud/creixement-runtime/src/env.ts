@@ -39,7 +39,7 @@ export function loadEnv(): RuntimeEnv {
     cronSecret: required("CRON_SECRET"),
     apiToken: required("CREIXEMENT_API_TOKEN"),
     runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "creixement-runtime-v6",
-    runtimeVersion: process.env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.6.1",
+    runtimeVersion: process.env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.6.2",
     commitSha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.CREIXEMENT_COMMIT_SHA?.trim() || null,
     environment: process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV?.trim() || "production",
     requestTimeoutMs: boundedInteger("CREIXEMENT_DB_TIMEOUT_MS", 8000, 1000, 30000),
