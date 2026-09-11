@@ -1,0 +1,19 @@
+{
+  "name": "@creixement/cloudflare-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev"
+  },
+  "dependencies": {
+    "cron-parser": "^5.3.1"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260911.0",
+    "typescript": "^5.9.2",
+    "wrangler": "^4.0.0"
+  }
+}
