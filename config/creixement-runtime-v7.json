@@ -1,0 +1,78 @@
+{
+  "schema_version": "7.0.0",
+  "runtime": {
+    "operator": "Kairon",
+    "cloud_only": true,
+    "primary_platform": "cloudflare-workers",
+    "fallback_platform": "vercel",
+    "state_authority": "supabase-postgresql",
+    "operator_ui": "lovable",
+    "packages": {
+      "governed_runtime": "cloud/creixement-runtime",
+      "cloudflare_adapter": "cloud/creixement-cloudflare-runtime",
+      "economic_core": "cloud/creixement-agent-core"
+    },
+    "target_version": "0.7.0",
+    "target_tick_minutes": 5,
+    "heartbeat_stale_after_minutes": 15,
+    "entrypoints": ["/api/tick","/api/health","/api/readiness","/api/owner-decisions","/api/release-status","/healthz"]
+  },
+  "required_server_secrets": [
+    "SUPABASE_URL",
+    "SUPABASE_SERVICE_ROLE_KEY",
+    "CRON_SECRET",
+    "CREIXEMENT_API_TOKEN",
+    "CREIXEMENT_OWNER_TOKEN"
+  ],
+  "secret_policy": {
+    "never_commit_values": true,
+    "never_store_values_in_browser": true,
+    "never_store_values_in_database_metadata": true,
+    "cloud_secret_store_only": true
+  },
+  "control": {
+    "autonomy_ceiling": "L2",
+    "owner_ceiling": "L3",
+    "fail_closed": true,
+    "runtime_control_required": true,
+    "budget_reservation_required": true,
+    "connector_readiness_required": true,
+    "rights_check_required": true,
+    "idempotency_required": true,
+    "receipt_required": true,
+    "result_verification_required_for_promotion": true,
+    "circuit_breakers": true,
+    "dead_letters": true,
+    "expired_lease_recovery": true,
+    "desired_state_reconciliation": true,
+    "owner_decision_content_immutable": true
+  },
+  "scheduler": {
+    "primary": {
+      "provider": "cloudflare-cron-triggers",
+      "expression": "*/5 * * * *",
+      "endpoint": "/api/tick",
+      "authentication": "Bearer CRON_SECRET",
+      "verification_required": true
+    },
+    "fallback": {
+      "provider": "vercel-hobby",
+      "expression": "17 3 * * *",
+      "purpose": "daily safety wake-up only"
+    }
+  },
+  "migration_head": "014_v7_kairon_autonomous_operator.sql",
+  "truth": {
+    "configuration_is_not_execution": true,
+    "execution_is_not_verified_business_outcome": true,
+    "lower_truth_never_overwrites_higher_truth": true
+  },
+  "external_effects": {
+    "outreach": "disabled_without_versioned_authorization_envelope",
+    "publication": "disabled_without_versioned_authorization_envelope",
+    "payments": "owner_only",
+    "contracts": "owner_only",
+    "property_commitments": "owner_only",
+    "destructive_governed_deletion": "owner_only"
+  }
+}
