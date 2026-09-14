@@ -1,0 +1,156 @@
+{
+  "schema_version": "9.0.0",
+  "operator": {
+    "name": "Kairon",
+    "role": "Autonomous Chief Operator of Creixement",
+    "autonomy_ceiling": "L2",
+    "production_branch": "production/creixement-kairon",
+    "cloud_only": true,
+    "sentience_claims": false,
+    "principle": "Bio-inspired mechanisms are operational control algorithms. They never imply consciousness and never override constitutional policy."
+  },
+  "runtime": {
+    "version": "0.9.0",
+    "migration_head": "018_v9_conway_bioecology.sql",
+    "primary": "cloudflare-workers",
+    "state_authority": "supabase-postgresql",
+    "heartbeat_minutes": 5,
+    "bioecology_cycle_minutes": 30
+  },
+  "bioecology": {
+    "source_inspiration": "Conway Replicatio evolutionary ecology mechanics, generalized for Creixement",
+    "mechanisms": {
+      "slime_mold_routing": {
+        "purpose": "allocate attention through nutrient gradients while penalising friction and risk",
+        "verified_reinforcement_only": true
+      },
+      "pheromone_foraging": {
+        "purpose": "reinforce productive verified routes and evaporate stale routes",
+        "evaporation": 0.12
+      },
+      "swarm_quorum": {
+        "purpose": "collective recommendation gating",
+        "threshold": 0.67,
+        "minimum_independent_sources": 2
+      },
+      "asexual_budding": {
+        "purpose": "low-cost experimental variant creation from one parent",
+        "confidence_resets": true
+      },
+      "sexual_recombination": {
+        "purpose": "combine compatible high-evidence traits",
+        "same_niche_default": true,
+        "confidence_resets": true
+      },
+      "mutation": {
+        "purpose": "bounded evidence-backed gene changes",
+        "constitutional_fields_mutable": false
+      },
+      "epigenetics": {
+        "purpose": "temporary phenotype adaptation to environment without altering protected genome"
+      },
+      "telomeres": {
+        "purpose": "limit stale exploration and encode senescence",
+        "restore_only_from_verified_paid_success": true,
+        "archive_not_delete": true
+      },
+      "red_queen": {
+        "purpose": "increase adaptation pressure under competition, volatility, failure or novelty deficit"
+      },
+      "niche_speciation": {
+        "purpose": "preserve useful strategic diversity and prevent destructive monoculture"
+      },
+      "homeostasis": {
+        "purpose": "keep energy, stress and resource consumption inside operating envelopes"
+      },
+      "hormesis": {
+        "purpose": "use modest verified stress to promote adaptation; suppress risk at extremes"
+      },
+      "immune_memory": {
+        "purpose": "remember recurrent failure signatures and challenge/block them",
+        "cannot_relax_policy": true
+      },
+      "apoptosis_archive": {
+        "purpose": "archive persistently weak or senescent variants",
+        "hard_delete": false
+      },
+      "hibernation": {
+        "purpose": "pause low-value variants during scarcity and wake them when conditions improve"
+      },
+      "migration": {
+        "purpose": "move bounded attention toward better verified opportunity gradients"
+      },
+      "symbiosis": {
+        "purpose": "pair complementary agents/products/strategies when joint fitness is higher"
+      },
+      "competition": {
+        "purpose": "apply within-niche selection pressure based on verified fitness"
+      },
+      "predator_detection": {
+        "purpose": "treat dangerous anomalies as immune challenges, not as unverified automatic accusations",
+        "fail_closed": true
+      },
+      "wound_healing": {
+        "purpose": "prioritise runtime recovery after dead letters, circuit opens, drift or stale heartbeat"
+      },
+      "metabolism": {
+        "purpose": "allocate scarce resources maintenance first, execution second, exploration last"
+      },
+      "constitutional_membrane": {
+        "purpose": "isolate non-evolvable authority from mutation",
+        "protected": [
+          "audit_history",
+          "evidence_provenance",
+          "revenue_truth",
+          "authentication",
+          "secret_handling",
+          "privacy_and_consent",
+          "source_rights",
+          "network_security",
+          "spend_authority",
+          "contract_authority",
+          "property_commitment_authority",
+          "payment_authority",
+          "emergency_lockdown",
+          "report_digest_approval_semantics",
+          "cloud_only_runtime"
+        ]
+      }
+    }
+  },
+  "selection": {
+    "truth_first": true,
+    "verified_outcomes_outrank_inference": true,
+    "paid_success_required_for_champion_promotion": true,
+    "confidence_resets_on_offspring": true,
+    "lineage_preserved": true,
+    "archive_instead_of_delete": true,
+    "cross_niche_recombination_requires_explicit_speciation_workflow": true
+  },
+  "ecological_limits": {
+    "max_autonomy": "L2",
+    "external_messages_per_day": 0,
+    "publications_per_day": 0,
+    "payment_authority": false,
+    "contract_authority": false,
+    "property_commitment_authority": false,
+    "rights_bypass": false,
+    "irreversible_deletion": false
+  },
+  "ui": {
+    "new_surfaces": [
+      "Ecology",
+      "Lineages",
+      "Niches",
+      "Swarm Routing",
+      "Immune Memory",
+      "Red Queen Pressure",
+      "Telomeres & Senescence",
+      "Symbiosis & Competition",
+      "Homeostasis",
+      "Evolution Events"
+    ],
+    "truth_badges_required": true,
+    "no_fake_biology": true
+  }
+}
