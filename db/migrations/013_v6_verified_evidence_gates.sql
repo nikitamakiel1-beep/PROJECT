@@ -1,5 +1,6 @@
 -- Creixement v6.2 verified-evidence gates.
 -- Apply after 012_v6_resilience_and_release_integrity.sql.
+-- View column names intentionally preserve the V6.1 ABI so dependent views survive upgrades.
 
 create table if not exists public.release_evidence_v6 (
   id uuid primary key default gen_random_uuid(),
@@ -62,10 +63,11 @@ begin
 end;
 $$;
 
+-- Keep the original column ABI from 010/012. active_bindings now means evidence-verified active bindings.
 create or replace view public.v_scheduler_readiness_v6 as
 select
   now() as observed_at,
-  count(*) filter (where state='active' and last_verified_at is not null and verification_receipt_ref is not null) as verified_active_bindings,
+  count(*) filter (where state='active' and last_verified_at is not null and verification_receipt_ref is not null) as active_bindings,
   count(*) filter (where state='active' and cadence_minutes<=5 and last_verified_at is not null
     and last_verified_at>=now()-interval '7 days' and verification_receipt_ref is not null and jsonb_array_length(evidence_refs)>0) as high_frequency_bindings,
   coalesce(min(cadence_minutes) filter (where state='active' and last_verified_at is not null and verification_receipt_ref is not null),0) as best_active_cadence_minutes,
@@ -138,12 +140,13 @@ begin
 end;
 $$;
 
+-- Keep the original V6.1 column names while strengthening their meaning with verified evidence.
 create or replace view public.v_production_gate_v6 as
 select
   now() as observed_at,
-  coalesce((select ci_status='success' and ci_evidence_verified from public.release_attestations_v6 order by assessed_at desc limit 1),false) as ci_verified_green,
-  coalesce((select matching_runtime_instances>0 from public.release_attestations_v6 order by assessed_at desc limit 1),false) as deployed_commit_alive,
-  coalesce((select high_frequency_ready from public.v_scheduler_readiness_v6 limit 1),false) as scheduler_verified_ready,
+  coalesce((select ci_status='success' and ci_evidence_verified from public.release_attestations_v6 order by assessed_at desc limit 1),false) as ci_green,
+  coalesce((select matching_runtime_instances>0 from public.release_attestations_v6 order by assessed_at desc limit 1),false) as runtime_alive,
+  coalesce((select high_frequency_ready from public.v_scheduler_readiness_v6 limit 1),false) as scheduler_ready,
   (select count(*)=0 from public.v_enabled_job_connector_blockers_v6) as connector_dependencies_ready,
   coalesce((select critical_drift=0 and critical_incidents=0 and open_job_dead_letters=0 and open_outbox_dead_letters=0 and open_handler_circuits=0 from public.v_operating_health_v6 limit 1),false) as safety_clean,
   coalesce((select promotable from public.release_attestations_v6 order by assessed_at desc limit 1),false) as promotable,
