@@ -1,8 +1,8 @@
 {
-  "schema_version": "9.0.0",
+  "schema_version": "9.1.0",
   "name": "Kairon Conway Ecology",
   "migration_head": "020_v9_population_and_courts_runtime.sql",
-  "runtime_version": "0.9.0",
+  "runtime_version": "0.9.1",
   "slime_mold_court": {
     "max_paths": 200000,
     "deterministic_ordering": true,
