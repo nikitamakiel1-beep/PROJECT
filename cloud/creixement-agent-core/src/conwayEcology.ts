@@ -49,7 +49,7 @@ function canonical(value: unknown): string {
   return `{${entries.join(",")}}`;
 }
 
-export function stableDigest(value: unknown): string {
+export function conwayStableDigest(value: unknown): string {
   return createHash("sha256").update(canonical(value)).digest("hex");
 }
 
@@ -99,7 +99,7 @@ export function deterministicAuthorityTraversal(
     terminal,
     forbiddenPaths,
     safePaths,
-    digest: stableDigest({ safePaths, forbiddenPaths }),
+    digest: conwayStableDigest({ safePaths, forbiddenPaths }),
   };
 }
 
@@ -122,8 +122,8 @@ export function updateHysteresis(
   const above = score >= config.enterThreshold;
   const below = score <= config.exitThreshold;
   let state = prior.state;
-  let consecutiveAbove = above ? prior.consecutiveAbove + 1 : 0;
-  let consecutiveBelow = below ? prior.consecutiveBelow + 1 : 0;
+  const consecutiveAbove = above ? prior.consecutiveAbove + 1 : 0;
+  const consecutiveBelow = below ? prior.consecutiveBelow + 1 : 0;
 
   if ((state === "off" || state === "candidate") && above) {
     state = consecutiveAbove >= config.dwellEnter ? "on" : "candidate";
@@ -155,8 +155,8 @@ export function canaryPromotion(
 }
 
 export function auditorOfAuditors(baseline: unknown, candidate: unknown): { match: boolean; baselineDigest: string; candidateDigest: string } {
-  const baselineDigest = stableDigest(baseline);
-  const candidateDigest = stableDigest(candidate);
+  const baselineDigest = conwayStableDigest(baseline);
+  const candidateDigest = conwayStableDigest(candidate);
   return { match: baselineDigest === candidateDigest, baselineDigest, candidateDigest };
 }
 
@@ -182,6 +182,6 @@ export function sanitizePublicProjection(value: unknown): unknown {
 }
 
 export function deterministicSkillIdentity(input: { skillKey: string; version: string; contract: unknown }): { skillId: string; digest: string } {
-  const digest = stableDigest({ skillKey: input.skillKey, version: input.version, contract: sanitizePublicProjection(input.contract) });
+  const digest = conwayStableDigest({ skillKey: input.skillKey, version: input.version, contract: sanitizePublicProjection(input.contract) });
   return { skillId: `${input.skillKey}@${input.version}:${digest.slice(0, 16)}`, digest };
 }
