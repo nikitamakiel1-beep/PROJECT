@@ -18,6 +18,19 @@
     "heartbeat_fail_closed": true,
     "public_diagnostic_path": "/diagz",
     "diagnostic_secret_values_exposed": false,
+    "scheduler_bindings": {
+      "required": ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "versioned_public": ["SUPABASE_URL"],
+      "secret": ["SUPABASE_SERVICE_ROLE_KEY"]
+    },
+    "http_control_bindings": {
+      "required": ["CRON_SECRET", "CREIXEMENT_API_TOKEN"],
+      "scheduler_dependency": false
+    },
+    "owner_bindings": {
+      "required_for_owner_actions": ["CREIXEMENT_OWNER_TOKEN"],
+      "scheduler_dependency": false
+    },
     "bioecology_cycle_minutes": 30,
     "conway_court_minutes": 60
   },
