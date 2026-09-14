@@ -15,9 +15,14 @@ function avg(values: number[]): number {
 
 export async function bioecologyCycle(ctx: HandlerContext): Promise<HandlerResult> {
   const startedAt = new Date().toISOString();
-  const [genomes, niches, trails, immune, healthRows, preflightRows] = await Promise.all([
+  const syncRows = await ctx.db.rpc<Array<Record<string, unknown>>>("creixement_sync_commercial_genomes_v9", {});
+  const sync = syncRows.at(0) ?? {};
+  const [genomes, organisms, niches, trails, immune, healthRows, preflightRows] = await Promise.all([
     ctx.db.select<Array<Record<string, unknown>>>(
       "commercial_genomes?select=id,niche,generation,telomere,fitness,confidence,status,verified_observations,verified_successes,paid_successes&limit=500",
+    ),
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "ecology_organisms_v9?select=organism_key,niche_key,generation,telomere,energy,fitness,confidence,novelty,stress,dormancy,status&limit=1000",
     ),
     ctx.db.select<Array<Record<string, unknown>>>(
       "ecology_niches_v9?select=niche_key,state,resource_level,demand,competition,volatility,evidence_scarcity,failure_pressure,selection_pressure&limit=100",
@@ -34,8 +39,9 @@ export async function bioecologyCycle(ctx: HandlerContext): Promise<HandlerResul
 
   const health = healthRows.at(0) ?? {};
   const preflight = preflightRows.at(0) ?? {};
-  const telomeres = genomes.map((row) => numeric(row.telomere)).filter(Number.isFinite);
-  const fitness = genomes.map((row) => numeric(row.fitness)).filter(Number.isFinite);
+  const telomeres = organisms.map((row) => numeric(row.telomere));
+  const energies = organisms.map((row) => numeric(row.energy));
+  const fitness = organisms.map((row) => numeric(row.fitness));
   const activeNiches = niches.filter((row) => row.state !== "retired");
   const redQueenByNiche = activeNiches.map((row) => {
     const competition = clamp(numeric(row.competition));
@@ -108,14 +114,14 @@ export async function bioecologyCycle(ctx: HandlerContext): Promise<HandlerResul
     started_at: startedAt,
     completed_at: new Date().toISOString(),
     status,
-    population_count: genomes.length,
+    population_count: organisms.length,
     active_niches: activeNiches.length,
-    senescent_count: genomes.filter((row) => row.status === "senescent").length,
-    hibernating_count: 0,
-    archived_count: genomes.filter((row) => row.status === "archived").length,
-    champion_count: genomes.filter((row) => row.status === "champion").length,
+    senescent_count: organisms.filter((row) => row.status === "senescent").length,
+    hibernating_count: organisms.filter((row) => row.status === "hibernating").length,
+    archived_count: organisms.filter((row) => row.status === "archived").length,
+    champion_count: organisms.filter((row) => row.status === "champion").length,
     mean_telomere: avg(telomeres),
-    mean_energy: 0,
+    mean_energy: avg(energies),
     mean_fitness: avg(fitness),
     red_queen_pressure: avg(redQueenByNiche.map((entry) => entry.pressure)),
     wound_healing_priority: woundHealingPriority,
@@ -124,6 +130,7 @@ export async function bioecologyCycle(ctx: HandlerContext): Promise<HandlerResul
       economicL2Allowed: preflight.economic_l2_allowed === true,
       safetyClean: preflight.safety_clean === true,
       schedulerReady: preflight.scheduler_ready === true,
+      populationSync: sync,
     },
     routing,
     quorum: { mode: "evidence_independence_required", threshold: 0.67, minIndependentSources: 2 },
@@ -138,9 +145,11 @@ export async function bioecologyCycle(ctx: HandlerContext): Promise<HandlerResul
       mechanism: "conway-inspired-bioecology-v9",
       cycleId: inserted.at(0)?.id ?? null,
       status,
-      population: genomes.length,
+      population: organisms.length,
+      populationSync: sync,
       activeNiches: activeNiches.length,
       meanTelomere: avg(telomeres),
+      meanEnergy: avg(energies),
       meanFitness: avg(fitness),
       redQueenPressure: avg(redQueenByNiche.map((entry) => entry.pressure)),
       woundHealingPriority,
