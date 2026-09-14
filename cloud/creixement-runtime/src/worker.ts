@@ -2,7 +2,7 @@ import type { RuntimeEnv } from "./env.js";
 import type { SupabaseHttp } from "./supabase.js";
 import { JOB_DEFINITION_SELECT, type JobDefinitionRow } from "./scheduler.js";
 import { authorizeAgentRunBudget } from "./budget.js";
-import { runHandler, writeJobReceipt, type JobExecutionRow } from "./handlers.js";
+import { runHandler, writeJobReceipt, type JobExecutionRow } from "./handlerRouterV9.js";
 
 interface RuntimeControlDecision {
   allowed: boolean;
