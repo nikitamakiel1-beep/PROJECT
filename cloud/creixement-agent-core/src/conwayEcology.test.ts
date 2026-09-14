@@ -8,6 +8,7 @@ import {
   hardVetoSelection,
   sanitizePublicProjection,
   updateHysteresis,
+  type HysteresisState,
 } from "./conwayEcology.js";
 
 test("authority traversal deterministically exposes forbidden paths", () => {
@@ -34,7 +35,7 @@ test("hard veto dominates seductive expected value", () => {
 
 test("hysteresis requires dwell and avoids flapping", () => {
   const config = { enterThreshold: 0.7, exitThreshold: 0.4, dwellEnter: 2, dwellExit: 2 };
-  let state = { state: "off" as const, consecutiveAbove: 0, consecutiveBelow: 0 };
+  let state: HysteresisState = { state: "off", consecutiveAbove: 0, consecutiveBelow: 0 };
   state = updateHysteresis(state, 0.8, config);
   assert.equal(state.state, "candidate");
   state = updateHysteresis(state, 0.82, config);
