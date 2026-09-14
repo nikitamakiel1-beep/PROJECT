@@ -10,6 +10,7 @@ on:
       - venture/creixement-overhaul-v6-converged
       - venture/creixement-kairon-v7
       - venture/creixement-kairon-v8-autonomic
+      - venture/creixement-kairon-v9-bioecology
       - production/creixement-kairon
   pull_request:
     paths:
@@ -103,7 +104,7 @@ jobs:
           for file in "${files[@]}"; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
           done
-      - name: Validate ordered migrations and Kairon V8 contracts
+      - name: Validate ordered migrations and Kairon V9 bioecology contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -124,6 +125,7 @@ jobs:
             db/migrations/015_v7_kairon_schema_convergence.sql
             db/migrations/016_v8_kairon_runtime_contract.sql
             db/migrations/017_v8_release_attestation.sql
+            db/migrations/018_v9_conway_bioecology.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'execution_mode' db/migrations/007_v4_goal_execution_semantics.sql
@@ -142,20 +144,34 @@ jobs:
           grep -q '017_v8_release_attestation.sql' db/migrations/017_v8_release_attestation.sql
           grep -q 'production/creixement-kairon' db/migrations/017_v8_release_attestation.sql
           grep -q 'deployment_evidence_verified' db/migrations/017_v8_release_attestation.sql
-          test -f config/creixement-kairon-v8.json
-          node -e "const c=require('./config/creixement-kairon-v8.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.8.0'||c.runtime.migration_head!=='017_v8_release_attestation.sql') process.exit(1)"
-          test -f cloud/creixement-agent-core/src/kairon.ts
-          test -f cloud/creixement-agent-core/src/kairon.test.ts
-          grep -q 'creixement_kairon_preflight_v8' cloud/creixement-runtime/src/handlers.ts
-          grep -q 'escalation_details' cloud/creixement-runtime/src/handlers.ts
+          grep -q 'bio_mechanism_registry_v9' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'slime_mold_routing' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'immune_memory' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'red_queen' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'telomere_senescence' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'constitutional_membrane' db/migrations/018_v9_conway_bioecology.sql
+          grep -q 'evolution.bioecology_cycle' db/migrations/018_v9_conway_bioecology.sql
+          test -f config/creixement-kairon-v9.json
+          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.0'||c.runtime.migration_head!=='018_v9_conway_bioecology.sql'||c.operator.sentience_claims!==false) process.exit(1)"
+          test -f cloud/creixement-agent-core/src/bioecology.ts
+          test -f cloud/creixement-agent-core/src/bioecology.test.ts
+          grep -q 'slimeMoldAllocate' cloud/creixement-agent-core/src/bioecology.ts
+          grep -q 'redQueenPressure' cloud/creixement-agent-core/src/bioecology.ts
+          grep -q 'immuneDecision' cloud/creixement-agent-core/src/bioecology.ts
+          grep -q 'sexualRecombine' cloud/creixement-agent-core/src/bioecology.ts
+          grep -q 'apoptosisArchive' cloud/creixement-agent-core/src/bioecology.ts
+          test -f cloud/creixement-runtime/src/bioecologyHandler.ts
+          test -f cloud/creixement-runtime/src/handlerRouterV9.ts
+          grep -q 'evolution.bioecology_cycle' cloud/creixement-runtime/src/handlerRouterV9.ts
+          grep -q 'handlerRouterV9' cloud/creixement-runtime/src/worker.ts
           test -f cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '/api/kairon' cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '/api/release-evidence' cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
           grep -q 'production/creixement-kairon' cloud/creixement-cloudflare-runtime/wrangler.toml
-          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.8.0') process.exit(1)"
-          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.8.0') process.exit(1)"
-          echo 'ordered migrations and Kairon v8 contracts present'
+          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.9.0') process.exit(1)"
+          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.9.0') process.exit(1)"
+          echo 'ordered migrations and Kairon V9 bioecology contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |
