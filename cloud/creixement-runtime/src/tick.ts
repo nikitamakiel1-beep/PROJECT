@@ -19,11 +19,13 @@ export interface RuntimeTickResult {
   completedAt: string;
   elapsedMs: number;
   phases: {
+    heartbeatStart: TickPhase;
     maintenance: TickPhase;
     outbox: TickPhase;
     scheduling: TickPhase;
     reconciliation: TickPhase;
     execution: TickPhase;
+    heartbeatEnd: TickPhase;
   };
 }
 
@@ -46,6 +48,31 @@ async function heartbeat(
   });
 }
 
+async function heartbeatPhase(
+  db: SupabaseHttp,
+  env: RuntimeEnv,
+  stage: "start" | "end",
+  status: "healthy" | "degraded",
+  metadata: Record<string, unknown>,
+): Promise<TickPhase> {
+  try {
+    await heartbeat(db, env, status, metadata);
+    return { ok: true, data: { stage, persisted: true } };
+  } catch (error) {
+    const message = safeError(error);
+    console.error(JSON.stringify({
+      event: "creixement.runtime.heartbeat_failure",
+      stage,
+      runtimeId: env.runtimeId,
+      version: env.runtimeVersion,
+      commitSha: env.commitSha,
+      message,
+      observedAt: new Date().toISOString(),
+    }));
+    return { ok: false, error: message };
+  }
+}
+
 async function phase(fn: () => Promise<Record<string, unknown>>): Promise<TickPhase> {
   try {
     return { ok: true, data: await fn() };
@@ -61,11 +88,7 @@ export async function runRuntimeTick(
 ): Promise<RuntimeTickResult> {
   const started = options.now ?? new Date();
   const startedAt = started.toISOString();
-  try {
-    await heartbeat(db, env, "healthy", { phase: "tick_started", startedAt });
-  } catch {
-    // Heartbeat storage failure is reflected by readiness; execution may still produce useful receipts.
-  }
+  const heartbeatStart = await heartbeatPhase(db, env, "start", "healthy", { phase: "tick_started", startedAt });
 
   const maintenance = await phase(async () => {
     const rows = await db.rpc<Array<Record<string, unknown>>>("creixement_reap_expired_leases_v6", {});
@@ -94,19 +117,16 @@ export async function runRuntimeTick(
 
   const workerFailures = Number(execution.data?.failed ?? 0);
   const outboxFailures = Number(outbox.data?.failed ?? 0);
-  const ok = maintenance.ok && outbox.ok && scheduling.ok && reconciliation.ok && execution.ok
+  const baseOk = heartbeatStart.ok && maintenance.ok && outbox.ok && scheduling.ok && reconciliation.ok && execution.ok
     && workerFailures === 0 && outboxFailures === 0;
   const completed = new Date();
 
-  try {
-    await heartbeat(db, env, ok ? "healthy" : "degraded", {
-      phase: "tick_completed",
-      completedAt: completed.toISOString(),
-      phases: { maintenance, outbox, scheduling, reconciliation, execution },
-    });
-  } catch {
-    // The readiness endpoint independently exposes heartbeat staleness.
-  }
+  const heartbeatEnd = await heartbeatPhase(db, env, "end", baseOk ? "healthy" : "degraded", {
+    phase: "tick_completed",
+    completedAt: completed.toISOString(),
+    phases: { heartbeatStart, maintenance, outbox, scheduling, reconciliation, execution },
+  });
+  const ok = baseOk && heartbeatEnd.ok;
 
   return {
     ok,
@@ -116,6 +136,6 @@ export async function runRuntimeTick(
     startedAt,
     completedAt: completed.toISOString(),
     elapsedMs: completed.getTime() - started.getTime(),
-    phases: { maintenance, outbox, scheduling, reconciliation, execution },
+    phases: { heartbeatStart, maintenance, outbox, scheduling, reconciliation, execution, heartbeatEnd },
   };
 }
