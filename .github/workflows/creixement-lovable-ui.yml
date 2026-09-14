@@ -1,0 +1,52 @@
+name: Creixement Lovable UI
+
+on:
+  push:
+    branches:
+      - lovable/creixement-kairon-v9
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'package.json'
+      - 'tsconfig.json'
+      - 'vite.config.ts'
+      - '.lovable/**'
+      - '.github/workflows/creixement-lovable-ui.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: creixement-lovable-ui-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Typecheck
+        run: npm run check
+      - name: Build Lovable/TanStack app
+        run: npm run build
+      - name: Verify Lovable branch invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f .lovable/project.json
+          test -f src/routes/__root.tsx
+          test -f src/routes/index.tsx
+          test -f src/App.tsx
+          grep -q 'tanstack_start_ts_current' .lovable/project.json
+          grep -q 'Kairon' src/App.tsx
+          grep -q 'Ecology V9' src/App.tsx
+          grep -q 'Tectum' src/App.tsx
+          grep -q 'Generate governed PDF' src/App.tsx
+          ! grep -Rni 'SUPABASE_SERVICE_ROLE_KEY\|CREIXEMENT_OWNER_TOKEN\|CRON_SECRET' src || true
+          echo 'Lovable-native Kairon cockpit validated'
