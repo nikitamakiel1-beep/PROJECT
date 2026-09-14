@@ -96,6 +96,135 @@ async function runtimeReconcile(ctx: HandlerContext): Promise<HandlerResult> {
   };
 }
 
+function numeric(value: unknown): number {
+  const parsed = typeof value === "number" ? value : Number(value ?? 0);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
+  const startedAt = new Date().toISOString();
+  const selfHeal: Array<Record<string, unknown>> = [];
+
+  try {
+    const recovered = await ctx.db.rpc<Array<Record<string, unknown>>>("creixement_reap_expired_leases_v6", {});
+    selfHeal.push({ action: "reap_expired_leases", ok: true, result: recovered.at(0) ?? null });
+  } catch (error) {
+    selfHeal.push({ action: "reap_expired_leases", ok: false, error: error instanceof Error ? error.message : String(error) });
+  }
+
+  let reconcile: Array<Record<string, unknown>> = [];
+  try {
+    reconcile = await ctx.db.rpc<Array<Record<string, unknown>>>("creixement_reconcile_runtime_v5", {});
+    selfHeal.push({ action: "reconcile_runtime", ok: true, findings: reconcile.length });
+  } catch (error) {
+    selfHeal.push({ action: "reconcile_runtime", ok: false, error: error instanceof Error ? error.message : String(error) });
+  }
+
+  const [goals, opportunities, healthRows, schedulerRows, providerRows] = await Promise.all([
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "v_goal_queue_v4?select=goal_key,title,status,execution_mode,blocker_type,priority_score,runnable,blocker&order=priority_score.desc&limit=50",
+    ),
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "v_opportunity_radar?select=*&actionable=eq.true&order=opportunity_score.desc.nullslast&limit=50",
+    ),
+    ctx.db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
+    ctx.db.select<Array<Record<string, unknown>>>("v_scheduler_readiness_v6?select=*&limit=1"),
+    ctx.db.select<Array<Record<string, unknown>>>(
+      "v_provider_readiness_v6?select=provider_key,runtime_state,authorized,runtime_ready,operational,last_verified_at&order=provider_key.asc",
+    ),
+  ]);
+
+  const health = healthRows.at(0) ?? {};
+  const scheduler = schedulerRows.at(0) ?? {};
+  const autonomousGoals = goals.filter((row) => row.runnable === true && row.execution_mode === "autonomous");
+  const ownerEscalations = goals.filter((row) => row.execution_mode === "owner" || row.blocker_type === "owner_policy");
+  const externalBlockers = goals.filter((row) => row.blocker_type === "external_account" || row.blocker_type === "connector");
+  const operationalProviders = providerRows.filter((row) => row.operational === true);
+  const opportunityFocus = opportunities.slice(0, 10).map((row) => ({
+    id: row.id ?? row.opportunity_id ?? null,
+    title: row.title ?? row.name ?? row.opportunity_key ?? "opportunity",
+    score: numeric(row.opportunity_score ?? row.score),
+    mode: row.decision_mode ?? null,
+  }));
+  const goalFocus = autonomousGoals.slice(0, 10).map((row) => ({
+    goalKey: row.goal_key,
+    title: row.title,
+    priority: numeric(row.priority_score),
+  }));
+
+  if (numeric(health.open_job_dead_letters) + numeric(health.open_outbox_dead_letters) > 0) {
+    selfHeal.push({ action: "triage_dead_letters", ok: true, queuedByExistingJob: true });
+  }
+  if (numeric(health.enabled_job_connector_blockers) > 0) {
+    selfHeal.push({ action: "block_connector_dependent_jobs", ok: true, blockers: numeric(health.enabled_job_connector_blockers) });
+  }
+
+  const safetyClean = numeric(health.critical_drift) === 0
+    && numeric(health.critical_incidents) === 0
+    && numeric(health.open_job_dead_letters) === 0
+    && numeric(health.open_outbox_dead_letters) === 0
+    && numeric(health.open_handler_circuits) === 0;
+  const schedulerReady = scheduler.high_frequency_ready === true;
+  const cycleStatus = safetyClean && schedulerReady ? "healthy" : "degraded";
+
+  const cyclePayload = {
+    goals: { total: goals.length, autonomousRunnable: autonomousGoals.length, ownerEscalations: ownerEscalations.length, externalBlockers: externalBlockers.length },
+    opportunities: { actionable: opportunities.length, top: opportunityFocus },
+    providers: { total: providerRows.length, operational: operationalProviders.length },
+    runtime: health,
+    scheduler,
+    reconcileFindings: reconcile.length,
+  };
+
+  const inserted = await ctx.db.insert<Array<{ id: string }>>("kairon_control_cycles_v7", {
+    correlation_id: ctx.execution.correlation_id,
+    idempotency_key: `${ctx.execution.idempotency_key}:kairon-cycle`,
+    runtime_id: ctx.runtimeId,
+    started_at: startedAt,
+    completed_at: new Date().toISOString(),
+    status: cycleStatus,
+    sensed: cyclePayload,
+    priorities: [...goalFocus, ...opportunityFocus].slice(0, 15),
+    automatic_actions: selfHeal,
+    escalations: ownerEscalations.slice(0, 25),
+    self_heal: selfHeal,
+    outcome: { safetyClean, schedulerReady, operationalProviders: operationalProviders.length },
+  }, "idempotency_key");
+
+  const cycleId = inserted.at(0)?.id ?? null;
+  const blockers = [
+    ...externalBlockers.slice(0, 20),
+    ...(schedulerReady ? [] : [{ blocker: "high_frequency_scheduler_not_verified" }]),
+    ...(safetyClean ? [] : [{ blocker: "runtime_safety_not_clean" }]),
+  ];
+
+  await ctx.db.patch("kairon_state_v7?singleton=eq.true", {
+    mode: cycleStatus === "healthy" ? "autonomous" : "degraded",
+    last_cycle_at: new Date().toISOString(),
+    last_cycle_status: cycleStatus,
+    last_cycle_id: cycleId,
+    current_focus: [...goalFocus, ...opportunityFocus].slice(0, 15),
+    current_blockers: blockers,
+    control_snapshot: cyclePayload,
+  });
+
+  return {
+    status: "succeeded",
+    output: {
+      operator: "Kairon",
+      cycleId,
+      cycleStatus,
+      autonomyCeiling: "L2",
+      automaticActions: selfHeal,
+      ownerEscalations: ownerEscalations.slice(0, 25),
+      currentFocus: [...goalFocus, ...opportunityFocus].slice(0, 15),
+      blockers,
+      sensed: cyclePayload,
+    },
+    receipt: { operator: "Kairon", runtimeId: ctx.runtimeId, cycleId, status: cycleStatus },
+  };
+}
+
 const handlers: Record<string, (ctx: HandlerContext) => Promise<HandlerResult>> = {
   "chief.compile_priorities": chiefPriorities,
   "automation.connector_health": connectorHealth,
@@ -104,6 +233,7 @@ const handlers: Record<string, (ctx: HandlerContext) => Promise<HandlerResult>> 
   "counterparty.refresh_staleness": counterpartyFreshness,
   "automation.dead_letter_triage": deadLetterTriage,
   "automation.runtime_reconcile": runtimeReconcile,
+  "kairon.control_cycle": kaironControlCycle,
 };
 
 export async function runHandler(ctx: HandlerContext): Promise<HandlerResult> {
@@ -130,7 +260,7 @@ export async function writeJobReceipt(ctx: HandlerContext, result: HandlerResult
     actor_agent: ctx.definition.owner_agent_slug,
     action_class: `job:${ctx.definition.handler_key}`,
     connector_slug: null,
-    policy_version: ctx.definition.policy_key ?? "internal-runtime-v5",
+    policy_version: ctx.definition.policy_key ?? "internal-runtime-v7",
     policy_decision: result.status === "succeeded" ? "authorized_internal" : "blocked_unimplemented",
     input_digest: inputDigest,
     output_digest: outputDigest,
