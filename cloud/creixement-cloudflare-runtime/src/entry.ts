@@ -1,5 +1,6 @@
 import runtimeWorker from "./index.js";
 import { diagnoseRuntime, type DiagnosticEnv } from "./diagnostics.js";
+import { BUILD_BRANCH, BUILD_COMMIT_SHA } from "./buildMeta.generated.js";
 
 type RuntimeEnv = Parameters<typeof runtimeWorker.fetch>[1] & DiagnosticEnv & {
   CREIXEMENT_RUNTIME_ID?: string;
@@ -8,6 +9,17 @@ type RuntimeEnv = Parameters<typeof runtimeWorker.fetch>[1] & DiagnosticEnv & {
   CREIXEMENT_BRANCH?: string;
   CREIXEMENT_ENVIRONMENT?: string;
 };
+
+function effectiveEnv(env: RuntimeEnv): RuntimeEnv {
+  return {
+    ...env,
+    CREIXEMENT_COMMIT_SHA: env.CREIXEMENT_COMMIT_SHA?.trim() || BUILD_COMMIT_SHA || undefined,
+    CREIXEMENT_BRANCH: env.CREIXEMENT_BRANCH?.trim() || BUILD_BRANCH || "production/creixement-kairon",
+    CREIXEMENT_RUNTIME_ID: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v9",
+    CREIXEMENT_RUNTIME_VERSION: env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.9.1",
+    CREIXEMENT_ENVIRONMENT: env.CREIXEMENT_ENVIRONMENT?.trim() || "production",
+  };
+}
 
 function escapeHtml(value: string): string {
   return value.replace(/[&<>'"]/g, (char) => ({
@@ -49,12 +61,13 @@ function statusPage(env: RuntimeEnv): Response {
 
 export default {
   async fetch(request: Request, env: RuntimeEnv): Promise<Response> {
+    const resolved = effectiveEnv(env);
     const url = new URL(request.url);
-    if ((url.pathname === "/" || url.pathname === "/status") && request.method === "GET") return statusPage(env);
-    if (url.pathname === "/diagz" && request.method === "GET") return json(await diagnoseRuntime(env));
-    return runtimeWorker.fetch(request, env);
+    if ((url.pathname === "/" || url.pathname === "/status") && request.method === "GET") return statusPage(resolved);
+    if (url.pathname === "/diagz" && request.method === "GET") return json(await diagnoseRuntime(resolved));
+    return runtimeWorker.fetch(request, resolved);
   },
   scheduled(controller: ScheduledController, env: RuntimeEnv, ctx: ExecutionContext): Promise<void> {
-    return runtimeWorker.scheduled(controller, env, ctx);
+    return runtimeWorker.scheduled(controller, effectiveEnv(env), ctx);
   },
 };
