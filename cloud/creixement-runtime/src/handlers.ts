@@ -103,6 +103,31 @@ function numeric(value: unknown): number {
 
 async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
   const startedAt = new Date().toISOString();
+  const preflightBeforeRows = await ctx.db.rpc<Array<Record<string, unknown>>>("creixement_kairon_preflight_v8", {});
+  const preflightBefore = preflightBeforeRows.at(0) ?? {};
+
+  if (preflightBefore.maintenance_allowed !== true) {
+    const effectiveMode = preflightBefore.effective_mode === "emergency_stop" ? "emergency_stop" : "degraded";
+    await ctx.db.patch("kairon_state_v7?singleton=eq.true", {
+      mode: effectiveMode,
+      last_cycle_at: new Date().toISOString(),
+      last_cycle_status: "blocked",
+      current_blockers: [{ blocker: "runtime_control_denied", reason: preflightBefore.reason ?? "maintenance denied" }],
+      control_snapshot: { preflight: preflightBefore },
+    });
+    return {
+      status: "blocked",
+      output: {
+        operator: "Kairon",
+        cycleStatus: "blocked",
+        autonomyCeiling: "L2",
+        reason: preflightBefore.reason ?? "Kairon maintenance is disabled by runtime control",
+        preflight: preflightBefore,
+      },
+      receipt: { operator: "Kairon", runtimeId: ctx.runtimeId, status: "blocked", preflight: preflightBefore },
+    };
+  }
+
   const selfHeal: Array<Record<string, unknown>> = [];
 
   try {
@@ -120,7 +145,7 @@ async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
     selfHeal.push({ action: "reconcile_runtime", ok: false, error: error instanceof Error ? error.message : String(error) });
   }
 
-  const [goals, opportunities, healthRows, schedulerRows, providerRows] = await Promise.all([
+  const [goals, opportunities, healthRows, schedulerRows, providerRows, preflightAfterRows] = await Promise.all([
     ctx.db.select<Array<Record<string, unknown>>>(
       "v_goal_queue_v4?select=goal_key,title,status,execution_mode,blocker_type,priority_score,runnable,blocker&order=priority_score.desc&limit=50",
     ),
@@ -132,10 +157,12 @@ async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
     ctx.db.select<Array<Record<string, unknown>>>(
       "v_provider_readiness_v6?select=provider_key,runtime_state,authorized,runtime_ready,operational,last_verified_at&order=provider_key.asc",
     ),
+    ctx.db.rpc<Array<Record<string, unknown>>>("creixement_kairon_preflight_v8", {}),
   ]);
 
   const health = healthRows.at(0) ?? {};
   const scheduler = schedulerRows.at(0) ?? {};
+  const preflightAfter = preflightAfterRows.at(0) ?? {};
   const autonomousGoals = goals.filter((row) => row.runnable === true && row.execution_mode === "autonomous");
   const ownerEscalations = goals.filter((row) => row.execution_mode === "owner" || row.blocker_type === "owner_policy");
   const externalBlockers = goals.filter((row) => row.blocker_type === "external_account" || row.blocker_type === "connector");
@@ -156,54 +183,82 @@ async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
     selfHeal.push({ action: "triage_dead_letters", ok: true, queuedByExistingJob: true });
   }
   if (numeric(health.enabled_job_connector_blockers) > 0) {
-    selfHeal.push({ action: "block_connector_dependent_jobs", ok: true, blockers: numeric(health.enabled_job_connector_blockers) });
+    selfHeal.push({ action: "hold_connector_dependent_work", ok: true, blockers: numeric(health.enabled_job_connector_blockers) });
   }
 
-  const safetyClean = numeric(health.critical_drift) === 0
-    && numeric(health.critical_incidents) === 0
-    && numeric(health.open_job_dead_letters) === 0
-    && numeric(health.open_outbox_dead_letters) === 0
-    && numeric(health.open_handler_circuits) === 0;
-  const schedulerReady = scheduler.high_frequency_ready === true;
-  const cycleStatus = safetyClean && schedulerReady ? "healthy" : "degraded";
+  const safetyClean = preflightAfter.safety_clean === true;
+  const schedulerReady = preflightAfter.scheduler_ready === true;
+  const runtimeAlive = preflightAfter.runtime_alive === true;
+  const economicL2Allowed = preflightAfter.economic_l2_allowed === true;
+  const effectiveMode = String(preflightAfter.effective_mode ?? "degraded");
+  const cycleStatus = effectiveMode === "autonomous" && safetyClean && schedulerReady && runtimeAlive ? "healthy" : "degraded";
 
   const cyclePayload = {
-    goals: { total: goals.length, autonomousRunnable: autonomousGoals.length, ownerEscalations: ownerEscalations.length, externalBlockers: externalBlockers.length },
+    goals: {
+      total: goals.length,
+      autonomousRunnable: autonomousGoals.length,
+      ownerEscalations: ownerEscalations.length,
+      externalBlockers: externalBlockers.length,
+    },
     opportunities: { actionable: opportunities.length, top: opportunityFocus },
     providers: { total: providerRows.length, operational: operationalProviders.length },
     runtime: health,
     scheduler,
+    preflight: preflightAfter,
     reconcileFindings: reconcile.length,
   };
 
-  const inserted = await ctx.db.insert<Array<{ id: string }>>("kairon_control_cycles_v7", {
-    correlation_id: ctx.execution.correlation_id,
-    idempotency_key: `${ctx.execution.idempotency_key}:kairon-cycle`,
-    runtime_id: ctx.runtimeId,
-    started_at: startedAt,
-    completed_at: new Date().toISOString(),
-    status: cycleStatus,
-    sensed: cyclePayload,
-    priorities: [...goalFocus, ...opportunityFocus].slice(0, 15),
-    automatic_actions: selfHeal,
-    escalations: ownerEscalations.slice(0, 25),
-    self_heal: selfHeal,
-    outcome: { safetyClean, schedulerReady, operationalProviders: operationalProviders.length },
-  }, "idempotency_key");
-
-  const cycleId = inserted.at(0)?.id ?? null;
   const blockers = [
     ...externalBlockers.slice(0, 20),
     ...(schedulerReady ? [] : [{ blocker: "high_frequency_scheduler_not_verified" }]),
+    ...(runtimeAlive ? [] : [{ blocker: "runtime_heartbeat_not_verified" }]),
     ...(safetyClean ? [] : [{ blocker: "runtime_safety_not_clean" }]),
+    ...(economicL2Allowed ? [] : [{ blocker: "economic_l2_not_authorized", reason: preflightAfter.reason ?? null }]),
   ];
 
+  const priorities = [...goalFocus, ...opportunityFocus].slice(0, 15);
+  const successfulSelfHealActions = selfHeal.filter((row) => row.ok === true).length;
+  const inserted = await ctx.db.insert<Array<{ id: string }>>("kairon_control_cycles_v7", {
+    cycle_key: `cycle:${ctx.execution.idempotency_key}`,
+    correlation_id: ctx.execution.correlation_id,
+    idempotency_key: `${ctx.execution.idempotency_key}:kairon-cycle`,
+    mode: effectiveMode === "autonomous" ? "autonomous" : "degraded",
+    autonomy_ceiling: "L2",
+    status: cycleStatus,
+    focus: priorities.length > 0 ? "ranked-priority-execution" : "runtime-maintenance",
+    runtime_id: ctx.runtimeId,
+    signals_sensed: goals.length + opportunities.length + providerRows.length,
+    decisions_made: priorities.length + ownerEscalations.length,
+    actions_executed: successfulSelfHealActions,
+    self_heal_actions: successfulSelfHealActions,
+    escalations: ownerEscalations.length,
+    escalation_details: ownerEscalations.slice(0, 25),
+    blockers,
+    summary: cyclePayload,
+    evidence_refs: [`job_execution:${ctx.execution.id}`, `runtime:${ctx.runtimeId}`],
+    started_at: startedAt,
+    completed_at: new Date().toISOString(),
+    sensed: cyclePayload,
+    priorities,
+    automatic_actions: selfHeal,
+    self_heal: selfHeal,
+    outcome: {
+      safetyClean,
+      schedulerReady,
+      runtimeAlive,
+      economicL2Allowed,
+      operationalProviders: operationalProviders.length,
+      effectiveMode,
+    },
+  }, "idempotency_key");
+
+  const cycleId = inserted.at(0)?.id ?? null;
   await ctx.db.patch("kairon_state_v7?singleton=eq.true", {
-    mode: cycleStatus === "healthy" ? "autonomous" : "degraded",
+    mode: effectiveMode === "autonomous" ? "autonomous" : "degraded",
     last_cycle_at: new Date().toISOString(),
     last_cycle_status: cycleStatus,
     last_cycle_id: cycleId,
-    current_focus: [...goalFocus, ...opportunityFocus].slice(0, 15),
+    current_focus: priorities,
     current_blockers: blockers,
     control_snapshot: cyclePayload,
   });
@@ -214,14 +269,24 @@ async function kaironControlCycle(ctx: HandlerContext): Promise<HandlerResult> {
       operator: "Kairon",
       cycleId,
       cycleStatus,
+      effectiveMode,
       autonomyCeiling: "L2",
+      maintenanceAllowed: true,
+      economicL2Allowed,
       automaticActions: selfHeal,
       ownerEscalations: ownerEscalations.slice(0, 25),
-      currentFocus: [...goalFocus, ...opportunityFocus].slice(0, 15),
+      currentFocus: priorities,
       blockers,
       sensed: cyclePayload,
     },
-    receipt: { operator: "Kairon", runtimeId: ctx.runtimeId, cycleId, status: cycleStatus },
+    receipt: {
+      operator: "Kairon",
+      runtimeId: ctx.runtimeId,
+      cycleId,
+      status: cycleStatus,
+      effectiveMode,
+      economicL2Allowed,
+    },
   };
 }
 
@@ -260,7 +325,7 @@ export async function writeJobReceipt(ctx: HandlerContext, result: HandlerResult
     actor_agent: ctx.definition.owner_agent_slug,
     action_class: `job:${ctx.definition.handler_key}`,
     connector_slug: null,
-    policy_version: ctx.definition.policy_key ?? "internal-runtime-v7",
+    policy_version: ctx.definition.policy_key ?? "internal-runtime-v8",
     policy_decision: result.status === "succeeded" ? "authorized_internal" : "blocked_unimplemented",
     input_digest: inputDigest,
     output_digest: outputDigest,
