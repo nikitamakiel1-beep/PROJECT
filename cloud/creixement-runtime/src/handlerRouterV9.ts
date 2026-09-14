@@ -1,4 +1,5 @@
 import { bioecologyCycle } from "./bioecologyHandler.js";
+import { conwayCourtCycle } from "./conwayCourtHandler.js";
 import {
   runHandler as runLegacyHandler,
   writeJobReceipt,
@@ -13,6 +14,9 @@ export { writeJobReceipt };
 export async function runHandler(ctx: HandlerContext): Promise<HandlerResult> {
   if (ctx.definition.handler_key === "evolution.bioecology_cycle") {
     return bioecologyCycle(ctx);
+  }
+  if (ctx.definition.handler_key === "evolution.conway_courts") {
+    return conwayCourtCycle(ctx);
   }
   return runLegacyHandler(ctx);
 }
