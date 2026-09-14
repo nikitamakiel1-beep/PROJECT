@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "postinstall": "npm --prefix ../creixement-runtime install --omit=dev --no-audit --no-fund",
+    "postinstall": "node scripts/write-build-meta.mjs && npm --prefix ../creixement-runtime install --omit=dev --no-audit --no-fund",
     "check": "tsc --noEmit",
     "deploy": "wrangler deploy",
     "deploy:ci": "node scripts/deploy-ci.mjs",
