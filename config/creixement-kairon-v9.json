@@ -11,11 +11,12 @@
   },
   "runtime": {
     "version": "0.9.0",
-    "migration_head": "019_v9_conway_adversarial_courts.sql",
+    "migration_head": "020_v9_population_and_courts_runtime.sql",
     "primary": "cloudflare-workers",
     "state_authority": "supabase-postgresql",
     "heartbeat_minutes": 5,
-    "bioecology_cycle_minutes": 30
+    "bioecology_cycle_minutes": 30,
+    "conway_court_minutes": 60
   },
   "bioecology": {
     "source_inspiration": "Conway Replicatio evolutionary ecology mechanics, generalized for Creixement",
