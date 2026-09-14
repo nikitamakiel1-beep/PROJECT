@@ -43,6 +43,17 @@ interface ReleaseBody {
   evidenceRefs?: string[];
 }
 
+interface ReleaseEvidenceBody {
+  evidenceKey?: string;
+  releaseKey?: string;
+  evidenceType?: "ci_run" | "deployment" | "migration" | "scheduler" | "manual_review";
+  commitSha?: string;
+  reference?: string;
+  verificationStatus?: "unverified" | "verified" | "rejected";
+  verifier?: string;
+  metadata?: Record<string, unknown>;
+}
+
 function required(value: string | undefined, name: string): string {
   const normalized = value?.trim();
   if (!normalized) throw new Error(`Missing required binding: ${name}`);
@@ -64,8 +75,8 @@ function buildRuntimeEnv(env: Env): RuntimeEnv {
     supabaseServiceRoleKey: required(env.SUPABASE_SERVICE_ROLE_KEY, "SUPABASE_SERVICE_ROLE_KEY"),
     cronSecret: required(env.CRON_SECRET, "CRON_SECRET"),
     apiToken: required(env.CREIXEMENT_API_TOKEN, "CREIXEMENT_API_TOKEN"),
-    runtimeId: env.CREIXEMENT_RUNTIME_ID?.trim() || "cloudflare-runtime-v6",
-    runtimeVersion: env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.6.2",
+    runtimeId: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v8",
+    runtimeVersion: env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.8.0",
     commitSha: env.CREIXEMENT_COMMIT_SHA?.trim() || null,
     environment: env.CREIXEMENT_ENVIRONMENT?.trim() || "production",
     requestTimeoutMs: boundedInteger(env.CREIXEMENT_DB_TIMEOUT_MS, 8000, 1000, 30000),
@@ -118,9 +129,10 @@ async function executeTick(env: Env, source: string) {
 async function handleHealth(env: Env): Promise<Response> {
   const runtime = buildRuntimeEnv(env);
   const db = new SupabaseHttp(runtime);
-  const [runtimeReadiness, operatingHealth] = await Promise.all([
+  const [runtimeReadiness, operatingHealth, kairon] = await Promise.all([
     db.select<Array<Record<string, unknown>>>("v_runtime_readiness_v5?select=*&limit=1"),
     db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
+    db.select<Array<Record<string, unknown>>>("v_kairon_command_v8?select=*&limit=1"),
   ]);
   const readiness = runtimeReadiness.at(0) ?? null;
   const internalReady = readiness?.internal_runtime_ready === true;
@@ -134,20 +146,23 @@ async function handleHealth(env: Env): Promise<Response> {
     observedAt: new Date().toISOString(),
     runtimeReadiness: readiness,
     operatingHealth: operatingHealth.at(0) ?? null,
+    kairon: kairon.at(0) ?? null,
   }, internalReady ? 200 : 503);
 }
 
 async function handleReadiness(env: Env): Promise<Response> {
   const runtime = buildRuntimeEnv(env);
   const db = new SupabaseHttp(runtime);
-  const [runtimeRows, gateRows, schedulerRows, providers, goals] = await Promise.all([
+  const [runtimeRows, gateRows, schedulerRows, providers, goals, kaironRows] = await Promise.all([
     db.select<Array<Record<string, unknown>>>("v_runtime_readiness_v5?select=*&limit=1"),
     db.select<Array<Record<string, unknown>>>("v_production_gate_v6?select=*&limit=1"),
     db.select<Array<Record<string, unknown>>>("v_scheduler_readiness_v6?select=*&limit=1"),
     db.select<Array<Record<string, unknown>>>("v_provider_readiness_v6?select=provider_key,runtime_state,authorized,runtime_ready,operational,last_verified_at&order=provider_key.asc"),
     db.select<Array<Record<string, unknown>>>("v_goal_queue_v4?select=goal_key,status,execution_mode,blocker_type,runnable&order=priority_score.desc"),
+    db.select<Array<Record<string, unknown>>>("v_kairon_command_v8?select=*&limit=1"),
   ]);
   const runtimeReadiness = runtimeRows.at(0) ?? null;
+  const kairon = kaironRows.at(0) ?? null;
   const internalReady = runtimeReadiness?.internal_runtime_ready === true;
   return json({
     ok: internalReady,
@@ -156,9 +171,23 @@ async function handleReadiness(env: Env): Promise<Response> {
     runtime: runtimeReadiness,
     productionGate: gateRows.at(0) ?? null,
     scheduler: schedulerRows.at(0) ?? null,
+    kairon,
     providers,
     goals,
   }, internalReady ? 200 : 503);
+}
+
+async function handleKairon(request: Request, env: Env): Promise<Response> {
+  const runtime = buildRuntimeEnv(env);
+  if (!bearer(request, runtime.apiToken)) return json({ ok: false, error: "unauthorized" }, 401);
+  if (request.method !== "GET") return json({ ok: false, error: "method_not_allowed" }, 405);
+  const db = new SupabaseHttp(runtime);
+  const [command, cycles, decisions] = await Promise.all([
+    db.select<Array<Record<string, unknown>>>("v_kairon_command_v8?select=*&limit=1"),
+    db.select<Array<Record<string, unknown>>>("kairon_control_cycles_v7?select=id,cycle_key,status,runtime_id,signals_sensed,decisions_made,actions_executed,self_heal_actions,escalations,blockers,summary,started_at,completed_at&order=started_at.desc&limit=20"),
+    db.select<Array<Record<string, unknown>>>("kairon_action_decisions_v7?select=decision_key,subject_type,subject_key,action_class,requested_autonomy,decision,score,reason,requires_owner,created_at&order=created_at.desc&limit=50"),
+  ]);
+  return json({ ok: true, observedAt: new Date().toISOString(), command: command.at(0) ?? null, cycles, decisions });
 }
 
 async function handleOwnerDecisions(request: Request, env: Env): Promise<Response> {
@@ -193,6 +222,35 @@ async function handleOwnerDecisions(request: Request, env: Env): Promise<Respons
   return json({ ok: true, recorded, execution: "not_performed", downstreamPolicyRecheckRequired: true }, 201);
 }
 
+async function handleReleaseEvidence(request: Request, env: Env): Promise<Response> {
+  const runtime = buildRuntimeEnv(env);
+  const db = new SupabaseHttp(runtime);
+  if (request.method === "GET") {
+    if (!bearer(request, runtime.apiToken)) return json({ ok: false, error: "unauthorized" }, 401);
+    const evidence = await db.select<Array<Record<string, unknown>>>("release_evidence_v6?select=*&order=created_at.desc&limit=100");
+    return json({ ok: true, observedAt: new Date().toISOString(), evidence });
+  }
+  if (request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
+  const ownerToken = required(env.CREIXEMENT_OWNER_TOKEN, "CREIXEMENT_OWNER_TOKEN");
+  if (!bearer(request, ownerToken)) return json({ ok: false, error: "unauthorized" }, 401);
+  const body = await safeBody<ReleaseEvidenceBody>(request);
+  const requiredFields = [body.evidenceKey, body.releaseKey, body.evidenceType, body.reference];
+  if (requiredFields.some((value) => typeof value !== "string" || value.trim().length === 0)) {
+    return json({ ok: false, error: "missing_required_fields" }, 400);
+  }
+  const recorded = await db.rpc<Record<string, unknown>>("creixement_record_release_evidence_v6", {
+    p_evidence_key: body.evidenceKey!.slice(0, 300),
+    p_release_key: body.releaseKey!.slice(0, 300),
+    p_evidence_type: body.evidenceType,
+    p_commit_sha: body.commitSha?.slice(0, 100) ?? null,
+    p_reference: body.reference!.slice(0, 2000),
+    p_verification_status: body.verificationStatus ?? "unverified",
+    p_verifier: body.verifier?.slice(0, 300) ?? null,
+    p_metadata: body.metadata ?? {},
+  });
+  return json({ ok: true, recorded }, 201);
+}
+
 async function handleReleaseStatus(request: Request, env: Env): Promise<Response> {
   const runtime = buildRuntimeEnv(env);
   if (!bearer(request, runtime.apiToken)) return json({ ok: false, error: "unauthorized" }, 401);
@@ -202,8 +260,8 @@ async function handleReleaseStatus(request: Request, env: Env): Promise<Response
     const body = await safeBody<ReleaseBody>(request);
     const commitSha = body.commitSha?.trim() || runtime.commitSha;
     if (!commitSha) return json({ ok: false, error: "commit_sha_required" }, 400);
-    const releaseKey = body.releaseKey?.trim() || `cloudflare-runtime-v6:${commitSha}`;
-    const branch = body.branch?.trim() || env.CREIXEMENT_BRANCH?.trim() || "venture/creixement-overhaul-v6-converged";
+    const releaseKey = body.releaseKey?.trim() || `creixement-kairon:${commitSha}`;
+    const branch = body.branch?.trim() || env.CREIXEMENT_BRANCH?.trim() || "production/creixement-kairon";
     const attestation = await db.rpc<Record<string, unknown>>("creixement_assess_release_v6", {
       p_release_key: releaseKey.slice(0, 300),
       p_branch: branch.slice(0, 300),
@@ -238,7 +296,7 @@ async function route(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
   try {
     if (url.pathname === "/healthz" && request.method === "GET") {
-      return json({ ok: true, service: "creixement-runtime", platform: "cloudflare-workers", version: env.CREIXEMENT_RUNTIME_VERSION ?? "0.6.2", cloudflareVersionId: env.CF_VERSION_METADATA?.id ?? null });
+      return json({ ok: true, service: "creixement-runtime", operator: "Kairon", platform: "cloudflare-workers", version: env.CREIXEMENT_RUNTIME_VERSION ?? "0.8.0", cloudflareVersionId: env.CF_VERSION_METADATA?.id ?? null });
     }
     if (url.pathname === "/api/tick") {
       if (request.method !== "GET" && request.method !== "POST") return json({ ok: false, error: "method_not_allowed" }, 405);
@@ -257,7 +315,9 @@ async function route(request: Request, env: Env): Promise<Response> {
       if (!bearer(request, runtime.apiToken)) return json({ ok: false, error: "unauthorized" }, 401);
       return await handleReadiness(env);
     }
+    if (url.pathname === "/api/kairon") return await handleKairon(request, env);
     if (url.pathname === "/api/owner-decisions") return await handleOwnerDecisions(request, env);
+    if (url.pathname === "/api/release-evidence") return await handleReleaseEvidence(request, env);
     if (url.pathname === "/api/release-status") return await handleReleaseStatus(request, env);
     return json({ ok: false, error: "not_found" }, 404);
   } catch (error) {
