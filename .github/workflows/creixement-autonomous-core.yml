@@ -9,6 +9,7 @@ on:
       - venture/creixement-overhaul-v5
       - venture/creixement-overhaul-v6-converged
       - venture/creixement-kairon-v7
+      - venture/creixement-kairon-v8-autonomic
       - production/creixement-kairon
   pull_request:
     paths:
@@ -102,7 +103,7 @@ jobs:
           for file in "${files[@]}"; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
           done
-      - name: Validate ordered migrations and trust contracts
+      - name: Validate ordered migrations and Kairon V8 contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -120,6 +121,9 @@ jobs:
             db/migrations/012_v6_resilience_and_release_integrity.sql
             db/migrations/013_v6_verified_evidence_gates.sql
             db/migrations/014_v7_kairon_autonomous_operator.sql
+            db/migrations/015_v7_kairon_schema_convergence.sql
+            db/migrations/016_v8_kairon_runtime_contract.sql
+            db/migrations/017_v8_release_attestation.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'execution_mode' db/migrations/007_v4_goal_execution_semantics.sql
@@ -128,18 +132,30 @@ jobs:
           grep -q 'creixement_handler_circuit_decision_v6' db/migrations/010_v6_autonomic_operations.sql
           grep -q 'creixement_reap_expired_leases_v6' db/migrations/012_v6_resilience_and_release_integrity.sql
           grep -q 'release_evidence_v6' db/migrations/013_v6_verified_evidence_gates.sql
+          grep -q 'as active_bindings' db/migrations/013_v6_verified_evidence_gates.sql
+          grep -q 'as ci_green' db/migrations/013_v6_verified_evidence_gates.sql
           grep -q 'kairon_state_v7' db/migrations/014_v7_kairon_autonomous_operator.sql
-          grep -q 'kairon.control_cycle' db/migrations/014_v7_kairon_autonomous_operator.sql
-          grep -q 'Kairon' config/creixement-kairon-v7.json
+          grep -q 'v_kairon_command_v7' db/migrations/015_v7_kairon_schema_convergence.sql
+          ! grep -q 'ci_verified_green' db/migrations/015_v7_kairon_schema_convergence.sql
+          grep -q 'creixement_kairon_preflight_v8' db/migrations/016_v8_kairon_runtime_contract.sql
+          grep -q 'escalation_details' db/migrations/016_v8_kairon_runtime_contract.sql
+          grep -q '017_v8_release_attestation.sql' db/migrations/017_v8_release_attestation.sql
+          grep -q 'production/creixement-kairon' db/migrations/017_v8_release_attestation.sql
+          grep -q 'deployment_evidence_verified' db/migrations/017_v8_release_attestation.sql
+          test -f config/creixement-kairon-v8.json
+          node -e "const c=require('./config/creixement-kairon-v8.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.8.0'||c.runtime.migration_head!=='017_v8_release_attestation.sql') process.exit(1)"
           test -f cloud/creixement-agent-core/src/kairon.ts
           test -f cloud/creixement-agent-core/src/kairon.test.ts
-          grep -q 'kairon.control_cycle' cloud/creixement-runtime/src/handlers.ts
+          grep -q 'creixement_kairon_preflight_v8' cloud/creixement-runtime/src/handlers.ts
+          grep -q 'escalation_details' cloud/creixement-runtime/src/handlers.ts
           test -f cloud/creixement-cloudflare-runtime/src/index.ts
+          grep -q '/api/kairon' cloud/creixement-cloudflare-runtime/src/index.ts
+          grep -q '/api/release-evidence' cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
-          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.7.0') process.exit(1)"
-          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.7.0') process.exit(1)"
-          node -e "const c=require('./config/creixement-kairon-v7.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2') process.exit(1)"
-          echo 'ordered migrations and Kairon v7 contracts present'
+          grep -q 'production/creixement-kairon' cloud/creixement-cloudflare-runtime/wrangler.toml
+          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.8.0') process.exit(1)"
+          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.8.0') process.exit(1)"
+          echo 'ordered migrations and Kairon v8 contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |
