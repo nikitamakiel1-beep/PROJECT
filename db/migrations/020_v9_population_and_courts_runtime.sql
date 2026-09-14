@@ -84,6 +84,11 @@ begin
 end;
 $$;
 
+revoke all on function public.creixement_sync_commercial_genomes_v9() from public;
+revoke all on function public.creixement_sync_commercial_genomes_v9() from anon;
+revoke all on function public.creixement_sync_commercial_genomes_v9() from authenticated;
+grant execute on function public.creixement_sync_commercial_genomes_v9() to service_role;
+
 insert into public.authority_graph_v9(node_key,action_class,max_autonomy,forbidden,next_nodes,source_ref)
 values
 ('root','sense_and_decide','L0',false,'["research","internal-write","external-boundary"]'::jsonb,'020_v9_population_and_courts_runtime.sql'),
@@ -130,6 +135,6 @@ values(
   '{"enabled":true,"handler_key":"evolution.conway_courts","autonomy_level":"L1","schedule":"17 * * * *"}'::jsonb,
   'db/migrations/020_v9_population_and_courts_runtime.sql',true
 )
-on conflict(state_key) do update set desired=excluded.desired,source_ref=excluded.source_ref,active=true,updated_at=now();
+on conflict(kind,state_key) do update set desired=excluded.desired,source_ref=excluded.source_ref,active=true,updated_at=now();
 
 select * from public.creixement_sync_commercial_genomes_v9();
