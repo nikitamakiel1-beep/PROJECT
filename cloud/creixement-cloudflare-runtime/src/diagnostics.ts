@@ -39,16 +39,14 @@ function classify(error: unknown): string {
 }
 
 function runtimeEnv(env: DiagnosticEnv): RuntimeEnv | null {
-  if (!present(env.SUPABASE_URL) || !present(env.SUPABASE_SERVICE_ROLE_KEY) || !present(env.CRON_SECRET) || !present(env.CREIXEMENT_API_TOKEN)) {
-    return null;
-  }
+  if (!present(env.SUPABASE_URL) || !present(env.SUPABASE_SERVICE_ROLE_KEY)) return null;
   const timeoutRaw = Number(env.CREIXEMENT_DB_TIMEOUT_MS ?? "8000");
   const requestTimeoutMs = Number.isInteger(timeoutRaw) && timeoutRaw >= 1000 && timeoutRaw <= 30000 ? timeoutRaw : 8000;
   return {
     supabaseUrl: env.SUPABASE_URL!.trim().replace(/\/$/, ""),
     supabaseServiceRoleKey: env.SUPABASE_SERVICE_ROLE_KEY!.trim(),
-    cronSecret: env.CRON_SECRET!.trim(),
-    apiToken: env.CREIXEMENT_API_TOKEN!.trim(),
+    cronSecret: env.CRON_SECRET?.trim() || "__diagnostic_http_not_required__",
+    apiToken: env.CREIXEMENT_API_TOKEN?.trim() || "__diagnostic_http_not_required__",
     runtimeId: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v9",
     runtimeVersion: env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.9.1",
     commitSha: env.CREIXEMENT_COMMIT_SHA?.trim() || null,
@@ -58,8 +56,10 @@ function runtimeEnv(env: DiagnosticEnv): RuntimeEnv | null {
 }
 
 export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string, unknown>> {
-  const requiredRuntimeBindings = [env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, env.CRON_SECRET, env.CREIXEMENT_API_TOKEN];
-  const runtimeBindingsPresent = requiredRuntimeBindings.filter(present).length;
+  const schedulerBindings = [env.SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY];
+  const schedulerBindingsPresent = schedulerBindings.filter(present).length;
+  const httpControlBindings = [env.CRON_SECRET, env.CREIXEMENT_API_TOKEN];
+  const httpControlBindingsPresent = httpControlBindings.filter(present).length;
   const ownerBindingConfigured = present(env.CREIXEMENT_OWNER_TOKEN);
   const runtime = runtimeEnv(env);
   const now = Date.now();
@@ -90,20 +90,25 @@ export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string
   const configuredVersion = env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.9.1";
   const heartbeatCommitMatches = configuredCommit && heartbeat?.commit_sha ? configuredCommit === heartbeat.commit_sha : null;
   const heartbeatVersionMatches = heartbeat?.version ? configuredVersion === heartbeat.version : null;
-  const operational = runtimeBindingsPresent === 4 && databaseReachable && heartbeatFresh;
+  const schedulerConfigured = schedulerBindingsPresent === 2;
+  const httpControlConfigured = httpControlBindingsPresent === 2;
+  const operational = schedulerConfigured && databaseReachable && heartbeatFresh;
 
   return {
     ok: true,
     service: "creixement-runtime",
     operator: "Kairon",
     platform: "cloudflare-workers",
-    diagnosticVersion: 1,
+    diagnosticVersion: 2,
     observedAt: new Date(now).toISOString(),
     operational,
     configuration: {
-      runtimeBindingsConfigured: runtimeBindingsPresent === 4,
-      runtimeBindingsPresent,
-      runtimeBindingsRequired: 4,
+      schedulerBindingsConfigured: schedulerConfigured,
+      schedulerBindingsPresent,
+      schedulerBindingsRequired: 2,
+      httpControlBindingsConfigured: httpControlConfigured,
+      httpControlBindingsPresent,
+      httpControlBindingsRequired: 2,
       ownerBindingConfigured,
       commitAttested: Boolean(configuredCommit),
       branchConfigured: present(env.CREIXEMENT_BRANCH),
@@ -114,10 +119,7 @@ export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string
       cloudflareVersionId: env.CF_VERSION_METADATA?.id ?? null,
       cloudflareVersionTimestamp: env.CF_VERSION_METADATA?.timestamp ?? null,
     },
-    database: {
-      reachable: databaseReachable,
-      state: databaseState,
-    },
+    database: { reachable: databaseReachable, state: databaseState },
     scheduler: {
       expectedCron: "*/5 * * * *",
       heartbeatFound: Boolean(heartbeat),
@@ -135,9 +137,12 @@ export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string
     } : null,
     truth: {
       workerResponding: true,
+      schedulerConfigurationVerified: schedulerConfigured,
       databaseReachabilityVerified: databaseReachable,
       schedulerExecutionVerified: heartbeatFresh,
       exactCommitVerified: heartbeatCommitMatches === true,
+      httpControlReady: httpControlConfigured,
+      ownerControlReady: ownerBindingConfigured,
     },
   };
 }
