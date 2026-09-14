@@ -108,7 +108,7 @@ select
   case when coalesce((select high_frequency_ready from scheduler),false) then 'verified_ready' else 'not_verified' end as scheduler_state,
   case
     when coalesce((select promotable from gate),false) then 'promotable'
-    when coalesce((select ci_verified_green from gate),false) then 'blocked'
+    when coalesce((select ci_green from gate),false) then 'blocked'
     else 'unverified'
   end as production_gate_state,
   (select count(*) from public.agents) as specialist_agents,
