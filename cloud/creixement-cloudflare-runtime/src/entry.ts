@@ -11,9 +11,10 @@ type RuntimeEnv = Parameters<typeof runtimeWorker.fetch>[1] & DiagnosticEnv & {
 };
 
 function effectiveEnv(env: RuntimeEnv): RuntimeEnv {
+  const commitSha = env.CREIXEMENT_COMMIT_SHA?.trim() || BUILD_COMMIT_SHA;
   return {
     ...env,
-    CREIXEMENT_COMMIT_SHA: env.CREIXEMENT_COMMIT_SHA?.trim() || BUILD_COMMIT_SHA || undefined,
+    ...(commitSha ? { CREIXEMENT_COMMIT_SHA: commitSha } : {}),
     CREIXEMENT_BRANCH: env.CREIXEMENT_BRANCH?.trim() || BUILD_BRANCH || "production/creixement-kairon",
     CREIXEMENT_RUNTIME_ID: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v9",
     CREIXEMENT_RUNTIME_VERSION: env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.9.1",
