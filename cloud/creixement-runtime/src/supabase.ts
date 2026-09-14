@@ -1,12 +1,24 @@
 import type { RuntimeEnv } from "./env.js";
 
+export function supabaseAuthHeaders(apiKey: string): Record<string, string> {
+  const headers: Record<string, string> = { apikey: apiKey };
+  // Modern Supabase secret keys (sb_secret_...) are API keys, not JWTs.
+  // Sending them as Authorization: Bearer can be rejected as Invalid JWT.
+  // Legacy service_role JWTs still require/accept the bearer header.
+  if (!apiKey.startsWith("sb_secret_")) {
+    headers.Authorization = `Bearer ${apiKey}`;
+  }
+  return headers;
+}
+
 export class SupabaseHttp {
   constructor(private readonly env: RuntimeEnv) {}
 
   private async request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const headers = new Headers(init.headers);
-    headers.set("apikey", this.env.supabaseServiceRoleKey);
-    headers.set("Authorization", `Bearer ${this.env.supabaseServiceRoleKey}`);
+    for (const [name, value] of Object.entries(supabaseAuthHeaders(this.env.supabaseServiceRoleKey))) {
+      headers.set(name, value);
+    }
     headers.set("Content-Type", "application/json");
     if (!headers.has("Prefer")) headers.set("Prefer", "return=representation");
 
