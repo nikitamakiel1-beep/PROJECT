@@ -16,6 +16,6 @@ binding = "CF_VERSION_METADATA"
 [vars]
 CREIXEMENT_RUNTIME_ID = "kairon-cloudflare-v7"
 CREIXEMENT_RUNTIME_VERSION = "0.7.0"
-CREIXEMENT_BRANCH = "venture/creixement-kairon-v7"
+CREIXEMENT_BRANCH = "production/creixement-kairon"
 CREIXEMENT_ENVIRONMENT = "production"
 CREIXEMENT_DB_TIMEOUT_MS = "8000"
