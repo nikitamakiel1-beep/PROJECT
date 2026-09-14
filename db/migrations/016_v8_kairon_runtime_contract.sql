@@ -14,21 +14,17 @@ alter table public.kairon_control_cycles_v7 add column if not exists decisions_m
 alter table public.kairon_control_cycles_v7 add column if not exists actions_executed integer not null default 0;
 alter table public.kairon_control_cycles_v7 add column if not exists self_heal_actions integer not null default 0;
 
--- Lovable initially modelled escalations as a count, while the first governed migration modelled it as JSON.
--- Converge on an integer count and preserve structured details separately.
 do $$
 declare v_type text;
 begin
   select data_type into v_type
   from information_schema.columns
   where table_schema='public' and table_name='kairon_control_cycles_v7' and column_name='escalations';
-
   if v_type is null then
     alter table public.kairon_control_cycles_v7 add column escalations integer not null default 0;
   elsif v_type='jsonb' then
     alter table public.kairon_control_cycles_v7 alter column escalations drop default;
-    alter table public.kairon_control_cycles_v7
-      alter column escalations type integer
+    alter table public.kairon_control_cycles_v7 alter column escalations type integer
       using case
         when escalations is null then 0
         when jsonb_typeof(escalations)='array' then jsonb_array_length(escalations)
@@ -59,7 +55,6 @@ create unique index if not exists kairon_cycles_cycle_key_uq on public.kairon_co
 create unique index if not exists kairon_cycles_idempotency_uq on public.kairon_control_cycles_v7(idempotency_key);
 create index if not exists kairon_cycles_runtime_started_idx on public.kairon_control_cycles_v7(runtime_id,started_at desc);
 
--- Completed cycles are historical evidence. Their identity and captured decision surface are immutable.
 create or replace function public.creixement_guard_kairon_cycle_v8()
 returns trigger language plpgsql set search_path=public
 as $$
@@ -72,7 +67,6 @@ begin
      or new.started_at is distinct from old.started_at then
     raise exception 'Kairon cycle identity is immutable';
   end if;
-
   if old.status in ('healthy','degraded','blocked','failed') then
     if new.status is distinct from old.status
        or new.sensed is distinct from old.sensed
@@ -92,12 +86,8 @@ end;
 $$;
 
 drop trigger if exists kairon_cycles_v8_guard on public.kairon_control_cycles_v7;
-create trigger kairon_cycles_v8_guard
-before update on public.kairon_control_cycles_v7
-for each row execute function public.creixement_guard_kairon_cycle_v8();
+create trigger kairon_cycles_v8_guard before update on public.kairon_control_cycles_v7 for each row execute function public.creixement_guard_kairon_cycle_v8();
 
--- Central fail-closed answer for Kairon's two autonomy planes:
--- maintenance L2 (internal reversible repair) and economic L2 (business execution).
 create or replace function public.creixement_kairon_preflight_v8()
 returns table(
   effective_mode text,
@@ -201,15 +191,18 @@ from public.kairon_state_v7 s
 cross join preflight p
 where s.singleton=true;
 
--- Keep the v7 cockpit alias stable while all consumers migrate to v8.
-create or replace view public.v_kairon_command_v7 with (security_invoker=on) as
-select * from public.v_kairon_command_v8;
+-- Do not rewrite v_kairon_command_v7 here: existing Lovable consumers may depend on its historical column ABI.
+-- New consumers must use v_kairon_command_v8.
 
--- Desired state makes Kairon itself observable by runtime reconciliation.
-insert into public.desired_runtime_state_v4(kind,state_key,desired,auto_remediate,active,evidence_refs)
+insert into public.desired_runtime_state_v4(kind,state_key,desired,auto_remediate,source_ref,active)
 values(
   'job','kairon-control-cycle-v7',
   '{"enabled":true,"handler_key":"kairon.control_cycle","autonomy_level":"L2"}'::jsonb,
-  true,true,'["db/migrations/016_v8_kairon_runtime_contract.sql"]'::jsonb
+  true,'db/migrations/016_v8_kairon_runtime_contract.sql',true
 )
-on conflict(kind,state_key) do update set desired=excluded.desired,auto_remediate=excluded.auto_remediate,active=true,evidence_refs=excluded.evidence_refs,updated_at=now();
+on conflict(kind,state_key) do update set
+  desired=excluded.desired,
+  auto_remediate=excluded.auto_remediate,
+  source_ref=excluded.source_ref,
+  active=true,
+  updated_at=now();
