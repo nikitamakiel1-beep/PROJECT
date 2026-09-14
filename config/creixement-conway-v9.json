@@ -1,0 +1,57 @@
+{
+  "schema_version": "9.0.0",
+  "name": "Kairon Conway Ecology",
+  "migration_head": "019_v9_conway_adversarial_courts.sql",
+  "runtime_version": "0.9.0",
+  "slime_mold_court": {
+    "max_paths": 200000,
+    "deterministic_ordering": true,
+    "authority_graph_traversal": true,
+    "forbidden_l3_terminal": true
+  },
+  "faustian_court": {
+    "hard_veto_dominates_expected_value": true,
+    "fuzz_high_value_unsafe_paths": true,
+    "constitutional_fields_never_advisory": true
+  },
+  "hysteresis": {
+    "enter_threshold": 0.7,
+    "exit_threshold": 0.4,
+    "dwell_enter": 2,
+    "dwell_exit": 2,
+    "purpose": "prevent capability/state flapping and volatile public projection"
+  },
+  "canary_promotion": {
+    "minimum_runs": 5,
+    "minimum_pass_rate": 1,
+    "receipt_required": true,
+    "deterministic_replay_required": true,
+    "digest_match_required": true
+  },
+  "auditor_of_auditors": {
+    "digest_bound": true,
+    "mutation_detection": true,
+    "baseline_required": true
+  },
+  "public_projection": {
+    "deterministic": true,
+    "stable_skill_ids": true,
+    "stable_digests": true,
+    "exclude_volatile_timestamps": true,
+    "exclude_runtime_telemetry": true,
+    "exclude_ephemeral_nonces": true
+  },
+  "constitutional_boundary": {
+    "max_evolvable_autonomy": "L2",
+    "hard_veto_classes": [
+      "payments",
+      "contracts",
+      "property_commitments",
+      "financing_commitments",
+      "rights_or_consent_bypass",
+      "secret_exposure",
+      "irreversible_governed_deletion",
+      "unreceipted_external_action"
+    ]
+  }
+}
