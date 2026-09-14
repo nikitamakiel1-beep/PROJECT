@@ -10,6 +10,7 @@ on:
       - venture/creixement-overhaul-v6-converged
       - venture/creixement-kairon-v7
       - venture/creixement-kairon-v8-autonomic
+      - hotfix/creixement-cloudflare-visibility
       - production/creixement-kairon
   pull_request:
     paths:
@@ -84,6 +85,15 @@ jobs:
         run: npm run check
       - name: Wrangler dry-run
         run: npx wrangler deploy --dry-run
+      - name: Verify visible entrypoint and attested CI deploy
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'main = "src/entry.ts"' wrangler.toml
+          grep -q 'Kairon Runtime' src/entry.ts
+          grep -q 'WORKERS_CI_COMMIT_SHA' scripts/deploy-ci.mjs
+          grep -q 'WORKERS_CI_BRANCH' scripts/deploy-ci.mjs
+          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs') process.exit(1)"
 
   validate-contracts:
     runs-on: ubuntu-latest
@@ -149,6 +159,8 @@ jobs:
           grep -q 'creixement_kairon_preflight_v8' cloud/creixement-runtime/src/handlers.ts
           grep -q 'escalation_details' cloud/creixement-runtime/src/handlers.ts
           test -f cloud/creixement-cloudflare-runtime/src/index.ts
+          test -f cloud/creixement-cloudflare-runtime/src/entry.ts
+          test -f cloud/creixement-cloudflare-runtime/scripts/deploy-ci.mjs
           grep -q '/api/kairon' cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '/api/release-evidence' cloud/creixement-cloudflare-runtime/src/index.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
