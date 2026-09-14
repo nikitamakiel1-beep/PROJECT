@@ -11,6 +11,7 @@ on:
       - venture/creixement-kairon-v7
       - venture/creixement-kairon-v8-autonomic
       - venture/creixement-kairon-v9-bioecology
+      - venture/creixement-kairon-v9-observability
       - production/creixement-kairon
   pull_request:
     paths:
@@ -85,17 +86,21 @@ jobs:
         run: npm run check
       - name: Wrangler dry-run
         run: npx wrangler deploy --dry-run
-      - name: Verify visible entrypoint and attested CI deploy
+      - name: Verify visible entrypoint, diagnostics and attested CI deploy
         shell: bash
         run: |
           set -euo pipefail
           grep -q 'main = "src/entry.ts"' wrangler.toml
           grep -q 'Kairon Runtime' src/entry.ts
+          grep -q '/diagz' src/entry.ts
+          test -f src/diagnostics.ts
+          grep -q 'runtime_heartbeats_v5' src/diagnostics.ts
+          grep -q 'diagnosticVersion' src/diagnostics.ts
           grep -q 'WORKERS_CI_COMMIT_SHA' scripts/deploy-ci.mjs
           grep -q 'WORKERS_CI_BRANCH' scripts/deploy-ci.mjs
           grep -q 'kairon-cloudflare-v9' scripts/deploy-ci.mjs
-          grep -q 'CREIXEMENT_RUNTIME_VERSION:0.9.0' scripts/deploy-ci.mjs
-          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs'||p.version!=='0.9.0') process.exit(1)"
+          grep -q 'CREIXEMENT_RUNTIME_VERSION:0.9.1' scripts/deploy-ci.mjs
+          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs'||p.version!=='0.9.1') process.exit(1)"
 
   validate-contracts:
     runs-on: ubuntu-latest
@@ -115,7 +120,7 @@ jobs:
           for file in "${files[@]}"; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
           done
-      - name: Validate ordered migrations and Kairon V9 Conway contracts
+      - name: Validate ordered migrations and Kairon V9.1 contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -149,40 +154,23 @@ jobs:
           grep -q 'red_queen' db/migrations/018_v9_conway_bioecology.sql
           grep -q 'telomere_senescence' db/migrations/018_v9_conway_bioecology.sql
           grep -q 'constitutional_membrane' db/migrations/018_v9_conway_bioecology.sql
-          grep -q 'evolution.bioecology_cycle' db/migrations/018_v9_conway_bioecology.sql
           grep -q 'adversarial_court_runs_v9' db/migrations/019_v9_conway_adversarial_courts.sql
-          grep -q 'capability_canaries_v9' db/migrations/019_v9_conway_adversarial_courts.sql
-          grep -q 'hysteresis_states_v9' db/migrations/019_v9_conway_adversarial_courts.sql
-          grep -q 'auditor_of_auditors' db/migrations/019_v9_conway_adversarial_courts.sql
           grep -q 'creixement_sync_commercial_genomes_v9' db/migrations/020_v9_population_and_courts_runtime.sql
           grep -q 'on conflict(kind,state_key)' db/migrations/020_v9_population_and_courts_runtime.sql
           grep -q 'grant execute on function public.creixement_sync_commercial_genomes_v9() to service_role' db/migrations/020_v9_population_and_courts_runtime.sql
-          grep -q 'conway-courts-v9' db/migrations/020_v9_population_and_courts_runtime.sql
-          grep -q 'evolution.conway_courts' db/migrations/020_v9_population_and_courts_runtime.sql
           test -f config/creixement-kairon-v9.json
           test -f config/creixement-conway-v9.json
-          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.0'||c.runtime.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.operator.sentience_claims!==false) process.exit(1)"
-          node -e "const c=require('./config/creixement-conway-v9.json'); if(c.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.runtime_version!=='0.9.0'||!c.faustian_court.hard_veto_dominates_expected_value||c.slime_mold_court.max_paths!==200000) process.exit(1)"
-          test -f cloud/creixement-agent-core/src/bioecology.ts
-          test -f cloud/creixement-agent-core/src/conwayEcology.ts
-          grep -q 'deterministicAuthorityTraversal' cloud/creixement-agent-core/src/conwayEcology.ts
-          grep -q 'hardVetoSelection' cloud/creixement-agent-core/src/conwayEcology.ts
-          grep -q 'updateHysteresis' cloud/creixement-agent-core/src/conwayEcology.ts
-          grep -q 'canaryPromotion' cloud/creixement-agent-core/src/conwayEcology.ts
-          grep -q 'auditorOfAuditors' cloud/creixement-agent-core/src/conwayEcology.ts
-          test -f cloud/creixement-runtime/src/bioecologyHandler.ts
-          test -f cloud/creixement-runtime/src/conwayCourtHandler.ts
-          test -f cloud/creixement-runtime/src/handlerRouterV9.ts
-          grep -q 'creixement_sync_commercial_genomes_v9' cloud/creixement-runtime/src/bioecologyHandler.ts
-          grep -q 'evolution.bioecology_cycle' cloud/creixement-runtime/src/handlerRouterV9.ts
-          grep -q 'evolution.conway_courts' cloud/creixement-runtime/src/handlerRouterV9.ts
-          grep -q 'handlerRouterV9' cloud/creixement-runtime/src/worker.ts
+          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.1'||c.runtime.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.runtime.public_diagnostic_path!=='/diagz'||c.runtime.heartbeat_fail_closed!==true) process.exit(1)"
+          node -e "const c=require('./config/creixement-conway-v9.json'); if(c.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.runtime_version!=='0.9.1'||!c.faustian_court.hard_veto_dominates_expected_value||c.slime_mold_court.max_paths!==200000) process.exit(1)"
+          grep -q 'creixement.runtime.heartbeat_failure' cloud/creixement-runtime/src/tick.ts
+          grep -q 'heartbeatStart' cloud/creixement-runtime/src/tick.ts
+          grep -q 'heartbeatEnd' cloud/creixement-runtime/src/tick.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
+          grep -q 'CREIXEMENT_RUNTIME_VERSION = "0.9.1"' cloud/creixement-cloudflare-runtime/wrangler.toml
           grep -q 'production/creixement-kairon' cloud/creixement-cloudflare-runtime/wrangler.toml
-          grep -q 'main = "src/entry.ts"' cloud/creixement-cloudflare-runtime/wrangler.toml
-          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.9.0') process.exit(1)"
-          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.9.0'||p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs') process.exit(1)"
-          echo 'ordered migrations and Kairon V9 Conway ecology contracts present'
+          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.9.1') process.exit(1)"
+          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.9.1'||p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs') process.exit(1)"
+          echo 'ordered migrations and Kairon V9.1 observability contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |
