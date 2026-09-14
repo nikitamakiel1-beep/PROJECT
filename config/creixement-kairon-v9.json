@@ -1,5 +1,5 @@
 {
-  "schema_version": "9.0.0",
+  "schema_version": "9.1.0",
   "operator": {
     "name": "Kairon",
     "role": "Autonomous Chief Operator of Creixement",
@@ -10,11 +10,14 @@
     "principle": "Bio-inspired mechanisms are operational control algorithms. They never imply consciousness and never override constitutional policy."
   },
   "runtime": {
-    "version": "0.9.0",
+    "version": "0.9.1",
     "migration_head": "020_v9_population_and_courts_runtime.sql",
     "primary": "cloudflare-workers",
     "state_authority": "supabase-postgresql",
     "heartbeat_minutes": 5,
+    "heartbeat_fail_closed": true,
+    "public_diagnostic_path": "/diagz",
+    "diagnostic_secret_values_exposed": false,
     "bioecology_cycle_minutes": 30,
     "conway_court_minutes": 60
   },
@@ -42,27 +45,10 @@
       "predator_detection": {"purpose":"treat dangerous anomalies as immune challenges, not as unverified automatic accusations","fail_closed":true},
       "wound_healing": {"purpose":"prioritise runtime recovery after dead letters, circuit opens, drift or stale heartbeat"},
       "metabolism": {"purpose":"allocate scarce resources maintenance first, execution second, exploration last"},
-      "constitutional_membrane": {
-        "purpose":"isolate non-evolvable authority from mutation",
-        "protected":["audit_history","evidence_provenance","revenue_truth","authentication","secret_handling","privacy_and_consent","source_rights","network_security","spend_authority","contract_authority","property_commitment_authority","payment_authority","emergency_lockdown","report_digest_approval_semantics","cloud_only_runtime"]
-      }
+      "constitutional_membrane": {"purpose":"isolate non-evolvable authority from mutation","protected":["audit_history","evidence_provenance","revenue_truth","authentication","secret_handling","privacy_and_consent","source_rights","network_security","spend_authority","contract_authority","property_commitment_authority","payment_authority","emergency_lockdown","report_digest_approval_semantics","cloud_only_runtime"]}
     }
   },
-  "selection": {
-    "truth_first": true,
-    "verified_outcomes_outrank_inference": true,
-    "paid_success_required_for_champion_promotion": true,
-    "confidence_resets_on_offspring": true,
-    "lineage_preserved": true,
-    "archive_instead_of_delete": true,
-    "cross_niche_recombination_requires_explicit_speciation_workflow": true
-  },
-  "ecological_limits": {
-    "max_autonomy":"L2","external_messages_per_day":0,"publications_per_day":0,"payment_authority":false,"contract_authority":false,"property_commitment_authority":false,"rights_bypass":false,"irreversible_deletion":false
-  },
-  "ui": {
-    "new_surfaces":["Ecology","Lineages","Niches","Swarm Routing","Immune Memory","Red Queen Pressure","Telomeres & Senescence","Symbiosis & Competition","Homeostasis","Evolution Events","Adversarial Courts","Authority Graph","Canary Promotion","Hysteresis","Projection Digests"],
-    "truth_badges_required":true,
-    "no_fake_biology":true
-  }
+  "selection": {"truth_first":true,"verified_outcomes_outrank_inference":true,"paid_success_required_for_champion_promotion":true,"confidence_resets_on_offspring":true,"lineage_preserved":true,"archive_instead_of_delete":true,"cross_niche_recombination_requires_explicit_speciation_workflow":true},
+  "ecological_limits": {"max_autonomy":"L2","external_messages_per_day":0,"publications_per_day":0,"payment_authority":false,"contract_authority":false,"property_commitment_authority":false,"rights_bypass":false,"irreversible_deletion":false},
+  "ui": {"new_surfaces":["Ecology","Lineages","Niches","Swarm Routing","Immune Memory","Red Queen Pressure","Telomeres & Senescence","Symbiosis & Competition","Homeostasis","Evolution Events","Adversarial Courts","Authority Graph","Canary Promotion","Hysteresis","Projection Digests"],"truth_badges_required":true,"no_fake_biology":true}
 }
