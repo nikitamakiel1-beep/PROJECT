@@ -39,6 +39,9 @@ function json(data: unknown, status = 200): Response {
       "content-type": "application/json; charset=utf-8",
       "cache-control": "no-store",
       "x-content-type-options": "nosniff",
+      "access-control-allow-origin": "*",
+      "access-control-allow-methods": "GET, HEAD, OPTIONS",
+      "access-control-allow-headers": "Accept, Content-Type",
     },
   });
 }
@@ -65,6 +68,7 @@ export default {
     const resolved = effectiveEnv(env);
     const url = new URL(request.url);
     if ((url.pathname === "/" || url.pathname === "/status") && request.method === "GET") return statusPage(resolved);
+    if (url.pathname === "/diagz" && request.method === "OPTIONS") return new Response(null, { status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, HEAD, OPTIONS", "access-control-allow-headers": "Accept, Content-Type" } });
     if (url.pathname === "/diagz" && request.method === "GET") return json(await diagnoseRuntime(resolved));
     return runtimeWorker.fetch(request, resolved);
   },
