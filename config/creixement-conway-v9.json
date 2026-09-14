@@ -1,7 +1,7 @@
 {
   "schema_version": "9.0.0",
   "name": "Kairon Conway Ecology",
-  "migration_head": "019_v9_conway_adversarial_courts.sql",
+  "migration_head": "020_v9_population_and_courts_runtime.sql",
   "runtime_version": "0.9.0",
   "slime_mold_court": {
     "max_paths": 200000,
