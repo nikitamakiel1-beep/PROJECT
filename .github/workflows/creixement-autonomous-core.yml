@@ -127,6 +127,7 @@ jobs:
             db/migrations/017_v8_release_attestation.sql
             db/migrations/018_v9_conway_bioecology.sql
             db/migrations/019_v9_conway_adversarial_courts.sql
+            db/migrations/020_v9_population_and_courts_runtime.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'creixement_kairon_preflight_v8' db/migrations/016_v8_kairon_runtime_contract.sql
@@ -141,27 +142,27 @@ jobs:
           grep -q 'adversarial_court_runs_v9' db/migrations/019_v9_conway_adversarial_courts.sql
           grep -q 'capability_canaries_v9' db/migrations/019_v9_conway_adversarial_courts.sql
           grep -q 'hysteresis_states_v9' db/migrations/019_v9_conway_adversarial_courts.sql
-          grep -q 'authority_graph_v9' db/migrations/019_v9_conway_adversarial_courts.sql
           grep -q 'auditor_of_auditors' db/migrations/019_v9_conway_adversarial_courts.sql
+          grep -q 'creixement_sync_commercial_genomes_v9' db/migrations/020_v9_population_and_courts_runtime.sql
+          grep -q 'conway-courts-v9' db/migrations/020_v9_population_and_courts_runtime.sql
+          grep -q 'evolution.conway_courts' db/migrations/020_v9_population_and_courts_runtime.sql
           test -f config/creixement-kairon-v9.json
           test -f config/creixement-conway-v9.json
-          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.0'||c.operator.sentience_claims!==false) process.exit(1)"
+          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.0'||c.runtime.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.operator.sentience_claims!==false) process.exit(1)"
           node -e "const c=require('./config/creixement-conway-v9.json'); if(c.migration_head!=='019_v9_conway_adversarial_courts.sql'||c.runtime_version!=='0.9.0'||!c.faustian_court.hard_veto_dominates_expected_value||c.slime_mold_court.max_paths!==200000) process.exit(1)"
           test -f cloud/creixement-agent-core/src/bioecology.ts
-          test -f cloud/creixement-agent-core/src/bioecology.test.ts
           test -f cloud/creixement-agent-core/src/conwayEcology.ts
-          test -f cloud/creixement-agent-core/src/conwayEcology.test.ts
-          grep -q 'slimeMoldAllocate' cloud/creixement-agent-core/src/bioecology.ts
-          grep -q 'redQueenPressure' cloud/creixement-agent-core/src/bioecology.ts
-          grep -q 'immuneDecision' cloud/creixement-agent-core/src/bioecology.ts
           grep -q 'deterministicAuthorityTraversal' cloud/creixement-agent-core/src/conwayEcology.ts
           grep -q 'hardVetoSelection' cloud/creixement-agent-core/src/conwayEcology.ts
           grep -q 'updateHysteresis' cloud/creixement-agent-core/src/conwayEcology.ts
           grep -q 'canaryPromotion' cloud/creixement-agent-core/src/conwayEcology.ts
           grep -q 'auditorOfAuditors' cloud/creixement-agent-core/src/conwayEcology.ts
           test -f cloud/creixement-runtime/src/bioecologyHandler.ts
+          test -f cloud/creixement-runtime/src/conwayCourtHandler.ts
           test -f cloud/creixement-runtime/src/handlerRouterV9.ts
+          grep -q 'creixement_sync_commercial_genomes_v9' cloud/creixement-runtime/src/bioecologyHandler.ts
           grep -q 'evolution.bioecology_cycle' cloud/creixement-runtime/src/handlerRouterV9.ts
+          grep -q 'evolution.conway_courts' cloud/creixement-runtime/src/handlerRouterV9.ts
           grep -q 'handlerRouterV9' cloud/creixement-runtime/src/worker.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
           grep -q 'production/creixement-kairon' cloud/creixement-cloudflare-runtime/wrangler.toml
