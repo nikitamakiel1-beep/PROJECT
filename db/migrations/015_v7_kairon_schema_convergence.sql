@@ -74,6 +74,13 @@ create table if not exists public.kairon_learning_events_v7 (
 alter table public.kairon_learning_events_v7 enable row level security;
 
 create or replace view public.v_kairon_command_v7 with (security_invoker=on) as
+with health as (
+  select * from public.v_operating_health_v6 limit 1
+), scheduler as (
+  select * from public.v_scheduler_readiness_v6 limit 1
+), gate as (
+  select * from public.v_production_gate_v6 limit 1
+)
 select
   now() as observed_at,
   s.operator_name,
@@ -88,9 +95,22 @@ select
   (select count(*) from public.kairon_directives_v7 where coalesce(status,'active')='active' and coalesce(active,true)=true) as active_directives,
   (select count(*) from public.v_owner_decision_queue_v6) as owner_decisions_open,
   (select count(*) from public.opportunities where status in ('qualified','actionable','testing','exploring')) as actionable_opportunities,
-  coalesce((select health_state from public.v_operating_health_v6 limit 1),'unavailable') as health_state,
-  coalesce((select scheduler_state from public.v_scheduler_readiness_v6 limit 1),'unavailable') as scheduler_state,
-  coalesce((select gate_state from public.v_production_gate_v6 limit 1),'unavailable') as production_gate_state,
+  case
+    when coalesce((select healthy_runtime_instances from health),0)>0
+      and coalesce((select critical_drift from health),0)=0
+      and coalesce((select critical_incidents from health),0)=0
+      and coalesce((select open_job_dead_letters from health),0)=0
+      and coalesce((select open_outbox_dead_letters from health),0)=0
+      and coalesce((select open_handler_circuits from health),0)=0 then 'healthy'
+    when coalesce((select healthy_runtime_instances from health),0)>0 then 'degraded'
+    else 'unavailable'
+  end as health_state,
+  case when coalesce((select high_frequency_ready from scheduler),false) then 'verified_ready' else 'not_verified' end as scheduler_state,
+  case
+    when coalesce((select promotable from gate),false) then 'promotable'
+    when coalesce((select ci_verified_green from gate),false) then 'blocked'
+    else 'unverified'
+  end as production_gate_state,
   (select count(*) from public.agents) as specialist_agents,
   (select count(*) from public.agents where health='healthy') as healthy_agents
 from public.kairon_state_v7 s where s.singleton=true;
