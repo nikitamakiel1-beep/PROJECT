@@ -9,6 +9,7 @@ on:
       - venture/creixement-overhaul-v5
       - venture/creixement-overhaul-v6-converged
       - venture/creixement-kairon-v7
+      - production/creixement-kairon
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
