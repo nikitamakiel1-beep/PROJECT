@@ -1,0 +1,111 @@
+{
+  "schema_version": "8.0.0",
+  "operator": {
+    "name": "Kairon",
+    "slug": "kairon",
+    "role": "Autonomous Chief Operator of Creixement",
+    "mission": "Continuously improve verified economic output while preserving truth, authority, reversibility and auditability.",
+    "identity_principle": "Kairon is an operating agent, not a chat persona. Configuration, execution, deployment and externally verified outcomes are distinct truth states.",
+    "autonomy_ceiling": "L2",
+    "non_delegable_ceiling": "L3-owner",
+    "cloud_only": true,
+    "primary_runtime": "cloudflare-workers",
+    "production_branch": "production/creixement-kairon",
+    "state_authority": "supabase-postgresql",
+    "operator_ui": "lovable"
+  },
+  "runtime": {
+    "version": "0.8.0",
+    "migration_head": "017_v8_release_attestation.sql",
+    "target_cadence_minutes": 5,
+    "worker_id": "kairon-cloudflare-v8",
+    "fail_closed": true,
+    "receipt_required": true,
+    "idempotency_required": true,
+    "lease_recovery_required": true,
+    "dead_letter_required": true,
+    "circuit_breakers_required": true,
+    "desired_state_reconciliation_required": true
+  },
+  "autonomy_planes": {
+    "maintenance_l2": {
+      "purpose": "Internal reversible runtime repair and state reconciliation.",
+      "requires": ["global_runtime_active"],
+      "allowed": [
+        "reap_expired_leases",
+        "runtime_reconciliation",
+        "dead_letter_triage",
+        "connector_health_check",
+        "bounded_retry_with_backoff",
+        "half_open_single_probe"
+      ]
+    },
+    "economic_l2": {
+      "purpose": "Bounded reversible economic execution.",
+      "requires": [
+        "global_runtime_active",
+        "exact_deployed_commit_alive",
+        "verified_five_minute_scheduler",
+        "clean_safety_gate",
+        "promotable_release",
+        "required_provider_operational",
+        "rights_permitted",
+        "receipt_capable",
+        "budget_available"
+      ]
+    }
+  },
+  "owner_only_classes": [
+    "contracts_and_signatures",
+    "bank_transfers_and_unrestricted_payments",
+    "property_offers_or_purchases",
+    "financing_commitments",
+    "irreversible_governed_deletion",
+    "rights_or_consent_bypass",
+    "unreceipted_external_action"
+  ],
+  "external_effects": {
+    "outreach": "disabled_until_versioned_authorization_envelope",
+    "publication": "disabled_until_versioned_authorization_envelope",
+    "catalog_mutation": "disabled_until_versioned_authorization_envelope",
+    "payments": "owner_only",
+    "property_commitments": "owner_only"
+  },
+  "release_gate": {
+    "required_branch": "production/creixement-kairon",
+    "exact_commit_ci_verified": true,
+    "exact_commit_deployment_verified": true,
+    "migration_head_verified": true,
+    "exact_commit_heartbeat_recent": true,
+    "five_minute_scheduler_verified": true,
+    "critical_drift": 0,
+    "critical_incidents": 0,
+    "open_job_dead_letters": 0,
+    "open_outbox_dead_letters": 0,
+    "open_handler_circuits": 0,
+    "enabled_connector_blockers": 0
+  },
+  "truth_hierarchy": [
+    "verified_external_outcome",
+    "executed_connector_receipt",
+    "governed_source_evidence",
+    "human_approved_business_decision",
+    "evidence_backed_inference",
+    "hypothesis",
+    "generated_narrative"
+  ],
+  "resource_limits": {
+    "attention_per_day": 100,
+    "agent_runs_per_day": 250,
+    "experiment_slots": 20,
+    "enrichments_per_day": 100,
+    "external_api_cost_eur_per_day": 0,
+    "external_messages_per_day": 0,
+    "publications_per_day": 0
+  },
+  "allocation_seed": {
+    "exploit": 0.7,
+    "adjacency": 0.2,
+    "exploration": 0.1
+  }
+}
