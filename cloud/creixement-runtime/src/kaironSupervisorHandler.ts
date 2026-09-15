@@ -23,6 +23,57 @@ function digest(value: unknown): string {
   return createHash("sha256").update(canonical(value)).digest("hex");
 }
 
+const COURT_TYPES = new Set([
+  "authority_traversal",
+  "faustian_fuzz",
+  "auditor_of_auditors",
+  "mutation_detection",
+]);
+const COURT_FRESHNESS_MS = 2 * 60 * 60 * 1000;
+
+export interface CourtRunRow {
+  court_key: string;
+  court_type: string;
+  passed: boolean;
+  created_at: string;
+}
+
+function courtCycleKey(courtKey: string): string {
+  const parts = courtKey.split(":");
+  return parts.length > 1 ? parts.slice(0, -1).join(":") : courtKey;
+}
+
+export function summarizeLatestCourtSuite(rows: CourtRunRow[], nowMs = Date.now()) {
+  const sorted = [...rows].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at));
+  const newest = sorted.at(0);
+  if (!newest) {
+    return {
+      latest_suite_key: null,
+      latest_suite_total: 0,
+      latest_suite_failed: 0,
+      latest_suite_fresh: false,
+      latest_suite_complete: false,
+      latest_suite_at: null,
+    };
+  }
+
+  const suiteKey = courtCycleKey(newest.court_key);
+  const suite = sorted.filter((row) => courtCycleKey(row.court_key) === suiteKey);
+  const presentTypes = new Set(suite.map((row) => row.court_type).filter((type) => COURT_TYPES.has(type)));
+  const latestAtMs = Math.max(...suite.map((row) => Date.parse(row.created_at)).filter(Number.isFinite));
+  const fresh = Number.isFinite(latestAtMs) && nowMs >= latestAtMs && (nowMs - latestAtMs) <= COURT_FRESHNESS_MS;
+  const complete = COURT_TYPES.size === presentTypes.size && [...COURT_TYPES].every((type) => presentTypes.has(type));
+
+  return {
+    latest_suite_key: suiteKey,
+    latest_suite_total: presentTypes.size,
+    latest_suite_failed: suite.filter((row) => !row.passed).length,
+    latest_suite_fresh: fresh,
+    latest_suite_complete: complete,
+    latest_suite_at: Number.isFinite(latestAtMs) ? new Date(latestAtMs).toISOString() : null,
+  };
+}
+
 export interface KaironRuntimeSupervisorInput {
   legacy: Record<string, unknown>;
   proof: Record<string, unknown>;
@@ -43,6 +94,10 @@ export interface KaironRuntimeSupervisorSnapshot {
     legacyEconomicL2Allowed: boolean;
     supervisedEconomicL2Open: boolean;
     courtEvidenceReady: boolean;
+    courtEvidenceFresh: boolean;
+    courtSuiteComplete: boolean;
+    courtSuiteSize: number;
+    courtSuiteFailed: number;
     consequentialBoundary: "L3-owner-only";
   };
   adaptation: {
@@ -62,14 +117,18 @@ export interface KaironRuntimeSupervisorSnapshot {
 
 export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput): KaironRuntimeSupervisorSnapshot {
   const schedulerExecutionProved = input.proof.cloudflare_scheduler_verified === true;
-  const runtimeSafetyClean = input.legacy.safetyClean === true
-    || (input.legacy.sensed as Record<string, unknown> | undefined)?.preflight != null
-      && ((input.legacy.sensed as Record<string, unknown>).preflight as Record<string, unknown>).safety_clean === true;
+  const sensed = input.legacy.sensed as Record<string, unknown> | undefined;
+  const preflight = sensed?.preflight as Record<string, unknown> | undefined;
+  const runtimeSafetyClean = input.legacy.safetyClean === true || preflight?.safety_clean === true;
   const legacyEconomicL2Allowed = input.legacy.economicL2Allowed === true;
-  const totalCourts = numeric(input.courts.total_courts);
-  const failedCourts = numeric(input.courts.failed_courts);
+
+  const latestSuiteFieldsPresent = Object.prototype.hasOwnProperty.call(input.courts, "latest_suite_total");
+  const courtSuiteSize = numeric(latestSuiteFieldsPresent ? input.courts.latest_suite_total : input.courts.total_courts);
+  const courtSuiteFailed = numeric(latestSuiteFieldsPresent ? input.courts.latest_suite_failed : input.courts.failed_courts);
+  const courtEvidenceFresh = latestSuiteFieldsPresent ? input.courts.latest_suite_fresh === true : true;
+  const courtSuiteComplete = latestSuiteFieldsPresent ? input.courts.latest_suite_complete === true : courtSuiteSize > 0;
   const verifiedCanaries = numeric(input.courts.verified_canaries);
-  const courtEvidenceReady = totalCourts > 0 && failedCourts === 0;
+  const courtEvidenceReady = courtSuiteComplete && courtEvidenceFresh && courtSuiteFailed === 0;
 
   const openDeadLetters = numeric(input.health.open_job_dead_letters) + numeric(input.health.open_outbox_dead_letters);
   const openCircuits = numeric(input.health.open_handler_circuits);
@@ -98,6 +157,10 @@ export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput):
       legacyEconomicL2Allowed,
       supervisedEconomicL2Open,
       courtEvidenceReady,
+      courtEvidenceFresh,
+      courtSuiteComplete,
+      courtSuiteSize,
+      courtSuiteFailed,
       consequentialBoundary: "L3-owner-only",
     },
     adaptation: {
@@ -109,11 +172,12 @@ export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput):
       meanFitness: clamp(numeric(input.ecology.mean_fitness)),
       meanTelomere: clamp(numeric(input.ecology.mean_telomere)),
       verifiedCanaries,
-      failedCourts,
+      failedCourts: courtSuiteFailed,
     },
     invariants: [
       "truth hierarchy is monotonic",
       "configuration is not execution proof",
+      "unknown or stale court evidence fails closed",
       "external/consequential authority remains L3 owner-only",
       "evolution cannot mutate rights, consent, secrets, payment, contract, property or irreversible deletion authority",
       "archive lineage and evidence; never silently erase it",
@@ -131,15 +195,16 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
   let courts: Record<string, unknown> = {};
   let health: Record<string, unknown> = {};
   try {
-    const [proofRows, ecologyRows, courtRows, healthRows] = await Promise.all([
+    const [proofRows, ecologyRows, courtRows, healthRows, recentCourtRuns] = await Promise.all([
       ctx.db.select<Array<Record<string, unknown>>>("v_runtime_proof_summary_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_bioecology_dashboard_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_conway_court_status_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
+      ctx.db.select<CourtRunRow[]>("adversarial_court_runs_v9?select=court_key,court_type,passed,created_at&order=created_at.desc&limit=12"),
     ]);
     proof = proofRows.at(0) ?? {};
     ecology = ecologyRows.at(0) ?? {};
-    courts = courtRows.at(0) ?? {};
+    courts = { ...(courtRows.at(0) ?? {}), ...summarizeLatestCourtSuite(recentCourtRuns) };
     health = healthRows.at(0) ?? {};
   } catch (error) {
     const unavailable = {
@@ -171,6 +236,7 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
         "view:v_runtime_proof_summary_v9",
         "view:v_bioecology_dashboard_v9",
         "view:v_conway_court_status_v9",
+        "table:adversarial_court_runs_v9:latest-suite",
         "view:v_operating_health_v6",
       ],
     }, "event_key");
@@ -196,6 +262,7 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
       ...(legacy.receipt ?? {}),
       supervisorDigest: supervisor.proofDigest,
       supervisedEconomicL2Open: supervisor.authority.supervisedEconomicL2Open,
+      courtEvidenceReady: supervisor.authority.courtEvidenceReady,
       adaptationMode: supervisor.adaptation.mode,
     },
   };

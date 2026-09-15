@@ -83,6 +83,7 @@ test("Kairon supervisor can operate bounded economic L2 only when all gates hold
   const result = compileKaironSupervisorCycle(input());
   assert.equal(result.economicL2.enabled, true);
   assert.equal(result.decisions[0]?.decision, "operate");
+  assert.equal(result.decisions[0]?.authorityStartKnown, true);
   assert.equal(result.decisions[0]?.authoritySafe, true);
   assert.equal(result.decisions[0]?.quorumReached, true);
   assert.equal(result.proofDigest.length, 64);
@@ -96,7 +97,20 @@ test("truth floor downgrades L2 operation instead of inventing confidence", () =
   ];
   const result = compileKaironSupervisorCycle(base);
   assert.equal(result.decisions[0]?.decision, "recommend");
-  assert.match(result.decisions[0]?.reasons.join(" ") ?? "", /Truth floor/);
+  assert.equal(result.decisions[0]?.quorumReached, false);
+  assert.match(result.decisions[0]?.reasons.join(" ") ?? "", /governed-evidence quorum|Truth floor/);
+});
+
+test("low-authority inference cannot complete an automatic L2 quorum", () => {
+  const base = input();
+  base.candidates[0]!.evidence = [
+    { key: "g", source: "governed", truthLevel: "governed_source_evidence", confidence: 0.95, support: 0.95, independent: true },
+    { key: "h", source: "model", truthLevel: "hypothesis", confidence: 1, support: 1, independent: true },
+  ];
+  const result = compileKaironSupervisorCycle(base);
+  assert.equal(result.decisions[0]?.quorumReached, false);
+  assert.equal(result.decisions[0]?.independentSources, 1);
+  assert.equal(result.decisions[0]?.decision, "recommend");
 });
 
 test("forbidden authority traversal dominates economic value", () => {
@@ -107,6 +121,18 @@ test("forbidden authority traversal dominates economic value", () => {
   assert.equal(result.decisions[0]?.decision, "escalate");
   assert.equal(result.decisions[0]?.requiresOwner, true);
   assert.equal(result.decisions[0]?.authoritySafe, false);
+  assert.equal(result.nextBestCandidateId, null);
+  assert.deepEqual(result.hardVetoedCandidateIds, ["external-1"]);
+});
+
+test("unknown authority nodes fail closed instead of being treated as safe terminals", () => {
+  const base = input();
+  base.candidates[0]!.authorityNodeKey = "missing-node";
+  const result = compileKaironSupervisorCycle(base);
+  assert.equal(result.decisions[0]?.authorityStartKnown, false);
+  assert.equal(result.decisions[0]?.authoritySafe, false);
+  assert.equal(result.decisions[0]?.decision, "abstain");
+  assert.match(result.decisions[0]?.reasons.join(" ") ?? "", /absent from the governed graph/);
 });
 
 test("immune memory block forces abstention", () => {
@@ -124,6 +150,12 @@ test("failed deterministic canary evidence closes economic L2", () => {
   const result = compileKaironSupervisorCycle(input({ canaries: badCanaries }));
   assert.equal(result.economicL2.enabled, false);
   assert.equal(result.decisions[0]?.decision, "recommend");
+});
+
+test("missing governed economic readiness is named as the gate reason", () => {
+  const result = compileKaironSupervisorCycle(input({ economicEvidenceReady: false }));
+  assert.equal(result.economicL2.enabled, false);
+  assert.match(result.economicL2.reason, /governed economic evidence is not ready/);
 });
 
 test("runtime injury raises wound-healing priority and preserves recovery actions", () => {
