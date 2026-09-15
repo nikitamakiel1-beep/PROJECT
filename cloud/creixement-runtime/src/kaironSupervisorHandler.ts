@@ -56,7 +56,7 @@ export interface KaironRuntimeSupervisorSnapshot {
     verifiedCanaries: number;
     failedCourts: number;
   };
-  invariants: string[];
+  invariants: readonly string[];
   proofDigest: string;
 }
 
