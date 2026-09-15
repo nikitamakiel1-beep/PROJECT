@@ -1,5 +1,5 @@
 {
-  "schema_version": "9.3.0",
+  "schema_version": "9.3.1",
   "operator": {
     "name": "Kairon",
     "role": "Autonomous Chief Operator of Creixement",
@@ -15,13 +15,18 @@
     "configuration_counts_as_execution": false,
     "independent_evidence_quorum": {
       "threshold": 0.67,
-      "minimum_independent_sources": 2
+      "minimum_independent_sources": 2,
+      "automatic_l2_votes_must_meet_truth_floor": true,
+      "low_authority_inference_cannot_supply_quorum_votes": true
     },
     "economic_l2_gate": {
       "legacy_preflight_required": true,
       "scheduler_execution_proof_required": true,
       "runtime_safety_clean_required": true,
       "adversarial_courts_clean_required": true,
+      "adversarial_courts_complete_suite_required": true,
+      "adversarial_courts_max_age_minutes": 120,
+      "historical_failed_courts_do_not_poison_a_new_clean_suite": true,
       "deterministic_receipted_canary_promotion_required_for_new_capabilities": true,
       "hysteresis": {
         "enter_threshold": 0.78,
@@ -35,19 +40,28 @@
       "rights_and_receipt_gate",
       "deterministic_authority_traversal",
       "immune_memory",
-      "independent_swarm_quorum",
+      "independent_governed_evidence_swarm_quorum",
       "runtime_homeostasis_and_wound_healing",
+      "fresh_complete_adversarial_court_suite",
       "economic_l2_hysteresis_and_canaries",
       "slime_route_allocation",
       "red_queen_experiment_pressure",
       "hard_veto_selection",
       "stable_proof_digest"
+    ],
+    "fail_closed_cases": [
+      "unknown_authority_node",
+      "dangling_authority_edge",
+      "stale_court_suite",
+      "partial_court_suite",
+      "missing_runtime_execution_proof",
+      "unknown_rights_or_receipt_capability"
     ]
   },
   "conway_mechanisms": {
     "slime_mold_routing": "attention allocation only",
     "pheromone_foraging": "verified outcome reinforcement only",
-    "swarm_quorum": "recommendation confidence gate",
+    "swarm_quorum": "governed independent-evidence confidence gate for automatic L2",
     "red_queen_pressure": "experiment pressure only",
     "homeostasis": "execution and exploration modulation",
     "hormesis": "bounded adaptive stress response",
@@ -59,7 +73,7 @@
     "symbiosis_competition": "evidence-backed portfolio interaction",
     "dwell_hysteresis": "anti-flapping state transitions",
     "faustian_adversarial_court": "hard veto dominance over seductive value",
-    "authority_graph_traversal": "deterministic reachable-boundary proof",
+    "authority_graph_traversal": "deterministic reachable-boundary proof; unknown nodes/edges are constitutional failures",
     "auditor_of_auditors": "digest-bound governance drift detection",
     "canary_promotion": "receipted deterministic capability promotion"
   },
@@ -92,6 +106,15 @@
       "v_bioecology_dashboard_v9",
       "v_conway_court_status_v9",
       "v_operating_health_v6"
+    ],
+    "evidence_tables": [
+      "adversarial_court_runs_v9"
+    ],
+    "court_suite_types": [
+      "authority_traversal",
+      "faustian_fuzz",
+      "auditor_of_auditors",
+      "mutation_detection"
     ],
     "learning_relation": "kairon_learning_events_v7",
     "state_relation": "kairon_state_v7",
