@@ -14,7 +14,7 @@ const vars = [
   `CREIXEMENT_COMMIT_SHA:${attestedCommit}`,
   `CREIXEMENT_BRANCH:${branch}`,
   "CREIXEMENT_RUNTIME_ID:kairon-cloudflare-v9",
-  "CREIXEMENT_RUNTIME_VERSION:0.9.1",
+  "CREIXEMENT_RUNTIME_VERSION:0.9.2",
   "CREIXEMENT_ENVIRONMENT:production",
   "CREIXEMENT_DB_TIMEOUT_MS:8000",
 ];
@@ -23,7 +23,7 @@ console.log(JSON.stringify({
   event: "creixement.cloudflare.deploy_attestation",
   commitSha: attestedCommit,
   branch,
-  runtimeVersion: "0.9.1",
+  runtimeVersion: "0.9.2",
   workersCi: process.env.WORKERS_CI ?? null,
   buildUuid: process.env.WORKERS_CI_BUILD_UUID ?? null,
 }));

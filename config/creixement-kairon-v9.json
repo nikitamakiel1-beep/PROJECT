@@ -1,5 +1,5 @@
 {
-  "schema_version": "9.1.0",
+  "schema_version": "9.2.0",
   "operator": {
     "name": "Kairon",
     "role": "Autonomous Chief Operator of Creixement",
@@ -10,8 +10,8 @@
     "principle": "Bio-inspired mechanisms are operational control algorithms. They never imply consciousness and never override constitutional policy."
   },
   "runtime": {
-    "version": "0.9.1",
-    "migration_head": "020_v9_population_and_courts_runtime.sql",
+    "version": "0.9.2",
+    "migration_head": "021_v9_runtime_proof_and_scheduler_autoverify.sql",
     "primary": "cloudflare-workers",
     "state_authority": "supabase-postgresql",
     "heartbeat_minutes": 5,
@@ -21,7 +21,13 @@
     "scheduler_bindings": {
       "required": ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
       "versioned_public": ["SUPABASE_URL"],
-      "secret": ["SUPABASE_SERVICE_ROLE_KEY"]
+      "secret": ["SUPABASE_SERVICE_ROLE_KEY"],
+      "primary_binding_key": "cloudflare-primary-heartbeat",
+      "automatic_verification": true,
+      "verification_requires_completed_healthy_samples": 3,
+      "proof_window_minutes": 30,
+      "cadence_contract_minutes": 5,
+      "cadence_tolerance_minutes": 3
     },
     "http_control_bindings": {
       "required": ["CRON_SECRET", "CREIXEMENT_API_TOKEN"],
@@ -30,6 +36,13 @@
     "owner_bindings": {
       "required_for_owner_actions": ["CREIXEMENT_OWNER_TOKEN"],
       "scheduler_dependency": false
+    },
+    "runtime_proof": {
+      "current_state_relation": "runtime_heartbeats_v5",
+      "append_only_relation": "runtime_heartbeat_samples_v9",
+      "cadence_view": "v_runtime_cadence_proof_v9",
+      "summary_view": "v_runtime_proof_summary_v9",
+      "truth_rule": "Configuration never proves execution. Production scheduler readiness requires immutable healthy tick_completed samples for the same deployed commit."
     },
     "bioecology_cycle_minutes": 30,
     "conway_court_minutes": 60
@@ -63,5 +76,11 @@
   },
   "selection": {"truth_first":true,"verified_outcomes_outrank_inference":true,"paid_success_required_for_champion_promotion":true,"confidence_resets_on_offspring":true,"lineage_preserved":true,"archive_instead_of_delete":true,"cross_niche_recombination_requires_explicit_speciation_workflow":true},
   "ecological_limits": {"max_autonomy":"L2","external_messages_per_day":0,"publications_per_day":0,"payment_authority":false,"contract_authority":false,"property_commitment_authority":false,"rights_bypass":false,"irreversible_deletion":false},
-  "ui": {"new_surfaces":["Ecology","Lineages","Niches","Swarm Routing","Immune Memory","Red Queen Pressure","Telomeres & Senescence","Symbiosis & Competition","Homeostasis","Evolution Events","Adversarial Courts","Authority Graph","Canary Promotion","Hysteresis","Projection Digests"],"truth_badges_required":true,"no_fake_biology":true}
+  "ui": {
+    "new_surfaces":["Overview","Runtime Proof","Scheduler Cadence","Ecology","Lineages","Niches","Swarm Routing","Immune Memory","Red Queen Pressure","Telomeres & Senescence","Symbiosis & Competition","Homeostasis","Evolution Events","Adversarial Courts","Authority Graph","Canary Promotion","Hysteresis","Projection Digests","Tectum","Products","Revenue","Approvals","Audit"],
+    "truth_badges_required":true,
+    "no_fake_biology":true,
+    "configuration_never_rendered_as_execution":true,
+    "credits_free_repo_ui":true
+  }
 }
