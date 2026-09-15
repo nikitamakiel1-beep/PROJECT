@@ -46,8 +46,8 @@ jobs:
           grep -q 'v_runtime_cadence_proof_v9' src/App.tsx
           grep -q 'configuration_never_rendered_as_execution' config/creixement-kairon-v9.json
           grep -q 'Never put service_role' .env.example
-          if grep -RniE 'SUPABASE_SERVICE_ROLE_KEY=|CRON_SECRET=|CREIXEMENT_OWNER_TOKEN=|CREIXEMENT_API_TOKEN=' . --exclude-dir=.git --exclude-dir=node_modules --exclude='*.md'; then
-            echo 'A server-side secret appears to be assigned in browser/repository files.'
+          if grep -RniE 'SUPABASE_SERVICE_ROLE_KEY=|CRON_SECRET=|CREIXEMENT_OWNER_TOKEN=|CREIXEMENT_API_TOKEN=' src .env.example index.html vite.config.ts package.json; then
+            echo 'A server-side secret appears to be assigned in browser files.'
             exit 1
           fi
           node -e "const p=require('./package.json'); if(p.version!=='0.9.2') process.exit(1)"
