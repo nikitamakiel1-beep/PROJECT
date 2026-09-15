@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { compileSupervisorySnapshot } from "./kaironSupervisorHandler.js";
+import { compileSupervisorySnapshot, summarizeLatestCourtSuite } from "./kaironSupervisorHandler.js";
 
 const healthy = {
   legacy: {
@@ -18,9 +18,13 @@ const healthy = {
     mean_telomere: 0.8,
   },
   courts: {
-    total_courts: 4,
-    failed_courts: 0,
+    total_courts: 12,
+    failed_courts: 2,
     verified_canaries: 5,
+    latest_suite_total: 4,
+    latest_suite_failed: 0,
+    latest_suite_fresh: true,
+    latest_suite_complete: true,
   },
   health: {
     open_job_dead_letters: 0,
@@ -31,9 +35,11 @@ const healthy = {
   },
 };
 
-test("healthy proofs keep supervised economic L2 open", () => {
+test("healthy fresh proofs keep supervised economic L2 open despite historical failed courts", () => {
   const snapshot = compileSupervisorySnapshot(healthy);
+  assert.equal(snapshot.authority.courtEvidenceReady, true);
   assert.equal(snapshot.authority.supervisedEconomicL2Open, true);
+  assert.equal(snapshot.adaptation.failedCourts, 0);
   assert.equal(snapshot.adaptation.mode, "balanced");
   assert.equal(snapshot.proofDigest.length, 64);
 });
@@ -47,13 +53,60 @@ test("configuration without scheduler execution proof closes economic L2", () =>
   assert.equal(snapshot.truth.configurationCountsAsExecution, false);
 });
 
-test("failed adversarial courts close economic L2", () => {
+test("failed current adversarial court suite closes economic L2", () => {
   const snapshot = compileSupervisorySnapshot({
     ...healthy,
-    courts: { total_courts: 4, failed_courts: 1, verified_canaries: 5 },
+    courts: { ...healthy.courts, latest_suite_failed: 1 },
   });
   assert.equal(snapshot.authority.courtEvidenceReady, false);
   assert.equal(snapshot.authority.supervisedEconomicL2Open, false);
+});
+
+test("stale court evidence closes economic L2", () => {
+  const snapshot = compileSupervisorySnapshot({
+    ...healthy,
+    courts: { ...healthy.courts, latest_suite_fresh: false },
+  });
+  assert.equal(snapshot.authority.courtEvidenceFresh, false);
+  assert.equal(snapshot.authority.courtEvidenceReady, false);
+  assert.equal(snapshot.authority.supervisedEconomicL2Open, false);
+});
+
+test("incomplete court evidence closes economic L2", () => {
+  const snapshot = compileSupervisorySnapshot({
+    ...healthy,
+    courts: { ...healthy.courts, latest_suite_total: 3, latest_suite_complete: false },
+  });
+  assert.equal(snapshot.authority.courtSuiteComplete, false);
+  assert.equal(snapshot.authority.supervisedEconomicL2Open, false);
+});
+
+test("latest court-suite summarizer binds the four expected courts to one execution", () => {
+  const now = Date.parse("2026-09-15T14:00:00Z");
+  const rows = [
+    { court_key: "cycle:new:authority", court_type: "authority_traversal", passed: true, created_at: "2026-09-15T13:17:01Z" },
+    { court_key: "cycle:new:faustian", court_type: "faustian_fuzz", passed: true, created_at: "2026-09-15T13:17:02Z" },
+    { court_key: "cycle:new:auditor", court_type: "auditor_of_auditors", passed: true, created_at: "2026-09-15T13:17:03Z" },
+    { court_key: "cycle:new:canary", court_type: "mutation_detection", passed: true, created_at: "2026-09-15T13:17:04Z" },
+    { court_key: "cycle:old:authority", court_type: "authority_traversal", passed: false, created_at: "2026-09-15T12:17:01Z" },
+  ];
+  const suite = summarizeLatestCourtSuite(rows, now);
+  assert.equal(suite.latest_suite_key, "cycle:new");
+  assert.equal(suite.latest_suite_total, 4);
+  assert.equal(suite.latest_suite_failed, 0);
+  assert.equal(suite.latest_suite_complete, true);
+  assert.equal(suite.latest_suite_fresh, true);
+});
+
+test("partial or old latest court suites fail freshness/completeness", () => {
+  const now = Date.parse("2026-09-15T16:30:00Z");
+  const rows = [
+    { court_key: "partial:authority", court_type: "authority_traversal", passed: true, created_at: "2026-09-15T13:00:00Z" },
+    { court_key: "partial:faustian", court_type: "faustian_fuzz", passed: true, created_at: "2026-09-15T13:00:01Z" },
+  ];
+  const suite = summarizeLatestCourtSuite(rows, now);
+  assert.equal(suite.latest_suite_complete, false);
+  assert.equal(suite.latest_suite_fresh, false);
 });
 
 test("runtime injury switches Kairon into recovery adaptation", () => {
