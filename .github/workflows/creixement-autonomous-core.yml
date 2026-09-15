@@ -12,6 +12,7 @@ on:
       - venture/creixement-kairon-v8-autonomic
       - venture/creixement-kairon-v9-bioecology
       - venture/creixement-kairon-v9-observability
+      - venture/creixement-kairon-v9-fullstack-no-credits
       - production/creixement-kairon
   pull_request:
     paths:
@@ -99,8 +100,8 @@ jobs:
           grep -q 'WORKERS_CI_COMMIT_SHA' scripts/deploy-ci.mjs
           grep -q 'WORKERS_CI_BRANCH' scripts/deploy-ci.mjs
           grep -q 'kairon-cloudflare-v9' scripts/deploy-ci.mjs
-          grep -q 'CREIXEMENT_RUNTIME_VERSION:0.9.1' scripts/deploy-ci.mjs
-          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs'||p.version!=='0.9.1') process.exit(1)"
+          grep -q 'CREIXEMENT_RUNTIME_VERSION:0.9.2' scripts/deploy-ci.mjs
+          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs'||p.version!=='0.9.2') process.exit(1)"
 
   validate-contracts:
     runs-on: ubuntu-latest
@@ -120,7 +121,7 @@ jobs:
           for file in "${files[@]}"; do
             node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
           done
-      - name: Validate ordered migrations and Kairon V9.1 contracts
+      - name: Validate ordered migrations and Kairon V9.2 contracts
         shell: bash
         run: |
           set -euo pipefail
@@ -144,6 +145,7 @@ jobs:
             db/migrations/018_v9_conway_bioecology.sql
             db/migrations/019_v9_conway_adversarial_courts.sql
             db/migrations/020_v9_population_and_courts_runtime.sql
+            db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           grep -q 'creixement_kairon_preflight_v8' db/migrations/016_v8_kairon_runtime_contract.sql
@@ -156,21 +158,24 @@ jobs:
           grep -q 'constitutional_membrane' db/migrations/018_v9_conway_bioecology.sql
           grep -q 'adversarial_court_runs_v9' db/migrations/019_v9_conway_adversarial_courts.sql
           grep -q 'creixement_sync_commercial_genomes_v9' db/migrations/020_v9_population_and_courts_runtime.sql
-          grep -q 'on conflict(kind,state_key)' db/migrations/020_v9_population_and_courts_runtime.sql
-          grep -q 'grant execute on function public.creixement_sync_commercial_genomes_v9() to service_role' db/migrations/020_v9_population_and_courts_runtime.sql
+          grep -q 'runtime_heartbeat_samples_v9' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
+          grep -q 'creixement_runtime_cadence_proof_v9' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
+          grep -q 'creixement_auto_verify_cloudflare_scheduler_v9' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
+          grep -q 'cloudflare-primary-heartbeat' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
+          grep -q 'v_runtime_proof_summary_v9' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
           test -f config/creixement-kairon-v9.json
           test -f config/creixement-conway-v9.json
-          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.1'||c.runtime.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.runtime.public_diagnostic_path!=='/diagz'||c.runtime.heartbeat_fail_closed!==true) process.exit(1)"
-          node -e "const c=require('./config/creixement-conway-v9.json'); if(c.migration_head!=='020_v9_population_and_courts_runtime.sql'||c.runtime_version!=='0.9.1'||!c.faustian_court.hard_veto_dominates_expected_value||c.slime_mold_court.max_paths!==200000) process.exit(1)"
+          node -e "const c=require('./config/creixement-kairon-v9.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='0.9.2'||c.runtime.migration_head!=='021_v9_runtime_proof_and_scheduler_autoverify.sql'||c.runtime.public_diagnostic_path!=='/diagz'||c.runtime.heartbeat_fail_closed!==true||c.runtime.scheduler_bindings.primary_binding_key!=='cloudflare-primary-heartbeat'||c.runtime.runtime_proof.append_only_relation!=='runtime_heartbeat_samples_v9') process.exit(1)"
+          node -e "const c=require('./config/creixement-conway-v9.json'); if(c.migration_head!=='021_v9_runtime_proof_and_scheduler_autoverify.sql'||c.runtime_version!=='0.9.2'||!c.faustian_court.hard_veto_dominates_expected_value||c.slime_mold_court.max_paths!==200000||!c.runtime_truth.scheduler_auto_verification) process.exit(1)"
           grep -q 'creixement.runtime.heartbeat_failure' cloud/creixement-runtime/src/tick.ts
           grep -q 'heartbeatStart' cloud/creixement-runtime/src/tick.ts
           grep -q 'heartbeatEnd' cloud/creixement-runtime/src/tick.ts
           grep -q '\*/5 \* \* \* \*' cloud/creixement-cloudflare-runtime/wrangler.toml
-          grep -q 'CREIXEMENT_RUNTIME_VERSION = "0.9.1"' cloud/creixement-cloudflare-runtime/wrangler.toml
+          grep -q 'CREIXEMENT_RUNTIME_VERSION = "0.9.2"' cloud/creixement-cloudflare-runtime/wrangler.toml
           grep -q 'production/creixement-kairon' cloud/creixement-cloudflare-runtime/wrangler.toml
-          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.9.1') process.exit(1)"
-          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.9.1'||p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs') process.exit(1)"
-          echo 'ordered migrations and Kairon V9.1 observability contracts present'
+          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='0.9.2') process.exit(1)"
+          node -e "const p=require('./cloud/creixement-cloudflare-runtime/package.json'); if(p.version!=='0.9.2'||p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs') process.exit(1)"
+          echo 'ordered migrations and Kairon V9.2 runtime-proof contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |
