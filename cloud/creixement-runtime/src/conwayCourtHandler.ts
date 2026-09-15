@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import type { HandlerContext, HandlerResult } from "./handlers.js";
 
-interface AuthorityRow {
+export interface AuthorityRow {
   node_key: string;
   action_class: string;
   max_autonomy: "L0" | "L1" | "L2" | "L3";
@@ -28,16 +28,18 @@ function stringArray(value: unknown): string[] {
   return value.filter((item): item is string => typeof item === "string").sort();
 }
 
-function traverseAuthority(rows: AuthorityRow[], startKey = "root", maxPaths = 200000): {
+export function traverseAuthority(rows: AuthorityRow[], startKey = "root", maxPaths = 200000): {
   explored: number;
   safePaths: string[][];
   forbiddenPaths: string[][];
+  unknownPaths: string[][];
   graphDigest: string;
 } {
   const byKey = new Map(rows.map((row) => [row.node_key, row]));
   const queue: string[][] = [[startKey]];
   const safePaths: string[][] = [];
   const forbiddenPaths: string[][] = [];
+  const unknownPaths: string[][] = [];
   let explored = 0;
 
   while (queue.length > 0 && explored < maxPaths) {
@@ -45,7 +47,7 @@ function traverseAuthority(rows: AuthorityRow[], startKey = "root", maxPaths = 2
     explored += 1;
     const node = byKey.get(path[path.length - 1]!);
     if (!node) {
-      safePaths.push(path);
+      unknownPaths.push(path);
       continue;
     }
     if (node.forbidden || node.max_autonomy === "L3") {
@@ -73,7 +75,7 @@ function traverseAuthority(rows: AuthorityRow[], startKey = "root", maxPaths = 2
     }))
     .sort((a, b) => a.key.localeCompare(b.key));
 
-  return { explored, safePaths, forbiddenPaths, graphDigest: digest(stableGraph) };
+  return { explored, safePaths, forbiddenPaths, unknownPaths, graphDigest: digest(stableGraph) };
 }
 
 async function insertCourt(
@@ -112,17 +114,26 @@ export async function conwayCourtCycle(ctx: HandlerContext): Promise<HandlerResu
     const terminal = authority.find((row) => row.node_key === path[path.length - 1]);
     return terminal?.max_autonomy === "L3" || terminal?.forbidden === true;
   });
-  const authorityPassed = rootExists && forbiddenNodes.length > 0 && unexpectedSafeL3.length === 0 && traversal.explored < 200000;
+  const authorityPassed = rootExists
+    && forbiddenNodes.length > 0
+    && unexpectedSafeL3.length === 0
+    && traversal.unknownPaths.length === 0
+    && traversal.explored < 200000;
 
   await insertCourt(ctx, "authority", {
     court_type: "authority_traversal",
     explored_states: traversal.explored,
-    forbidden_hits: traversal.forbiddenPaths.length,
+    forbidden_hits: traversal.forbiddenPaths.length + traversal.unknownPaths.length,
     safe_terminal_states: traversal.safePaths.length,
-    hard_veto_count: forbiddenNodes.length,
+    hard_veto_count: forbiddenNodes.length + traversal.unknownPaths.length,
     candidate_digest: traversal.graphDigest,
     passed: authorityPassed,
-    findings: authorityPassed ? [] : [{ rootExists, forbiddenNodes: forbiddenNodes.length, unexpectedSafeL3 }],
+    findings: authorityPassed ? [] : [{
+      rootExists,
+      forbiddenNodes: forbiddenNodes.length,
+      unexpectedSafeL3,
+      unknownPaths: traversal.unknownPaths,
+    }],
   });
 
   const safeCandidate = authority.find((row) => row.node_key === "internal-write" && !row.forbidden && row.max_autonomy !== "L3");
@@ -203,6 +214,7 @@ export async function conwayCourtCycle(ctx: HandlerContext): Promise<HandlerResu
       authority: {
         explored: traversal.explored,
         forbiddenPaths: traversal.forbiddenPaths.length,
+        unknownPaths: traversal.unknownPaths.length,
         safePaths: traversal.safePaths.length,
         digest: traversal.graphDigest,
       },
