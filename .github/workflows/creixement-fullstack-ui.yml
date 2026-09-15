@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - venture/creixement-kairon-v9-fullstack-no-credits
+      - production/creixement-kairon
   pull_request:
     paths:
       - 'src/**'
