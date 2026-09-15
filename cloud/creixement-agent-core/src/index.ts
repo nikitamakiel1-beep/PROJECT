@@ -4,6 +4,22 @@ export * from "./policy.js";
 export * from "./evolution.js";
 export * from "./bioecology.js";
 export * from "./conwayEcology.js";
+export {
+  allocateAttention,
+  compileSelfHealPlan,
+  decideKaironAction,
+  economicPriority,
+} from "./kairon.js";
+export type {
+  AttentionCandidate,
+  KaironBudgetState,
+  KaironDecision,
+  KaironDecisionResult,
+  KaironWorkItem,
+  RuntimeHealthSnapshot,
+  SelfHealAction,
+} from "./kairon.js";
+export * from "./kaironSupervisor.js";
 export * from "./portfolio.js";
 export * from "./runtime.js";
 export * from "./childAgents.js";

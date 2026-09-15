@@ -1,0 +1,111 @@
+{
+  "schema_version": "9.3.0",
+  "operator": {
+    "name": "Kairon",
+    "role": "Autonomous Chief Operator of Creixement",
+    "autonomy_ceiling": "L2",
+    "production_branch": "production/creixement-kairon",
+    "cloud_only": true,
+    "sentience_claims": false
+  },
+  "supervisor": {
+    "version": "9.3",
+    "principle": "Conway-inspired mechanisms may alter ranking, experimentation, recovery and promotion confidence, but never authority.",
+    "truth_floor_for_automatic_l2": "governed_source_evidence",
+    "configuration_counts_as_execution": false,
+    "independent_evidence_quorum": {
+      "threshold": 0.67,
+      "minimum_independent_sources": 2
+    },
+    "economic_l2_gate": {
+      "legacy_preflight_required": true,
+      "scheduler_execution_proof_required": true,
+      "runtime_safety_clean_required": true,
+      "adversarial_courts_clean_required": true,
+      "deterministic_receipted_canary_promotion_required_for_new_capabilities": true,
+      "hysteresis": {
+        "enter_threshold": 0.78,
+        "exit_threshold": 0.52,
+        "dwell_enter": 2,
+        "dwell_exit": 2
+      }
+    },
+    "composition_order": [
+      "truth_floor",
+      "rights_and_receipt_gate",
+      "deterministic_authority_traversal",
+      "immune_memory",
+      "independent_swarm_quorum",
+      "runtime_homeostasis_and_wound_healing",
+      "economic_l2_hysteresis_and_canaries",
+      "slime_route_allocation",
+      "red_queen_experiment_pressure",
+      "hard_veto_selection",
+      "stable_proof_digest"
+    ]
+  },
+  "conway_mechanisms": {
+    "slime_mold_routing": "attention allocation only",
+    "pheromone_foraging": "verified outcome reinforcement only",
+    "swarm_quorum": "recommendation confidence gate",
+    "red_queen_pressure": "experiment pressure only",
+    "homeostasis": "execution and exploration modulation",
+    "hormesis": "bounded adaptive stress response",
+    "immune_memory": "allow/challenge/block based on recurrent failure evidence",
+    "wound_healing": "runtime recovery priority",
+    "resource_metabolism": "maintenance first, execution second, exploration last",
+    "telomere_senescence": "lineage influence and archival lifecycle",
+    "niche_speciation": "strategic diversity preservation",
+    "symbiosis_competition": "evidence-backed portfolio interaction",
+    "dwell_hysteresis": "anti-flapping state transitions",
+    "faustian_adversarial_court": "hard veto dominance over seductive value",
+    "authority_graph_traversal": "deterministic reachable-boundary proof",
+    "auditor_of_auditors": "digest-bound governance drift detection",
+    "canary_promotion": "receipted deterministic capability promotion"
+  },
+  "constitutional_membrane": {
+    "evolvable": false,
+    "protected": [
+      "audit_history",
+      "evidence_provenance",
+      "revenue_truth",
+      "authentication",
+      "secret_handling",
+      "privacy_and_consent",
+      "source_rights",
+      "network_security",
+      "spend_authority",
+      "contract_authority",
+      "property_commitment_authority",
+      "payment_authority",
+      "emergency_lockdown",
+      "digest_bound_approval_semantics",
+      "cloud_only_runtime",
+      "autonomy_ceiling"
+    ]
+  },
+  "runtime_integration": {
+    "handler": "kairon.control_cycle",
+    "wrapper": "kaironSupervisedControlCycle",
+    "evidence_views": [
+      "v_runtime_proof_summary_v9",
+      "v_bioecology_dashboard_v9",
+      "v_conway_court_status_v9",
+      "v_operating_health_v6"
+    ],
+    "learning_relation": "kairon_learning_events_v7",
+    "state_relation": "kairon_state_v7",
+    "proof_digest": "sha256 canonical stable snapshot"
+  },
+  "cockpit": {
+    "top_level_workspaces": ["Command", "Business", "Operations", "Evolution", "Tectum", "Evidence", "System"],
+    "command_rule": "Show decision-relevant supervisory state only; deep ecology, courts and runtime proof remain progressively disclosed in their specialist workspaces.",
+    "published_privilege": "publishable-key + RLS read-only",
+    "private_data_behavior": "render private/unavailable; never escalate privilege or synthesize values",
+    "commercial_truth_baseline": {
+      "verified_leads": 0,
+      "verified_pipeline_eur": 0,
+      "verified_won_eur": 0
+    }
+  }
+}
