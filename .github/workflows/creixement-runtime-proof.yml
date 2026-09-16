@@ -1,0 +1,49 @@
+name: Creixement Runtime Proof
+
+on:
+  push:
+    branches:
+      - 'codex/**'
+      - production/creixement-kairon
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: creixement-runtime-proof-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  probe-production-runtime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - name: Probe safe production diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://creixement-kairon.nikitamakiel1.workers.dev/diagz'
+          payload="$(curl --fail-with-body --silent --show-error --max-time 20 "$url")"
+          echo "$payload" | python -m json.tool
+          PAYLOAD="$payload" python - <<'PY'
+          import json, os, sys
+          d=json.loads(os.environ['PAYLOAD'])
+          cfg=d.get('configuration') or {}
+          db=d.get('database') or {}
+          sched=d.get('scheduler') or {}
+          truth=d.get('truth') or {}
+          checks={
+            'workerResponding': truth.get('workerResponding') is True,
+            'schedulerBindingsConfigured': cfg.get('schedulerBindingsConfigured') is True,
+            'databaseReachable': db.get('reachable') is True,
+            'heartbeatFound': sched.get('heartbeatFound') is True,
+            'heartbeatFresh': sched.get('heartbeatFresh') is True,
+            'schedulerExecutionVerified': truth.get('schedulerExecutionVerified') is True,
+          }
+          print('SAFE_RUNTIME_PROOF=' + json.dumps(checks, sort_keys=True))
+          failed=[k for k,v in checks.items() if not v]
+          if failed:
+            print('Runtime proof incomplete: ' + ', '.join(failed), file=sys.stderr)
+            sys.exit(1)
+          PY
