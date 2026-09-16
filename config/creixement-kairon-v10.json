@@ -14,6 +14,9 @@
     "migration_head": "022_v10_business_portfolio_and_venture_foundry.sql",
     "primary": "cloudflare-workers",
     "state_authority": "supabase-postgresql",
+    "release_channel": "cloudflare-workers-builds-github",
+    "release_trigger": "push-to-production/creixement-kairon",
+    "release_receipt": "GitHub check named Workers Builds: creixement-kairon with successful conclusion and Cloudflare Version ID",
     "heartbeat_minutes": 5,
     "heartbeat_fail_closed": true,
     "public_diagnostic_path": "/diagz",
@@ -31,7 +34,7 @@
       "append_only_relation": "runtime_heartbeat_samples_v9",
       "cadence_view": "v_runtime_cadence_proof_v9",
       "summary_view": "v_runtime_proof_summary_v9",
-      "truth_rule": "Configuration and CI do not prove production execution. Runtime proof requires healthy samples from the deployed production commit."
+      "truth_rule": "Configuration, validation CI and deployment receipts do not by themselves prove production execution. Runtime proof requires healthy samples from the deployed production commit."
     }
   },
   "business": {
@@ -63,6 +66,8 @@
     "Tectum is Project 01 inside Business, not a peer control plane.",
     "Future projects originate from evidence-linked opportunities.",
     "Commercial forecasts never become verified revenue without external proof.",
-    "A green build is not a live-runtime heartbeat."
+    "Only the fully merged production branch is deployable.",
+    "A successful Cloudflare build receipt proves deployment, not healthy scheduled execution.",
+    "A green validation build is not a live-runtime heartbeat."
   ]
 }
