@@ -1,0 +1,19 @@
+{
+  "schemaVersion": "10.0.0",
+  "checks": {
+    "autonomyCeiling": "L2",
+    "tectumParent": "Business",
+    "executiveAgent": "Kairon",
+    "projectCandidateRequiresEvidence": true,
+    "projectCandidateRequiresActionableSource": true,
+    "experimentRequiresSupervisedEconomicL2": true,
+    "incubationTruthFloor": "governed_source_evidence",
+    "foundryOperatingPromotionAutomatic": false,
+    "foundryOperatingPromotionRequiresOwner": true,
+    "foundryOperatingPromotionRequiresVerifiedExternalOutcome": true,
+    "foundryOperatingPromotionRequiresExecutedReceipt": true,
+    "externalEffectsFromFoundry": false,
+    "emptyOpportunityStoreFabricatesProjects": false,
+    "portfolioIncludedInSupervisorDigest": true
+  }
+}
