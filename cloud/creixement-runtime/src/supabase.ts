@@ -11,8 +11,25 @@ export function supabaseAuthHeaders(apiKey: string): Record<string, string> {
   return headers;
 }
 
+function normalizedRelayUrl(env: RuntimeEnv): string | null {
+  const explicit = env.databaseRelayUrl?.trim().replace(/\/$/, "") || null;
+  if (explicit) return explicit;
+  // Cloudflare's outer entry wrapper also rewrites SUPABASE_URL to the relay before
+  // delegating bearer-protected HTTP endpoints to the legacy worker. Recognize only
+  // the exact managed relay path so ordinary Supabase URLs can never be mistaken for it.
+  try {
+    const candidate = new URL(env.supabaseUrl);
+    if (candidate.protocol === "https:" && candidate.pathname.replace(/\/$/, "").endsWith("/api/runtime-db")) {
+      return env.supabaseUrl.trim().replace(/\/$/, "");
+    }
+  } catch {
+    // Environment validation owns malformed URL errors. This helper remains pure/fail-closed.
+  }
+  return null;
+}
+
 export function databaseAuthHeaders(env: RuntimeEnv): Record<string, string> {
-  if (env.databaseRelayUrl?.trim()) {
+  if (normalizedRelayUrl(env)) {
     return {
       "x-creixement-runtime-token": env.supabaseServiceRoleKey,
       "x-creixement-runtime-id": env.runtimeId,
@@ -22,7 +39,7 @@ export function databaseAuthHeaders(env: RuntimeEnv): Record<string, string> {
 }
 
 export function databaseRequestUrl(env: RuntimeEnv, path: string): string {
-  const relay = env.databaseRelayUrl?.trim().replace(/\/$/, "");
+  const relay = normalizedRelayUrl(env);
   if (!relay) return `${env.supabaseUrl}/rest/v1/${path}`;
 
   const queryStart = path.indexOf("?");
@@ -58,7 +75,7 @@ export class SupabaseHttp {
 
     const text = await response.text();
     if (!response.ok) {
-      const transport = this.env.databaseRelayUrl?.trim() ? "Managed relay" : "Supabase";
+      const transport = normalizedRelayUrl(this.env) ? "Managed relay" : "Supabase";
       throw new Error(`${transport} ${response.status}: ${text.slice(0, 1000)}`);
     }
     if (!text) return undefined as T;
