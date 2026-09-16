@@ -33,14 +33,28 @@ const healthy = {
     critical_drift: 0,
     healthy_runtime_instances: 1,
   },
+  portfolio: {
+    operating_projects: 1,
+    incubating_projects: 0,
+    paused_projects: 0,
+    foundry_candidates: 0,
+    actionable_opportunities: 0,
+    tectum_operating: 1,
+    supervised_economic_l2_open: true,
+  },
 };
 
 test("healthy fresh proofs keep supervised economic L2 open despite historical failed courts", () => {
   const snapshot = compileSupervisorySnapshot(healthy);
+  assert.equal(snapshot.version, "10.0");
+  assert.equal(snapshot.role, "chief-operator");
+  assert.equal(snapshot.executiveAgent, "Kairon");
   assert.equal(snapshot.authority.courtEvidenceReady, true);
   assert.equal(snapshot.authority.supervisedEconomicL2Open, true);
   assert.equal(snapshot.adaptation.failedCourts, 0);
   assert.equal(snapshot.adaptation.mode, "balanced");
+  assert.equal(snapshot.portfolio.operatingProjects, 1);
+  assert.equal(snapshot.portfolio.tectumOperating, true);
   assert.equal(snapshot.proofDigest.length, 64);
 });
 
@@ -79,6 +93,24 @@ test("incomplete court evidence closes economic L2", () => {
   });
   assert.equal(snapshot.authority.courtSuiteComplete, false);
   assert.equal(snapshot.authority.supervisedEconomicL2Open, false);
+});
+
+test("portfolio evidence is descriptive and never expands authority", () => {
+  const snapshot = compileSupervisorySnapshot({
+    ...healthy,
+    portfolio: {
+      ...healthy.portfolio,
+      operating_projects: 7,
+      incubating_projects: 4,
+      foundry_candidates: 25,
+      actionable_opportunities: 100,
+    },
+  });
+  assert.equal(snapshot.portfolio.operatingProjects, 7);
+  assert.equal(snapshot.portfolio.incubatingProjects, 4);
+  assert.equal(snapshot.portfolio.foundryCandidates, 25);
+  assert.equal(snapshot.autonomyCeiling, "L2");
+  assert.equal(snapshot.authority.consequentialBoundary, "L3-owner-only");
 });
 
 test("latest court-suite summarizer binds the four expected courts to one execution", () => {
