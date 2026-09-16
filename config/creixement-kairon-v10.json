@@ -1,0 +1,68 @@
+{
+  "schema_version": "10.0.0",
+  "operator": {
+    "name": "Kairon",
+    "role": "Autonomous Chief Operator of Creixement",
+    "autonomy_ceiling": "L2",
+    "production_branch": "production/creixement-kairon",
+    "cloud_only": true,
+    "sentience_claims": false
+  },
+  "runtime": {
+    "version": "1.0.0",
+    "runtime_id": "kairon-cloudflare-v10",
+    "migration_head": "022_v10_business_portfolio_and_venture_foundry.sql",
+    "primary": "cloudflare-workers",
+    "state_authority": "supabase-postgresql",
+    "heartbeat_minutes": 5,
+    "heartbeat_fail_closed": true,
+    "public_diagnostic_path": "/diagz",
+    "diagnostic_secret_values_exposed": false,
+    "scheduler": {
+      "cron": "*/5 * * * *",
+      "required_bindings": ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "primary_binding_key": "cloudflare-primary-heartbeat",
+      "automatic_verification": true,
+      "proof_window_minutes": 30,
+      "healthy_samples_required": 3
+    },
+    "proof": {
+      "current_state_relation": "runtime_heartbeats_v5",
+      "append_only_relation": "runtime_heartbeat_samples_v9",
+      "cadence_view": "v_runtime_cadence_proof_v9",
+      "summary_view": "v_runtime_proof_summary_v9",
+      "truth_rule": "Configuration and CI do not prove production execution. Runtime proof requires healthy samples from the deployed production commit."
+    }
+  },
+  "business": {
+    "workspace": "Business",
+    "executive_agent": "Kairon",
+    "first_operating_project": "Tectum",
+    "project_relation": "business_projects_v10",
+    "foundry_relation": "business_project_candidates_v10",
+    "venture_foundry_handler": "business.venture_foundry_cycle",
+    "auto_operating_promotion": false,
+    "operating_promotion_requires": [
+      "owner approval",
+      "verified external outcome",
+      "executed connector receipt"
+    ]
+  },
+  "constitutional_membrane": {
+    "unknown_authority": "fail-closed",
+    "stale_or_partial_courts": "fail-closed",
+    "payments": "L3-owner-only",
+    "contracts": "L3-owner-only",
+    "financing": "L3-owner-only",
+    "property_commitments": "L3-owner-only",
+    "irreversible_deletion": "L3-owner-only",
+    "authority_self_expansion": false
+  },
+  "release_invariants": [
+    "Kairon leads Creixement but cannot expand its own authority.",
+    "Tectum is Project 01 inside Business, not a peer control plane.",
+    "Future projects originate from evidence-linked opportunities.",
+    "Commercial forecasts never become verified revenue without external proof.",
+    "A green build is not a live-runtime heartbeat."
+  ]
+}
