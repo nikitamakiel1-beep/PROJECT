@@ -1,0 +1,39 @@
+name: Creixement Bridge Bootstrap Fingerprint
+
+on:
+  push:
+    branches:
+      - codex/kairon-db-bridge-bootstrap-20260916
+
+permissions:
+  contents: read
+
+jobs:
+  read-preview-fingerprint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Read one-way credential fingerprint from Cloudflare preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://codex-kairon-db-bridge-bootstrap-20260916-creixement-kairon.nikitamakiel1.workers.dev/diagz'
+          for attempt in $(seq 1 12); do
+            payload="$(curl --fail-with-body --silent --show-error --max-time 20 "$url" || true)"
+            fingerprint="$(PAYLOAD="$payload" python - <<'PY'
+          import json, os
+          try:
+            d=json.loads(os.environ.get('PAYLOAD') or '{}')
+            print((d.get('configuration') or {}).get('bootstrapCredentialFingerprint') or '')
+          except Exception:
+            print('')
+          PY
+            )"
+            if [[ "$fingerprint" =~ ^[0-9a-f]{64}$ ]]; then
+              echo "BOOTSTRAP_CREDENTIAL_SHA256=$fingerprint"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo 'Fingerprint not available from preview.' >&2
+          exit 1
