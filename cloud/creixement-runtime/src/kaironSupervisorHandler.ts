@@ -80,10 +80,13 @@ export interface KaironRuntimeSupervisorInput {
   ecology: Record<string, unknown>;
   courts: Record<string, unknown>;
   health: Record<string, unknown>;
+  portfolio: Record<string, unknown>;
 }
 
 export interface KaironRuntimeSupervisorSnapshot {
-  version: "9.3";
+  version: "10.0";
+  role: "chief-operator";
+  executiveAgent: "Kairon";
   autonomyCeiling: "L2";
   truth: {
     schedulerExecutionProved: boolean;
@@ -99,6 +102,15 @@ export interface KaironRuntimeSupervisorSnapshot {
     courtSuiteSize: number;
     courtSuiteFailed: number;
     consequentialBoundary: "L3-owner-only";
+  };
+  portfolio: {
+    operatingProjects: number;
+    incubatingProjects: number;
+    pausedProjects: number;
+    foundryCandidates: number;
+    actionableOpportunities: number;
+    tectumOperating: boolean;
+    foundryEconomicL2Open: boolean;
   };
   adaptation: {
     mode: "recovery" | "challenge" | "balanced";
@@ -150,7 +162,9 @@ export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput):
   const mode = woundHealingPriority >= 0.5 ? "recovery" : redQueenPressure >= 0.65 ? "challenge" : "balanced";
 
   const stable = {
-    version: "9.3",
+    version: "10.0",
+    role: "chief-operator",
+    executiveAgent: "Kairon",
     autonomyCeiling: "L2",
     truth: { schedulerExecutionProved, runtimeSafetyClean, configurationCountsAsExecution: false },
     authority: {
@@ -162,6 +176,15 @@ export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput):
       courtSuiteSize,
       courtSuiteFailed,
       consequentialBoundary: "L3-owner-only",
+    },
+    portfolio: {
+      operatingProjects: numeric(input.portfolio.operating_projects),
+      incubatingProjects: numeric(input.portfolio.incubating_projects),
+      pausedProjects: numeric(input.portfolio.paused_projects),
+      foundryCandidates: numeric(input.portfolio.foundry_candidates),
+      actionableOpportunities: numeric(input.portfolio.actionable_opportunities),
+      tectumOperating: numeric(input.portfolio.tectum_operating) > 0,
+      foundryEconomicL2Open: input.portfolio.supervised_economic_l2_open === true,
     },
     adaptation: {
       mode,
@@ -175,6 +198,9 @@ export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput):
       failedCourts: courtSuiteFailed,
     },
     invariants: [
+      "Kairon is chief operator of the Creixement business portfolio",
+      "Tectum is a business project, not a parallel top-level authority",
+      "future projects originate from evidence-linked opportunities",
       "truth hierarchy is monotonic",
       "configuration is not execution proof",
       "unknown or stale court evidence fails closed",
@@ -194,21 +220,26 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
   let ecology: Record<string, unknown> = {};
   let courts: Record<string, unknown> = {};
   let health: Record<string, unknown> = {};
+  let portfolio: Record<string, unknown> = {};
   try {
-    const [proofRows, ecologyRows, courtRows, healthRows, recentCourtRuns] = await Promise.all([
+    const [proofRows, ecologyRows, courtRows, healthRows, portfolioRows, recentCourtRuns] = await Promise.all([
       ctx.db.select<Array<Record<string, unknown>>>("v_runtime_proof_summary_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_bioecology_dashboard_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_conway_court_status_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
+      ctx.db.select<Array<Record<string, unknown>>>("v_business_portfolio_summary_v10?select=*&limit=1"),
       ctx.db.select<CourtRunRow[]>("adversarial_court_runs_v9?select=court_key,court_type,passed,created_at&order=created_at.desc&limit=12"),
     ]);
     proof = proofRows.at(0) ?? {};
     ecology = ecologyRows.at(0) ?? {};
     courts = { ...(courtRows.at(0) ?? {}), ...summarizeLatestCourtSuite(recentCourtRuns) };
     health = healthRows.at(0) ?? {};
+    portfolio = portfolioRows.at(0) ?? {};
   } catch (error) {
     const unavailable = {
-      version: "9.3",
+      version: "10.0",
+      role: "chief-operator",
+      executiveAgent: "Kairon",
       autonomyCeiling: "L2",
       status: "supervisory-evidence-unavailable",
       reason: error instanceof Error ? error.message : String(error),
@@ -221,11 +252,11 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
     };
   }
 
-  const supervisor = compileSupervisorySnapshot({ legacy: legacy.output, proof, ecology, courts, health });
+  const supervisor = compileSupervisorySnapshot({ legacy: legacy.output, proof, ecology, courts, health, portfolio });
 
   try {
     await ctx.db.insert("kairon_learning_events_v7", {
-      event_key: `${ctx.execution.idempotency_key}:supervisor-v9.3`,
+      event_key: `${ctx.execution.idempotency_key}:supervisor-v10`,
       niche: "runtime",
       subject_ref: `job_execution:${ctx.execution.id}`,
       truth_level: "governed_source_evidence",
@@ -238,6 +269,7 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
         "view:v_conway_court_status_v9",
         "table:adversarial_court_runs_v9:latest-suite",
         "view:v_operating_health_v6",
+        "view:v_business_portfolio_summary_v10",
       ],
     }, "event_key");
 
@@ -261,6 +293,11 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
     receipt: {
       ...(legacy.receipt ?? {}),
       supervisorDigest: supervisor.proofDigest,
+      supervisorVersion: supervisor.version,
+      supervisorRole: supervisor.role,
+      operatingProjects: supervisor.portfolio.operatingProjects,
+      incubatingProjects: supervisor.portfolio.incubatingProjects,
+      foundryCandidates: supervisor.portfolio.foundryCandidates,
       supervisedEconomicL2Open: supervisor.authority.supervisedEconomicL2Open,
       courtEvidenceReady: supervisor.authority.courtEvidenceReady,
       adaptationMode: supervisor.adaptation.mode,
