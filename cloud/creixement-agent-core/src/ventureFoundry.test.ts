@@ -47,10 +47,11 @@ test("governed evidence can reach reversible incubation only with supervised L2 
   assert.equal(result.gates.evidenceGoverned, true);
 });
 
-test("closed economic gate prevents incubation without deleting the hypothesis", () => {
+test("closed economic gate prevents both experiment execution and incubation", () => {
   const result = compileVentureCandidate(base, { ...openContext, economicL2Open: false });
-  assert.equal(result.decision, "experiment");
-  assert.equal(result.stage, "experiment");
+  assert.equal(result.decision, "recommend");
+  assert.equal(result.stage, "discovery");
+  assert.equal(result.autonomy, "L1");
   assert.equal(result.gates.economicL2Open, false);
 });
 
