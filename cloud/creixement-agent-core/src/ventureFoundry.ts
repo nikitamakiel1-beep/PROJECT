@@ -212,13 +212,16 @@ export function compileVentureCandidate(
       && strategicFit
       && rightsBounded
       && riskBounded
-      && experimentCapacity;
+      && experimentCapacity
+      && economicL2Open;
 
     if (experimentReady) {
       decision = "experiment";
       stage = "experiment";
       autonomy = "L2";
-      reasons.push("bounded internal experiment satisfies the L2 exploration floor");
+      reasons.push("bounded internal experiment satisfies the L2 exploration floor and supervised economic gate");
+    } else if (!economicL2Open) {
+      reasons.push("economic L2 is closed, so Kairon retains the project as an L1 recommendation only");
     }
 
     const incubationReady = evidenceGoverned
@@ -237,8 +240,6 @@ export function compileVentureCandidate(
       stage = "incubating";
       autonomy = "L2";
       reasons.push("governed evidence and the supervised economic L2 gate permit reversible incubation");
-    } else if (decision === "experiment" && !economicL2Open) {
-      reasons.push("economic L2 is closed, so the candidate cannot be promoted into an incubating project");
     }
   }
 
