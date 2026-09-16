@@ -1,6 +1,13 @@
 export interface RuntimeEnv {
   supabaseUrl: string;
   supabaseServiceRoleKey: string;
+  /**
+   * Optional server-only managed database relay. When present, SupabaseHttp sends
+   * the existing high-entropy runtime secret to this relay as a runtime token
+   * instead of treating it as a Supabase credential. Direct Supabase remains the
+   * fallback for non-Cloudflare environments.
+   */
+  databaseRelayUrl?: string | null;
   cronSecret: string;
   apiToken: string;
   runtimeId: string;
@@ -26,6 +33,12 @@ function boundedInteger(name: string, fallback: number, min: number, max: number
   return value;
 }
 
+function optionalHttps(name: string): string | null {
+  const value = process.env[name]?.trim().replace(/\/$/, "") || null;
+  if (value && !/^https:\/\//.test(value)) throw new Error(`${name} must use HTTPS`);
+  return value;
+}
+
 export function loadOwnerToken(): string {
   return required("CREIXEMENT_OWNER_TOKEN");
 }
@@ -36,6 +49,7 @@ export function loadEnv(): RuntimeEnv {
   return {
     supabaseUrl,
     supabaseServiceRoleKey: required("SUPABASE_SERVICE_ROLE_KEY"),
+    databaseRelayUrl: optionalHttps("CREIXEMENT_DB_RELAY_URL"),
     cronSecret: required("CRON_SECRET"),
     apiToken: required("CREIXEMENT_API_TOKEN"),
     runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-runtime-v9",
