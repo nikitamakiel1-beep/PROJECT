@@ -21,6 +21,7 @@ export type {
 } from "./kairon.js";
 export * from "./kaironSupervisor.js";
 export * from "./portfolio.js";
+export * from "./ventureFoundry.js";
 export * from "./runtime.js";
 export * from "./childAgents.js";
 export * from "./connectors.js";
