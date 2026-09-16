@@ -27,6 +27,7 @@ on:
 
 permissions:
   contents: read
+  checks: read
 
 concurrency:
   group: creixement-core-${{ github.ref }}
@@ -153,7 +154,7 @@ jobs:
           test -f config/creixement-kairon-v10.json
           test -f config/creixement-kairon-supervisor-v10.json
           test -f config/creixement-business-portfolio-v10.json
-          node -e "const c=require('./config/creixement-kairon-v10.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='1.0.0'||c.runtime.runtime_id!=='kairon-cloudflare-v10'||c.runtime.migration_head!=='022_v10_business_portfolio_and_venture_foundry.sql'||c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1)"
+          node -e "const c=require('./config/creixement-kairon-v10.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='1.0.0'||c.runtime.runtime_id!=='kairon-cloudflare-v10'||c.runtime.migration_head!=='022_v10_business_portfolio_and_venture_foundry.sql'||c.runtime.release_channel!=='cloudflare-workers-builds-github'||c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1)"
           node -e "const c=require('./config/creixement-kairon-supervisor-v10.json'); if(c.operator!=='Kairon'||c.role!=='chief-operator'||c.autonomyCeiling!=='L2'||c.businessArchitecture.firstOperatingProject!=='Tectum') process.exit(1)"
           node -e "const c=require('./config/creixement-business-portfolio-v10.json'); if(c.executiveAgent!=='Kairon'||c.firstOperatingProject!=='Tectum') process.exit(1)"
           grep -q 'creixement_run_venture_foundry_v10' db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
@@ -172,34 +173,52 @@ jobs:
           fi
           echo 'cloud-only runtime boundary preserved'
 
-  deploy-cloudflare-production:
+  attest-cloudflare-production:
     if: github.event_name == 'push' && github.ref == 'refs/heads/production/creixement-kairon'
     needs: [validate-core, validate-runtime, validate-cloudflare, validate-contracts]
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     permissions:
       contents: read
-    defaults:
-      run:
-        working-directory: cloud/creixement-cloudflare-runtime
+      checks: read
     env:
-      CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-      CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-      WORKERS_CI: '1'
-      WORKERS_CI_COMMIT_SHA: ${{ github.sha }}
-      WORKERS_CI_BRANCH: production/creixement-kairon
+      GH_TOKEN: ${{ github.token }}
+      EXPECTED_CHECK: 'Workers Builds: creixement-kairon'
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '24'
-      - name: Require Cloudflare deployment credentials
+      - name: Wait for authoritative Cloudflare Workers Build receipt
         shell: bash
         run: |
           set -euo pipefail
-          test -n "${CLOUDFLARE_API_TOKEN:-}" || { echo 'CLOUDFLARE_API_TOKEN repository secret is required'; exit 2; }
-          test -n "${CLOUDFLARE_ACCOUNT_ID:-}" || { echo 'CLOUDFLARE_ACCOUNT_ID repository secret is required'; exit 2; }
-      - name: Install Cloudflare runtime dependencies
-        run: npm install --no-audit --no-fund
-      - name: Deploy attested Kairon V10 production Worker
-        run: npm run deploy:ci
+          endpoint="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100"
+          for attempt in $(seq 1 36); do
+            payload="$(curl --fail-with-body --silent --show-error \
+              -H 'Accept: application/vnd.github+json' \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H 'X-GitHub-Api-Version: 2022-11-28' \
+              "$endpoint")"
+            state="$(PAYLOAD="$payload" EXPECTED_CHECK="$EXPECTED_CHECK" node <<'NODE'
+          const data = JSON.parse(process.env.PAYLOAD || '{}');
+          const expected = process.env.EXPECTED_CHECK;
+          const run = (data.check_runs || []).find((item) => item.name === expected);
+          if (!run) process.stdout.write('missing');
+          else if (run.status !== 'completed') process.stdout.write('pending');
+          else if (run.conclusion !== 'success') process.stdout.write(`failed:${run.conclusion || 'unknown'}`);
+          else {
+            const summary = String(run.output?.summary || '');
+            if (!summary.includes('Version ID:') || !summary.includes('creixement-kairon')) process.stdout.write('failed:receipt-incomplete');
+            else process.stdout.write('success');
+          }
+          NODE
+            )"
+            echo "Cloudflare attestation attempt ${attempt}: ${state}"
+            if [ "$state" = success ]; then
+              echo "Authoritative Cloudflare Workers Build completed successfully for ${GITHUB_SHA}."
+              exit 0
+            fi
+            case "$state" in
+              failed:*) echo "Cloudflare Workers Build did not succeed: $state"; exit 1 ;;
+            esac
+            sleep 10
+          done
+          echo "Timed out waiting for ${EXPECTED_CHECK} on ${GITHUB_SHA}."
+          exit 1
