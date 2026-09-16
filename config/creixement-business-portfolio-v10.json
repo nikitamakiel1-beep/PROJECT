@@ -1,0 +1,73 @@
+{
+  "schemaVersion": "10.0.0",
+  "name": "Creixement Business Portfolio",
+  "executiveAgent": "Kairon",
+  "autonomyCeiling": "L2",
+  "mission": "Continuously operate the current business portfolio and create additional evidence-backed ventures without inventing commercial truth or crossing consequential authority boundaries.",
+  "portfolio": {
+    "currentOperatingProjects": [
+      {
+        "projectKey": "tectum",
+        "displayName": "Tectum",
+        "projectType": "real_estate_intelligence",
+        "niche": "real-estate",
+        "portfolioRole": "core",
+        "origin": "owner_seeded",
+        "truthLevel": "human_approved_business_decision",
+        "status": "operating"
+      }
+    ],
+    "futureProjectOrigin": "Kairon venture foundry",
+    "maxConcurrentOperatingOrIncubatingProjects": 12
+  },
+  "ventureFoundry": {
+    "source": "evidence-linked actionable opportunities",
+    "cadence": "37 */6 * * *",
+    "stages": ["hypothesis", "discovery", "experiment", "incubating", "operating", "scaling", "paused", "archived"],
+    "automaticExperiment": {
+      "requiresSupervisedEconomicL2Open": true,
+      "minimumTruthLevel": "evidence_backed_inference",
+      "minimumEvidenceQuality": 0.45,
+      "minimumConfidence": 0.45,
+      "minimumStrategicFit": 0.55,
+      "maximumDownsideRisk": 0.45,
+      "maximumRightsLegalComplexity": 0.5,
+      "externalEffects": false
+    },
+    "automaticIncubation": {
+      "requiresSupervisedEconomicL2Open": true,
+      "minimumTruthLevel": "governed_source_evidence",
+      "minimumEvidenceQuality": 0.65,
+      "minimumConfidence": 0.6,
+      "minimumStrategicFit": 0.55,
+      "minimumReversibility": 0.8,
+      "maximumDownsideRisk": 0.45,
+      "maximumRightsLegalComplexity": 0.5,
+      "externalEffects": false
+    },
+    "operatingPromotion": {
+      "automatic": false,
+      "minimumVerifiedExternalOutcomes": 1,
+      "minimumExecutedReceipts": 1,
+      "ownerApprovalRequired": true
+    }
+  },
+  "nonDelegable": [
+    "contracts_and_signatures",
+    "bank_transfers_and_unrestricted_payments",
+    "property_offers_or_purchases",
+    "financing_commitments",
+    "irreversible_governed_deletion",
+    "rights_or_consent_bypass",
+    "unreceipted_external_action",
+    "public_publication",
+    "external_messages_without_versioned_authorization"
+  ],
+  "truthRules": [
+    "Generated narratives and hypotheses are never represented as operating businesses.",
+    "Configuration is never execution proof.",
+    "Automatic experiments require the supervised economic L2 gate.",
+    "Automatic incubation additionally requires governed-source evidence.",
+    "Kairon-foundry ventures cannot become operating or scaling from forecasts alone."
+  ]
+}
