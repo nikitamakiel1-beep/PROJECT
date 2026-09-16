@@ -1,0 +1,1 @@
+Kairon V10 business-portfolio configuration is defined by creixement-kairon-supervisor-v10.json, creixement-business-portfolio-v10.json and creixement-kairon-supervisor-v10.counteraudit.json. The constitutional L2 ceiling remains unchanged.

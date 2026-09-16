@@ -1,6 +1,7 @@
 import { bioecologyCycle } from "./bioecologyHandler.js";
 import { conwayCourtCycle } from "./conwayCourtHandler.js";
 import { kaironSupervisedControlCycle } from "./kaironSupervisorHandler.js";
+import { ventureFoundryCycle } from "./ventureFoundryHandler.js";
 import {
   runHandler as runLegacyHandler,
   writeJobReceipt,
@@ -15,6 +16,9 @@ export { writeJobReceipt };
 export async function runHandler(ctx: HandlerContext): Promise<HandlerResult> {
   if (ctx.definition.handler_key === "kairon.control_cycle") {
     return kaironSupervisedControlCycle(ctx);
+  }
+  if (ctx.definition.handler_key === "business.venture_foundry_cycle") {
+    return ventureFoundryCycle(ctx);
   }
   if (ctx.definition.handler_key === "evolution.bioecology_cycle") {
     return bioecologyCycle(ctx);
