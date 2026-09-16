@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import type { RuntimeEnv } from "../../creixement-runtime/src/env.js";
 import { SupabaseHttp } from "../../creixement-runtime/src/supabase.js";
 
@@ -63,6 +64,12 @@ export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string
   const ownerBindingConfigured = present(env.CREIXEMENT_OWNER_TOKEN);
   const runtime = runtimeEnv(env);
   const now = Date.now();
+  // Bootstrap-only, one-way fingerprint used to bind the existing Cloudflare secret
+  // to a server-side relay without exposing the raw secret. This field is removed
+  // before any production merge.
+  const bootstrapCredentialFingerprint = present(env.SUPABASE_SERVICE_ROLE_KEY)
+    ? createHash("sha256").update(env.SUPABASE_SERVICE_ROLE_KEY!.trim()).digest("hex")
+    : null;
 
   let databaseReachable = false;
   let databaseState = runtime ? "unchecked" : "configuration_missing";
@@ -118,6 +125,7 @@ export async function diagnoseRuntime(env: DiagnosticEnv): Promise<Record<string
       commit: configuredCommit ? configuredCommit.slice(0, 12) : "unattested",
       cloudflareVersionId: env.CF_VERSION_METADATA?.id ?? null,
       cloudflareVersionTimestamp: env.CF_VERSION_METADATA?.timestamp ?? null,
+      bootstrapCredentialFingerprint,
     },
     database: { reachable: databaseReachable, state: databaseState },
     scheduler: {
