@@ -3,7 +3,6 @@ name: Creixement Runtime Proof
 on:
   push:
     branches:
-      - 'codex/**'
       - production/creixement-kairon
   workflow_dispatch:
 
@@ -15,35 +14,64 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  probe-production-runtime:
+  prove-production-runtime:
+    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/production/creixement-kairon'
     runs-on: ubuntu-latest
-    timeout-minutes: 4
+    timeout-minutes: 10
     steps:
-      - name: Probe safe production diagnostics
+      - name: Wait for exact production runtime proof
         shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
           set -euo pipefail
           url='https://creixement-kairon.nikitamakiel1.workers.dev/diagz'
-          payload="$(curl --fail-with-body --silent --show-error --max-time 20 "$url")"
-          echo "$payload" | python -m json.tool
-          PAYLOAD="$payload" python - <<'PY'
-          import json, os, sys
+          last='{}'
+          for attempt in $(seq 1 32); do
+            payload="$(curl --fail-with-body --silent --show-error --max-time 20 "$url")"
+            last="$payload"
+            state="$(PAYLOAD="$payload" EXPECTED_SHA="$EXPECTED_SHA" python - <<'PY'
+          import json, os
           d=json.loads(os.environ['PAYLOAD'])
           cfg=d.get('configuration') or {}
           db=d.get('database') or {}
           sched=d.get('scheduler') or {}
           truth=d.get('truth') or {}
+          expected=(os.environ.get('EXPECTED_SHA') or '')[:12]
+          actual=str(cfg.get('commit') or '')[:12]
           checks={
             'workerResponding': truth.get('workerResponding') is True,
+            'exactDeployedCommit': bool(expected) and actual == expected,
             'schedulerBindingsConfigured': cfg.get('schedulerBindingsConfigured') is True,
             'databaseReachable': db.get('reachable') is True,
             'heartbeatFound': sched.get('heartbeatFound') is True,
             'heartbeatFresh': sched.get('heartbeatFresh') is True,
             'schedulerExecutionVerified': truth.get('schedulerExecutionVerified') is True,
+            'exactHeartbeatCommit': truth.get('exactCommitVerified') is True,
           }
-          print('SAFE_RUNTIME_PROOF=' + json.dumps(checks, sort_keys=True))
           failed=[k for k,v in checks.items() if not v]
-          if failed:
-            print('Runtime proof incomplete: ' + ', '.join(failed), file=sys.stderr)
-            sys.exit(1)
+          print('success' if not failed else 'pending:' + ','.join(failed))
           PY
+            )"
+            echo "Runtime proof attempt ${attempt}: ${state}"
+            if [ "$state" = success ]; then
+              echo "$payload" | python -m json.tool
+              exit 0
+            fi
+            # Configuration/auth failures cannot heal by waiting for another cron.
+            db_state="$(PAYLOAD="$payload" python - <<'PY'
+          import json, os
+          d=json.loads(os.environ['PAYLOAD'])
+          print((d.get('database') or {}).get('state') or 'unknown')
+          PY
+            )"
+            if [ "$db_state" = unauthorized ] || [ "$db_state" = forbidden ] || [ "$db_state" = configuration_missing ]; then
+              echo "$payload" | python -m json.tool
+              echo "Production runtime credential/configuration failure: ${db_state}" >&2
+              exit 1
+            fi
+            sleep 15
+          done
+          echo "$last" | python -m json.tool
+          echo 'Timed out waiting for a healthy scheduled heartbeat from the exact production commit.' >&2
+          exit 1
