@@ -16,8 +16,14 @@ type RuntimeEnv = Parameters<typeof runtimeWorker.fetch>[1] & DiagnosticEnv & {
 
 function effectiveEnv(env: RuntimeEnv): RuntimeEnv {
   const commitSha = env.CREIXEMENT_COMMIT_SHA?.trim() || BUILD_COMMIT_SHA;
+  const relayUrl = env.CREIXEMENT_DB_RELAY_URL?.trim().replace(/\/$/, "") || null;
   return {
     ...env,
+    // The delegated legacy HTTP worker does not know about the new relay binding.
+    // When relay mode is active, present the relay as its database base URL; the
+    // shared SupabaseHttp transport recognizes only the exact /api/runtime-db path
+    // and still sends runtime-token + runtime-id headers rather than Supabase auth.
+    ...(relayUrl ? { SUPABASE_URL: relayUrl } : {}),
     ...(commitSha ? { CREIXEMENT_COMMIT_SHA: commitSha } : {}),
     CREIXEMENT_BRANCH: env.CREIXEMENT_BRANCH?.trim() || BUILD_BRANCH || "production/creixement-kairon",
     CREIXEMENT_RUNTIME_ID: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v10",
@@ -47,7 +53,6 @@ function scheduledRuntimeEnv(env: RuntimeEnv): CoreRuntimeEnv {
     supabaseUrl,
     supabaseServiceRoleKey: requiredBinding(env.SUPABASE_SERVICE_ROLE_KEY, "SUPABASE_SERVICE_ROLE_KEY"),
     databaseRelayUrl: relayUrl,
-    // HTTP auth is intentionally not a prerequisite for internal scheduled execution.
     cronSecret: "__internal_scheduler_not_applicable__",
     apiToken: "__internal_scheduler_not_applicable__",
     runtimeId: env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-cloudflare-v10",
