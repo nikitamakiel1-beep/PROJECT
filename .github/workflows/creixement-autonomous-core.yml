@@ -97,6 +97,7 @@ jobs:
           grep -q 'crons = \["\*/5 \* \* \* \*"\]' wrangler.toml
           grep -q 'CREIXEMENT_RUNTIME_ID = "kairon-cloudflare-v10"' wrangler.toml
           grep -q 'CREIXEMENT_RUNTIME_VERSION = "1.0.0"' wrangler.toml
+          grep -q 'CREIXEMENT_DB_RELAY_URL = "https://creixement-ops-hub.lovable.app/api/runtime-db"' wrangler.toml
           grep -q 'WORKERS_CI_COMMIT_SHA' scripts/deploy-ci.mjs
           grep -q 'kairon-cloudflare-v10' scripts/deploy-ci.mjs
           grep -q 'CREIXEMENT_RUNTIME_VERSION:1.0.0' scripts/deploy-ci.mjs
@@ -149,20 +150,25 @@ jobs:
             db/migrations/020_v9_population_and_courts_runtime.sql
             db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
             db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
+            db/migrations/023_v10_runtime_health_convergence.sql
           )
           for migration in "${migrations[@]}"; do test -f "$migration"; done
           test -f config/creixement-kairon-v10.json
           test -f config/creixement-kairon-supervisor-v10.json
           test -f config/creixement-business-portfolio-v10.json
-          node -e "const c=require('./config/creixement-kairon-v10.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='1.0.0'||c.runtime.runtime_id!=='kairon-cloudflare-v10'||c.runtime.migration_head!=='022_v10_business_portfolio_and_venture_foundry.sql'||c.runtime.release_channel!=='cloudflare-workers-builds-github'||c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1)"
+          node -e "const c=require('./config/creixement-kairon-v10.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='1.0.0'||c.runtime.runtime_id!=='kairon-cloudflare-v10'||c.runtime.migration_head!=='023_v10_runtime_health_convergence.sql'||c.runtime.release_channel!=='cloudflare-workers-builds-github'||c.runtime.data_plane!=='authenticated-managed-relay'||c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1)"
           node -e "const c=require('./config/creixement-kairon-supervisor-v10.json'); if(c.operator!=='Kairon'||c.role!=='chief-operator'||c.autonomyCeiling!=='L2'||c.businessArchitecture.firstOperatingProject!=='Tectum') process.exit(1)"
           node -e "const c=require('./config/creixement-business-portfolio-v10.json'); if(c.executiveAgent!=='Kairon'||c.firstOperatingProject!=='Tectum') process.exit(1)"
           grep -q 'creixement_run_venture_foundry_v10' db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
           grep -q 'business.venture_foundry_cycle' db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
-          grep -q 'runtime_heartbeat_samples_v9' db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
+          grep -q "runtime_id='kairon-cloudflare-v10'" db/migrations/023_v10_runtime_health_convergence.sql
+          grep -q 'runtime-reconcile-v10.1' db/migrations/023_v10_runtime_health_convergence.sql
+          grep -q 'on conflict do update' db/migrations/023_v10_runtime_health_convergence.sql
+          grep -q "goal_key='deploy-cloud-runtime'" db/migrations/023_v10_runtime_health_convergence.sql
+          grep -q "goal_key='complete-lovable-cockpit'" db/migrations/023_v10_runtime_health_convergence.sql
           grep -q 'creixement.runtime.heartbeat_failure' cloud/creixement-runtime/src/tick.ts
           node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='1.0.0') process.exit(1)"
-          echo 'Kairon V10 runtime, portfolio, migrations and proof contracts present'
+          echo 'Kairon V10 runtime, portfolio, health convergence, migrations and proof contracts present'
       - name: Reject active local-runtime regressions
         shell: bash
         run: |

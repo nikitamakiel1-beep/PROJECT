@@ -1,5 +1,5 @@
 {
-  "schema_version": "10.0.0",
+  "schema_version": "10.0.1",
   "operator": {
     "name": "Kairon",
     "role": "Autonomous Chief Operator of Creixement",
@@ -11,9 +11,11 @@
   "runtime": {
     "version": "1.0.0",
     "runtime_id": "kairon-cloudflare-v10",
-    "migration_head": "022_v10_business_portfolio_and_venture_foundry.sql",
+    "migration_head": "023_v10_runtime_health_convergence.sql",
     "primary": "cloudflare-workers",
     "state_authority": "supabase-postgresql",
+    "data_plane": "authenticated-managed-relay",
+    "relay_url_binding": "CREIXEMENT_DB_RELAY_URL",
     "release_channel": "cloudflare-workers-builds-github",
     "release_trigger": "push-to-production/creixement-kairon",
     "release_receipt": "GitHub check named Workers Builds: creixement-kairon with successful conclusion and Cloudflare Version ID",
@@ -23,7 +25,7 @@
     "diagnostic_secret_values_exposed": false,
     "scheduler": {
       "cron": "*/5 * * * *",
-      "required_bindings": ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY"],
+      "required_bindings": ["SUPABASE_URL", "SUPABASE_SERVICE_ROLE_KEY", "CREIXEMENT_DB_RELAY_URL"],
       "primary_binding_key": "cloudflare-primary-heartbeat",
       "automatic_verification": true,
       "proof_window_minutes": 30,
@@ -68,6 +70,7 @@
     "Commercial forecasts never become verified revenue without external proof.",
     "Only the fully merged production branch is deployable.",
     "A successful Cloudflare build receipt proves deployment, not healthy scheduled execution.",
-    "A green validation build is not a live-runtime heartbeat."
+    "A green validation build is not a live-runtime heartbeat.",
+    "Scheduler verification must be derived from healthy Kairon V10 tick_completed samples."
   ]
 }
