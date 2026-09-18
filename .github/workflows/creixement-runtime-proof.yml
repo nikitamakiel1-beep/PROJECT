@@ -17,37 +17,47 @@ jobs:
   prove-production-runtime:
     if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/production/creixement-kairon'
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 24
     steps:
-      - name: Wait for exact production runtime proof
+      - name: Wait for exact Kairon V11 production proof
         shell: bash
         env:
           EXPECTED_SHA: ${{ github.sha }}
+          RUNTIME_PROOF_URL: https://creixement-kairon-runtime-nikitamakiel1-9651s-projects.vercel.app/api/diagz
         run: |
           set -euo pipefail
-          url='https://creixement-kairon.nikitamakiel1.workers.dev/diagz'
           last='{}'
-          for attempt in $(seq 1 32); do
-            payload="$(curl --fail-with-body --silent --show-error --max-time 20 "$url")"
+          for attempt in $(seq 1 70); do
+            payload="$(curl --silent --show-error --max-time 20 "$RUNTIME_PROOF_URL" || true)"
+            if [ -z "$payload" ]; then
+              echo "Runtime proof attempt ${attempt}: endpoint not ready"
+              sleep 20
+              continue
+            fi
             last="$payload"
             state="$(PAYLOAD="$payload" EXPECTED_SHA="$EXPECTED_SHA" python - <<'PY'
           import json, os
-          d=json.loads(os.environ['PAYLOAD'])
+          try:
+              d=json.loads(os.environ['PAYLOAD'])
+          except Exception:
+              print('pending:non-json')
+              raise SystemExit
           cfg=d.get('configuration') or {}
-          db=d.get('database') or {}
-          sched=d.get('scheduler') or {}
+          hb=d.get('heartbeat') or {}
+          cadence=d.get('cadence') or {}
           truth=d.get('truth') or {}
           expected=(os.environ.get('EXPECTED_SHA') or '')[:12]
           actual=str(cfg.get('commit') or '')[:12]
           checks={
-            'workerResponding': truth.get('workerResponding') is True,
+            'vercelCompute': d.get('platform') == 'vercel-functions',
+            'supabaseScheduler': d.get('scheduler') == 'supabase-pg-cron',
+            'cloudflareRetiredAsAuthority': truth.get('cloudflareAuthoritative') is False,
             'exactDeployedCommit': bool(expected) and actual == expected,
-            'schedulerBindingsConfigured': cfg.get('schedulerBindingsConfigured') is True,
-            'databaseReachable': db.get('reachable') is True,
-            'heartbeatFound': sched.get('heartbeatFound') is True,
-            'heartbeatFresh': sched.get('heartbeatFresh') is True,
-            'schedulerExecutionVerified': truth.get('schedulerExecutionVerified') is True,
-            'exactHeartbeatCommit': truth.get('exactCommitVerified') is True,
+            'heartbeatHealthy': hb.get('status') == 'healthy',
+            'heartbeatFresh': hb.get('fresh') is True,
+            'exactHeartbeatCommit': hb.get('commitMatches') is True,
+            'cadenceStable': cadence.get('stable') is True,
+            'schedulerVerified': cadence.get('schedulerVerified') is True,
           }
           failed=[k for k,v in checks.items() if not v]
           print('success' if not failed else 'pending:' + ','.join(failed))
@@ -58,20 +68,8 @@ jobs:
               echo "$payload" | python -m json.tool
               exit 0
             fi
-            # Configuration/auth failures cannot heal by waiting for another cron.
-            db_state="$(PAYLOAD="$payload" python - <<'PY'
-          import json, os
-          d=json.loads(os.environ['PAYLOAD'])
-          print((d.get('database') or {}).get('state') or 'unknown')
-          PY
-            )"
-            if [ "$db_state" = unauthorized ] || [ "$db_state" = forbidden ] || [ "$db_state" = configuration_missing ]; then
-              echo "$payload" | python -m json.tool
-              echo "Production runtime credential/configuration failure: ${db_state}" >&2
-              exit 1
-            fi
-            sleep 15
+            sleep 20
           done
-          echo "$last" | python -m json.tool
-          echo 'Timed out waiting for a healthy scheduled heartbeat from the exact production commit.' >&2
+          echo "$last" | python -m json.tool || true
+          echo 'Timed out waiting for exact Kairon V11 Vercel/Supabase runtime proof.' >&2
           exit 1
