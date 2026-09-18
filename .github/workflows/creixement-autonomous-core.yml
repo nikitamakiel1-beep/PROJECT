@@ -126,7 +126,7 @@ jobs:
           grep -q 'creixement_auto_verify_primary_scheduler_v11' db/migrations/024_v11_vercel_supabase_runtime_migration.sql
           grep -q "runtime_id='kairon-cloudflare-v10'" db/migrations/024_v11_vercel_supabase_runtime_migration.sql
           grep -q "set active=false" db/migrations/024_v11_vercel_supabase_runtime_migration.sql
-          grep -q 'cloudflareAuthoritative' config/creixement-kairon-v11.json
+          grep -q '"cloudflare"' config/creixement-kairon-v11.json\n          grep -q '"authoritative": false' config/creixement-kairon-v11.json
           grep -q 'creixement.runtime.heartbeat_failure' cloud/creixement-runtime/src/tick.ts
       - name: Reject local-runtime and Cloudflare-authority regressions
         shell: bash
