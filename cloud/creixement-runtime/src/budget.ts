@@ -91,7 +91,7 @@ export async function authorizeAgentRunBudget(db: SupabaseHttp, input: {
     action_class: input.actionClass,
     actor_agent: input.actorAgent,
     agent_runs: 1,
-    metadata: { runtime: "creixement-cloud-runtime-v6.1", operatingTimeZone: "Europe/Madrid" },
+    metadata: { runtime: "kairon-managed-runtime-v11", operatingTimeZone: "Europe/Madrid" },
   }, "idempotency_key");
 
   return { allowed: true, reason: "Global daily agent-run budget reserved.", budgetId: budget.id };

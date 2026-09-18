@@ -1,0 +1,88 @@
+{
+  "schema_version": "11.0.0",
+  "operator": {
+    "name": "Kairon",
+    "role": "Autonomous Chief Operator of Creixement",
+    "autonomy_ceiling": "L2",
+    "production_branch": "production/creixement-kairon",
+    "cloud_only": true,
+    "sentience_claims": false
+  },
+  "runtime": {
+    "version": "1.1.0",
+    "runtime_id": "kairon-vercel-v11",
+    "migration_head": "024_v11_vercel_supabase_runtime_migration.sql",
+    "primary": "vercel-functions",
+    "state_authority": "supabase-postgresql",
+    "data_plane": "authenticated-managed-relay",
+    "relay_url_binding": "CREIXEMENT_DB_RELAY_URL",
+    "release_channel": "vercel-managed-deployment",
+    "release_trigger": "merged production source deployed from exact production SHA",
+    "heartbeat_minutes": 5,
+    "heartbeat_fail_closed": true,
+    "public_diagnostic_path": "/api/diagz",
+    "diagnostic_secret_values_exposed": false,
+    "scheduler": {
+      "provider": "supabase-pg-cron",
+      "transport": "pg_net",
+      "cron": "*/5 * * * *",
+      "primary_binding_key": "supabase-pg-cron-kairon-v11",
+      "secret_storage": "supabase-vault",
+      "automatic_verification": true,
+      "proof_window_minutes": 30,
+      "healthy_samples_required": 3,
+      "vercel_cron_authoritative": false
+    },
+    "proof": {
+      "current_state_relation": "runtime_heartbeats_v5",
+      "append_only_relation": "runtime_heartbeat_samples_v9",
+      "cadence_view": "v_runtime_cadence_proof_v11",
+      "summary_view": "v_runtime_proof_summary_v11",
+      "truth_rule": "Deployment does not prove execution. The primary runtime is verified only by healthy exact-commit samples produced through the Supabase scheduler."
+    },
+    "retired_paths": {
+      "cloudflare": {
+        "authoritative": false,
+        "disable_after_v11_cadence_proof": true
+      },
+      "vercel_hobby_cron": {
+        "authoritative": false,
+        "reason": "five-minute scheduling is supplied by Supabase pg_cron"
+      }
+    }
+  },
+  "business": {
+    "workspace": "Business",
+    "executive_agent": "Kairon",
+    "first_operating_project": "Tectum",
+    "project_relation": "business_projects_v10",
+    "foundry_relation": "business_project_candidates_v10",
+    "venture_foundry_handler": "business.venture_foundry_cycle",
+    "auto_operating_promotion": false,
+    "operating_promotion_requires": [
+      "owner approval",
+      "verified external outcome",
+      "executed connector receipt"
+    ]
+  },
+  "constitutional_membrane": {
+    "unknown_authority": "fail-closed",
+    "stale_or_partial_courts": "fail-closed",
+    "payments": "L3-owner-only",
+    "contracts": "L3-owner-only",
+    "financing": "L3-owner-only",
+    "property_commitments": "L3-owner-only",
+    "irreversible_deletion": "L3-owner-only",
+    "authority_self_expansion": false
+  },
+  "release_invariants": [
+    "Kairon leads Creixement but cannot expand its own authority.",
+    "Tectum is Project 01 inside Business, not a peer control plane.",
+    "Future projects originate from evidence-linked opportunities.",
+    "Commercial forecasts never become verified revenue without external proof.",
+    "Only fully merged production source is eligible for the authoritative deployment.",
+    "Supabase pg_cron is the authoritative five-minute scheduler; Vercel Cron is not.",
+    "Cloudflare is retired only after healthy V11 cadence proof.",
+    "A deployment receipt is not a live-runtime heartbeat."
+  ]
+}

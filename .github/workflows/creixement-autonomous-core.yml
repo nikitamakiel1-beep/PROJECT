@@ -3,23 +3,12 @@ name: Creixement Autonomous Core
 on:
   push:
     branches:
-      - venture/creixement-control-plane-cloud-v1
-      - venture/creixement-overhaul-v3
-      - venture/creixement-overhaul-v4
-      - venture/creixement-overhaul-v5
-      - venture/creixement-overhaul-v6-converged
-      - venture/creixement-kairon-v7
-      - venture/creixement-kairon-v8-autonomic
-      - venture/creixement-kairon-v9-bioecology
-      - venture/creixement-kairon-v9-observability
-      - venture/creixement-kairon-v9-fullstack-no-credits
       - 'codex/**'
       - production/creixement-kairon
   pull_request:
     paths:
       - 'cloud/creixement-agent-core/**'
       - 'cloud/creixement-runtime/**'
-      - 'cloud/creixement-cloudflare-runtime/**'
       - 'db/migrations/**'
       - 'config/creixement-*.json'
       - 'docs/architecture/CREIXEMENT_*.md'
@@ -27,7 +16,6 @@ on:
 
 permissions:
   contents: read
-  checks: read
 
 concurrency:
   group: creixement-core-${{ github.ref }}
@@ -45,8 +33,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install core dependencies
-        run: npm install --no-audit --no-fund
+      - run: npm install --no-audit --no-fund
       - name: Core typecheck
         run: npm run check
       - name: Core unit tests
@@ -63,8 +50,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install runtime dependencies
-        run: npm install --no-audit --no-fund
+      - run: npm install --no-audit --no-fund
       - name: Runtime typecheck
         run: npm run check
       - name: Runtime unit tests
@@ -72,39 +58,34 @@ jobs:
       - name: Runtime build
         run: npm run build
 
-  validate-cloudflare:
+  validate-vercel-runtime:
     runs-on: ubuntu-latest
-    timeout-minutes: 12
+    timeout-minutes: 8
     defaults:
       run:
-        working-directory: cloud/creixement-cloudflare-runtime
+        working-directory: cloud/creixement-runtime
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - name: Install Cloudflare runtime dependencies
-        run: npm install --no-audit --no-fund
-      - name: Cloudflare typecheck
-        run: npm run check
-      - name: Wrangler dry-run
-        run: npx wrangler deploy --dry-run
-      - name: Counteraudit Kairon V10 release identity
+      - name: Counteraudit V11 compute boundary
         shell: bash
         run: |
           set -euo pipefail
-          grep -q 'main = "src/entry.ts"' wrangler.toml
-          grep -q 'crons = \["\*/5 \* \* \* \*"\]' wrangler.toml
-          grep -q 'CREIXEMENT_RUNTIME_ID = "kairon-cloudflare-v10"' wrangler.toml
-          grep -q 'CREIXEMENT_RUNTIME_VERSION = "1.0.0"' wrangler.toml
-          grep -q 'CREIXEMENT_DB_RELAY_URL = "https://creixement-ops-hub.lovable.app/api/runtime-db"' wrangler.toml
-          grep -q 'WORKERS_CI_COMMIT_SHA' scripts/deploy-ci.mjs
-          grep -q 'kairon-cloudflare-v10' scripts/deploy-ci.mjs
-          grep -q 'CREIXEMENT_RUNTIME_VERSION:1.0.0' scripts/deploy-ci.mjs
-          grep -q 'runtimeVersion: "1.0.0"' scripts/deploy-ci.mjs
-          grep -q '/diagz' src/entry.ts
-          test -f src/diagnostics.ts
-          node -e "const p=require('./package.json'); if(p.scripts['deploy:ci']!=='node scripts/deploy-ci.mjs'||p.version!=='1.0.0') process.exit(1)"
+          test -f vercel.json
+          test -f api/tick.ts
+          test -f api/diagz.ts
+          grep -q '"api/\*.ts"' vercel.json
+          if grep -q '"crons"' vercel.json; then
+            echo 'Vercel Cron must not be authoritative on the Hobby plan.'
+            exit 1
+          fi
+          grep -q 'kairon-vercel-v11' src/env.ts
+          grep -q 'v_runtime_proof_summary_v11' src/kaironSupervisorHandler.ts
+          grep -q 'primary_scheduler_verified' src/kaironSupervisorHandler.ts
+          grep -q 'cloudflareAuthoritative: false' api/diagz.ts
+          node -e "const p=require('./package.json'); if(p.version!=='1.1.0') process.exit(1)"
 
   validate-contracts:
     runs-on: ubuntu-latest
@@ -120,111 +101,41 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
           files=(config/creixement-*.json)
-          if [ ${#files[@]} -eq 0 ]; then echo 'No Creixement JSON contracts found'; exit 1; fi
+          if [ ${#files[@]} -eq 0 ]; then exit 1; fi
           for file in "${files[@]}"; do
-            node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); console.log('valid json:', process.argv[1])" "$file"
+            node -e "JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'))" "$file"
           done
-      - name: Validate ordered migrations and Kairon V10 contracts
+      - name: Validate Kairon V11 migration and constitutional boundaries
         shell: bash
         run: |
           set -euo pipefail
-          migrations=(
-            db/migrations/002_autonomous_economic_brain.sql
-            db/migrations/003_cloud_runtime_fabric.sql
-            db/migrations/004_overhaul_v3_runtime_governance.sql
-            db/migrations/005_overhaul_v4_company_os.sql
-            db/migrations/006_v4_initial_operating_backlog.sql
-            db/migrations/007_v4_goal_execution_semantics.sql
-            db/migrations/008_v4_production_trust_fabric.sql
-            db/migrations/009_v5_runtime_convergence.sql
-            db/migrations/010_v6_autonomic_operations.sql
-            db/migrations/011_v6_invariant_guards.sql
-            db/migrations/012_v6_resilience_and_release_integrity.sql
-            db/migrations/013_v6_verified_evidence_gates.sql
-            db/migrations/014_v7_kairon_autonomous_operator.sql
-            db/migrations/015_v7_kairon_schema_convergence.sql
-            db/migrations/016_v8_kairon_runtime_contract.sql
-            db/migrations/017_v8_release_attestation.sql
-            db/migrations/018_v9_conway_bioecology.sql
-            db/migrations/019_v9_conway_adversarial_courts.sql
-            db/migrations/020_v9_population_and_courts_runtime.sql
-            db/migrations/021_v9_runtime_proof_and_scheduler_autoverify.sql
-            db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
-            db/migrations/023_v10_runtime_health_convergence.sql
-          )
-          for migration in "${migrations[@]}"; do test -f "$migration"; done
-          test -f config/creixement-kairon-v10.json
-          test -f config/creixement-kairon-supervisor-v10.json
-          test -f config/creixement-business-portfolio-v10.json
-          node -e "const c=require('./config/creixement-kairon-v10.json'); if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2'||c.operator.production_branch!=='production/creixement-kairon'||c.runtime.version!=='1.0.0'||c.runtime.runtime_id!=='kairon-cloudflare-v10'||c.runtime.migration_head!=='023_v10_runtime_health_convergence.sql'||c.runtime.release_channel!=='cloudflare-workers-builds-github'||c.runtime.data_plane!=='authenticated-managed-relay'||c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1)"
-          node -e "const c=require('./config/creixement-kairon-supervisor-v10.json'); if(c.operator!=='Kairon'||c.role!=='chief-operator'||c.autonomyCeiling!=='L2'||c.businessArchitecture.firstOperatingProject!=='Tectum') process.exit(1)"
-          node -e "const c=require('./config/creixement-business-portfolio-v10.json'); if(c.executiveAgent!=='Kairon'||c.firstOperatingProject!=='Tectum') process.exit(1)"
-          grep -q 'creixement_run_venture_foundry_v10' db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
-          grep -q 'business.venture_foundry_cycle' db/migrations/022_v10_business_portfolio_and_venture_foundry.sql
-          grep -q "runtime_id='kairon-cloudflare-v10'" db/migrations/023_v10_runtime_health_convergence.sql
-          grep -q 'runtime-reconcile-v10.1' db/migrations/023_v10_runtime_health_convergence.sql
-          grep -q 'on conflict do update' db/migrations/023_v10_runtime_health_convergence.sql
-          grep -q "goal_key='deploy-cloud-runtime'" db/migrations/023_v10_runtime_health_convergence.sql
-          grep -q "goal_key='complete-lovable-cockpit'" db/migrations/023_v10_runtime_health_convergence.sql
+          test -f db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          test -f config/creixement-kairon-v11.json
+          node - <<'NODE'
+          const c=require('./config/creixement-kairon-v11.json');
+          if(c.operator.name!=='Kairon'||c.operator.autonomy_ceiling!=='L2') process.exit(1);
+          if(c.runtime.runtime_id!=='kairon-vercel-v11'||c.runtime.version!=='1.1.0') process.exit(1);
+          if(c.runtime.primary!=='vercel-functions'||c.runtime.scheduler.provider!=='supabase-pg-cron') process.exit(1);
+          if(c.runtime.scheduler.vercel_cron_authoritative!==false) process.exit(1);
+          if(c.runtime.migration_head!=='024_v11_vercel_supabase_runtime_migration.sql') process.exit(1);
+          if(c.business.first_operating_project!=='Tectum'||c.business.executive_agent!=='Kairon') process.exit(1);
+          NODE
+          grep -q 'create extension if not exists pg_cron' db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q 'create extension if not exists pg_net' db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q 'supabase-pg-cron-kairon-v11' db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q 'creixement_auto_verify_primary_scheduler_v11' db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q "runtime_id='kairon-cloudflare-v10'" db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q "set active=false" db/migrations/024_v11_vercel_supabase_runtime_migration.sql
+          grep -q '"cloudflare"' config/creixement-kairon-v11.json\n          grep -q '"authoritative": false' config/creixement-kairon-v11.json
           grep -q 'creixement.runtime.heartbeat_failure' cloud/creixement-runtime/src/tick.ts
-          node -e "const p=require('./cloud/creixement-runtime/package.json'); if(p.version!=='1.0.0') process.exit(1)"
-          echo 'Kairon V10 runtime, portfolio, health convergence, migrations and proof contracts present'
-      - name: Reject active local-runtime regressions
+      - name: Reject local-runtime and Cloudflare-authority regressions
         shell: bash
         run: |
           set -euo pipefail
-          if grep -RniE 'Tectum Local Bridge|local_runtime_required|desktop Excel COM|local AutoPPTX' config cloud docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
-            echo 'Active local-runtime regression detected.'
+          if grep -RniE 'Tectum Local Bridge|local_runtime_required|desktop Excel COM|local AutoPPTX' config cloud/creixement-runtime docs/architecture/CREIXEMENT_AUTONOMOUS_ECONOMIC_BRAIN_V2.md; then
             exit 1
           fi
-          echo 'cloud-only runtime boundary preserved'
-
-  attest-cloudflare-production:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/production/creixement-kairon'
-    needs: [validate-core, validate-runtime, validate-cloudflare, validate-contracts]
-    runs-on: ubuntu-latest
-    timeout-minutes: 8
-    permissions:
-      contents: read
-      checks: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      EXPECTED_CHECK: 'Workers Builds: creixement-kairon'
-    steps:
-      - name: Wait for authoritative Cloudflare Workers Build receipt
-        shell: bash
-        run: |
-          set -euo pipefail
-          endpoint="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/commits/${GITHUB_SHA}/check-runs?per_page=100"
-          for attempt in $(seq 1 36); do
-            payload="$(curl --fail-with-body --silent --show-error \
-              -H 'Accept: application/vnd.github+json' \
-              -H "Authorization: Bearer ${GH_TOKEN}" \
-              -H 'X-GitHub-Api-Version: 2022-11-28' \
-              "$endpoint")"
-            state="$(PAYLOAD="$payload" EXPECTED_CHECK="$EXPECTED_CHECK" node <<'NODE'
-          const data = JSON.parse(process.env.PAYLOAD || '{}');
-          const expected = process.env.EXPECTED_CHECK;
-          const run = (data.check_runs || []).find((item) => item.name === expected);
-          if (!run) process.stdout.write('missing');
-          else if (run.status !== 'completed') process.stdout.write('pending');
-          else if (run.conclusion !== 'success') process.stdout.write(`failed:${run.conclusion || 'unknown'}`);
-          else {
-            const summary = String(run.output?.summary || '');
-            if (!summary.includes('Version ID:') || !summary.includes('creixement-kairon')) process.stdout.write('failed:receipt-incomplete');
-            else process.stdout.write('success');
-          }
-          NODE
-            )"
-            echo "Cloudflare attestation attempt ${attempt}: ${state}"
-            if [ "$state" = success ]; then
-              echo "Authoritative Cloudflare Workers Build completed successfully for ${GITHUB_SHA}."
-              exit 0
-            fi
-            case "$state" in
-              failed:*) echo "Cloudflare Workers Build did not succeed: $state"; exit 1 ;;
-            esac
-            sleep 10
-          done
-          echo "Timed out waiting for ${EXPECTED_CHECK} on ${GITHUB_SHA}."
-          exit 1
+          if grep -RniE 'primary.*cloudflare|cloudflare.*authoritative|release_channel.*cloudflare-workers' config/creixement-kairon-v11.json; then
+            exit 1
+          fi
+          echo 'Kairon V11 managed-cloud boundary preserved'

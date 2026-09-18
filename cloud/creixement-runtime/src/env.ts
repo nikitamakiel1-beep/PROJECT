@@ -4,8 +4,8 @@ export interface RuntimeEnv {
   /**
    * Optional server-only managed database relay. When present, SupabaseHttp sends
    * the existing high-entropy runtime secret to this relay as a runtime token
-   * instead of treating it as a Supabase credential. Direct Supabase remains the
-   * fallback for non-Cloudflare environments.
+   * instead of treating it as a Supabase credential. Direct Supabase remains a
+   * compatibility fallback; production V11 uses the managed relay.
    */
   databaseRelayUrl?: string | null;
   cronSecret: string;
@@ -52,8 +52,8 @@ export function loadEnv(): RuntimeEnv {
     databaseRelayUrl: optionalHttps("CREIXEMENT_DB_RELAY_URL"),
     cronSecret: required("CRON_SECRET"),
     apiToken: required("CREIXEMENT_API_TOKEN"),
-    runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-runtime-v9",
-    runtimeVersion: process.env.CREIXEMENT_RUNTIME_VERSION?.trim() || "0.9.0",
+    runtimeId: process.env.CREIXEMENT_RUNTIME_ID?.trim() || "kairon-vercel-v11",
+    runtimeVersion: process.env.CREIXEMENT_RUNTIME_VERSION?.trim() || "1.1.0",
     commitSha: process.env.VERCEL_GIT_COMMIT_SHA?.trim() || process.env.CREIXEMENT_COMMIT_SHA?.trim() || null,
     environment: process.env.VERCEL_ENV?.trim() || process.env.NODE_ENV?.trim() || "production",
     requestTimeoutMs: boundedInteger("CREIXEMENT_DB_TIMEOUT_MS", 8000, 1000, 30000),

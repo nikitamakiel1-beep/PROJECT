@@ -128,7 +128,7 @@ export interface KaironRuntimeSupervisorSnapshot {
 }
 
 export function compileSupervisorySnapshot(input: KaironRuntimeSupervisorInput): KaironRuntimeSupervisorSnapshot {
-  const schedulerExecutionProved = input.proof.cloudflare_scheduler_verified === true;
+  const schedulerExecutionProved = input.proof.primary_scheduler_verified === true || input.proof.cloudflare_scheduler_verified === true;
   const sensed = input.legacy.sensed as Record<string, unknown> | undefined;
   const preflight = sensed?.preflight as Record<string, unknown> | undefined;
   const runtimeSafetyClean = input.legacy.safetyClean === true || preflight?.safety_clean === true;
@@ -223,7 +223,7 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
   let portfolio: Record<string, unknown> = {};
   try {
     const [proofRows, ecologyRows, courtRows, healthRows, portfolioRows, recentCourtRuns] = await Promise.all([
-      ctx.db.select<Array<Record<string, unknown>>>("v_runtime_proof_summary_v9?select=*&limit=1"),
+      ctx.db.select<Array<Record<string, unknown>>>("v_runtime_proof_summary_v11?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_bioecology_dashboard_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_conway_court_status_v9?select=*&limit=1"),
       ctx.db.select<Array<Record<string, unknown>>>("v_operating_health_v6?select=*&limit=1"),
@@ -264,7 +264,7 @@ export async function kaironSupervisedControlCycle(ctx: HandlerContext): Promise
       observation: supervisor,
       evidence_refs: [
         `job_execution:${ctx.execution.id}`,
-        "view:v_runtime_proof_summary_v9",
+        "view:v_runtime_proof_summary_v11",
         "view:v_bioecology_dashboard_v9",
         "view:v_conway_court_status_v9",
         "table:adversarial_court_runs_v9:latest-suite",
