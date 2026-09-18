@@ -1,16 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "crons": [
-    {
-      "path": "/api/tick",
-      "schedule": "17 3 * * *"
-    }
-  ],
+  "version": 2,
   "functions": {
-    "api/tick.ts": { "maxDuration": 60 },
-    "api/health.ts": { "maxDuration": 15 },
-    "api/readiness.ts": { "maxDuration": 20 },
-    "api/owner-decisions.ts": { "maxDuration": 20 },
-    "api/release-status.ts": { "maxDuration": 20 }
-  }
+    "api/*.ts": { "maxDuration": 300 }
+  },
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "no-referrer" }
+      ]
+    }
+  ]
 }
