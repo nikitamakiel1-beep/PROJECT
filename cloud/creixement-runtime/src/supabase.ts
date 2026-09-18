@@ -14,9 +14,9 @@ export function supabaseAuthHeaders(apiKey: string): Record<string, string> {
 function normalizedRelayUrl(env: RuntimeEnv): string | null {
   const explicit = env.databaseRelayUrl?.trim().replace(/\/$/, "") || null;
   if (explicit) return explicit;
-  // Cloudflare's outer entry wrapper also rewrites SUPABASE_URL to the relay before
-  // delegating bearer-protected HTTP endpoints to the legacy worker. Recognize only
-  // the exact managed relay path so ordinary Supabase URLs can never be mistaken for it.
+  // Compatibility: some older wrappers rewrote SUPABASE_URL to the relay. Recognize
+  // only the exact managed relay path so ordinary Supabase URLs are never mistaken
+  // for the authenticated server relay. V11 normally uses databaseRelayUrl explicitly.
   try {
     const candidate = new URL(env.supabaseUrl);
     if (candidate.protocol === "https:" && candidate.pathname.replace(/\/$/, "").endsWith("/api/runtime-db")) {
